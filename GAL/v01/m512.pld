@@ -1,0 +1,57 @@
+PartNo   00 ;
+Date     30-10-2021 ;
+Revision 01 ;
+Designer Alexander ;
+Company  No ;
+Assembly None ;
+Location DK ;
+Device   p22v10 ;
+
+
+Pin 1  =  A18;
+Pin 2  =  A17;
+Pin 3  =  A16;
+Pin 4  =  A15;
+Pin 5  =  A14;
+Pin 6  =  A13;
+Pin 7  =  A12;
+Pin 8  =  A11;
+Pin 9  =  A10;
+Pin 10 =  A9;
+Pin 11 =  A8;
+/*
+ * Outputs:  define outputs - all are simple combinatorial
+ */
+Pin 23 = RAM0_CS;
+Pin 22 = IO1_CS;
+Pin 21 = IO2_CS;
+Pin 20 = IO3_CS;
+Pin 19 = IO4_CS;
+Pin 18 = ROM_CS;
+Pin 17 = RAMW_CS;
+
+/*
+ * Local variables
+ */
+
+FIELD Address = [A18..A8];
+
+/*
+ * Logic:
+ */
+
+RAM         = Address:[000000..00AFFF];
+IO1         = Address:[00B000..00B1FF];
+IO2         = Address:[00B200..00B3FF];
+IO3         = Address:[00B400..00B4FF];
+IO4         = Address:[00B600..00B7FF];
+ROM         = Address:[00C000..00FFFF];
+RAMW        = Address:[010000..FFFFFF];
+
+!RAM0_CS = RAM;
+!IO1_CS  = IO1;
+!IO2_CS  = IO2;
+!IO3_CS  = IO3;
+!IO4_CS  = IO4;
+!ROM_CS  = ROM;
+!RAMW_CS = RAMW;Name     m512 ;
