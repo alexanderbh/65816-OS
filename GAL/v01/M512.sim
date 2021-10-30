@@ -14,8 +14,7 @@ PIN  22 =  IO1_CS
 PIN  21 =  IO2_CS 
 PIN  20 =  IO3_CS 
 PIN  19 =  IO4_CS 
-PIN  23 =  RAM0_CS 
-PIN  17 =  RAMW_CS 
+PIN  23 =  RAM_CS 
 PIN  18 =  ROM_CS 
 %END
 
@@ -53,11 +52,6 @@ RAM =>
   # !A15 & !A16 & !A17 & !A18
   # !A13 & !A14 & A15 & !A16 & !A17 & !A18
 
-!RAM0_CS =>
-    !A12 & A13 & !A14 & A15 & !A16 & !A17 & !A18
-  # !A15 & !A16 & !A17 & !A18
-  # !A13 & !A14 & A15 & !A16 & !A17 & !A18
-
 RAMW =>
     A16 & !A18
   # !A16 & A17
@@ -65,12 +59,12 @@ RAMW =>
   # A16 & A17 & A18
   # !A16 & !A17 & !A18
 
-!RAMW_CS =>
-    A16 & !A18
-  # !A16 & A17
+!RAM_CS =>
+    A16 & A17 & A18
   # !A17 & A18
-  # A16 & A17 & A18
   # !A16 & !A17 & !A18
+  # A16 & !A18
+  # !A16 & A17
 
 ROM =>
     A14 & A15 & !A16 & !A17 & !A18
@@ -90,10 +84,7 @@ IO3_CS.oe  =>
 IO4_CS.oe  =>
     1 
 
-RAM0_CS.oe  =>
-    1 
-
-RAMW_CS.oe  =>
+RAM_CS.oe  =>
     1 
 
 ROM_CS.oe  =>

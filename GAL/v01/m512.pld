@@ -22,13 +22,12 @@ Pin 11 =  A8;
 /*
  * Outputs:  define outputs - all are simple combinatorial
  */
-Pin 23 = RAM0_CS;
+Pin 23 = RAM_CS;
 Pin 22 = IO1_CS;
 Pin 21 = IO2_CS;
 Pin 20 = IO3_CS;
 Pin 19 = IO4_CS;
 Pin 18 = ROM_CS;
-Pin 17 = RAMW_CS;
 
 /*
  * Local variables
@@ -48,10 +47,10 @@ IO4         = Address:[00B600..00B7FF];
 ROM         = Address:[00C000..00FFFF];
 RAMW        = Address:[010000..FFFFFF];
 
-!RAM0_CS = RAM;
+!RAM_CS = RAM # RAMW;
 !IO1_CS  = IO1;
 !IO2_CS  = IO2;
 !IO3_CS  = IO3;
 !IO4_CS  = IO4;
 !ROM_CS  = ROM;
-!RAMW_CS = RAMW;Name     m512 ;
+Name     m512 ;
