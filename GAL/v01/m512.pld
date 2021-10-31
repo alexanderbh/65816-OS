@@ -33,7 +33,7 @@ Pin 18 = ROM_CS;
  * Local variables
  */
 
-FIELD Address = [A18..A8];
+FIELD Address = [A18..A1];
 
 /*
  * Logic:
