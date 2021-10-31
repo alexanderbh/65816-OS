@@ -12,6 +12,7 @@ VIA1A_DIRECTION = __VIA1_START__ + 3
 
 .code
 
+
 ResetVector:
 
     LDA #$FF
@@ -20,23 +21,28 @@ ResetVector:
     LDA #$AA
     STA VIA1A
 
-    NOP
-    NOP
-    NOP
-    NOP
-    NOP
-    NOP
-    NOP
-    NOP
-    NOP
-    NOP
-    NOP
-    NOP
+    JSR LongDelay
+
 
     LDA #$55
     STA VIA1A
 
+    JSR LongDelay
+
     JMP ResetVector
 
+
+LongDelay:
+    ldx #$FF
+LongDelayLoop1:
+    ldy #$FF
+LongDelayLoop2:
+    dey
+    bne LongDelayLoop2
+    dex
+    bne LongDelayLoop1
+    rts
+
+    
 .SEGMENT "VECTORS"
     .word ResetVector
