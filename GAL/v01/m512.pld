@@ -6,6 +6,7 @@ Company  No ;
 Assembly None ;
 Location DK ;
 Device   p22v10 ;
+Name     m512 ;
 
 
 Pin 1  =  A18;
@@ -33,19 +34,19 @@ Pin 18 = ROM_CS;
  * Local variables
  */
 
-FIELD Address = [A18..A1];
+FIELD Address = [A24..A1];
 
 /*
  * Logic:
  */
 
-RAM         = Address:[000000..00AFFF];
-IO1         = Address:[00B000..00B1FF];
-IO2         = Address:[00B200..00B3FF];
-IO3         = Address:[00B400..00B4FF];
-IO4         = Address:[00B600..00B7FF];
-ROM         = Address:[00C000..00FFFF];
-RAMW        = Address:[010000..FFFFFF];
+RAM         = Address:[x000xx..x0AFxx];
+IO1         = Address:[x0B0xx..x0B1xx];
+IO2         = Address:[x0B2xx..x0B3xx];
+IO3         = Address:[x0B4xx..x0B4xx];
+IO4         = Address:[x0B6xx..x0B7xx];
+ROM         = Address:[x0C0xx..x0FFxx];
+RAMW        = Address:[x100xx..xFFFxx];
 
 !RAM_CS = RAM # RAMW;
 !IO1_CS  = IO1;
@@ -53,4 +54,3 @@ RAMW        = Address:[010000..FFFFFF];
 !IO3_CS  = IO3;
 !IO4_CS  = IO4;
 !ROM_CS  = ROM;
-Name     m512 ;
