@@ -34,23 +34,24 @@ Pin 18 = ROM_CS;
  * Local variables
  */
 
-FIELD Address = [A24..A1];
+FIELD Address = [A15..A8];
 
 /*
  * Logic:
  */
 
-RAM         = Address:[x000xx..x0AFxx];
-IO1         = Address:[x0B0xx..x0B1xx];
-IO2         = Address:[x0B2xx..x0B3xx];
-IO3         = Address:[x0B4xx..x0B4xx];
-IO4         = Address:[x0B6xx..x0B7xx];
-ROM         = Address:[x0C0xx..x0FFxx];
-RAMW        = Address:[x100xx..xFFFxx];
+RAM         = Address:[0000..AFFF];
+IO1         = Address:[B000..B1FF];
+IO2         = Address:[B200..B3FF];
+IO3         = Address:[B400..B4FF];
+IO4         = Address:[B600..B7FF];
+ROM         = Address:[C000..FFFF];
 
-!RAM_CS = RAM # RAMW;
-!IO1_CS  = IO1;
-!IO2_CS  = IO2;
-!IO3_CS  = IO3;
-!IO4_CS  = IO4;
-!ROM_CS  = ROM;
+RAMW        = A16 # A17 # A18;
+
+!RAM_CS =  RAM # RAMW;
+!IO1_CS  = IO1 & !RAMW;
+!IO2_CS  = IO2 & !RAMW;
+!IO3_CS  = IO3 & !RAMW;
+!IO4_CS  = IO4 & !RAMW;
+!ROM_CS  = ROM & !RAMW;
