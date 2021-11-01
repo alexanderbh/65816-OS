@@ -22,11 +22,15 @@ ResetVector:
     STA VIA1A
 
     JSR LongDelay
+    JSR LongDelay
+    JSR LongDelay
 
 
     LDA #$55
     STA VIA1A
 
+    JSR LongDelay
+    JSR LongDelay
     JSR LongDelay
 
     JMP ResetVector
@@ -43,6 +47,6 @@ LongDelayLoop2:
     bne LongDelayLoop1
     rts
 
-    
+
 .SEGMENT "VECTORS"
     .word ResetVector
