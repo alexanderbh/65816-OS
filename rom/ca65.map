@@ -1,7 +1,9 @@
 Modules list:
 -------------
 main.o:
-    CODE              Offs=000000  Size=00002F  Align=00001  Fill=0000
+    CODE              Offs=000000  Size=0004D6  Align=00001  Fill=0000
+    RODATA            Offs=000000  Size=000081  Align=00001  Fill=0000
+    ZEROPAGE          Offs=000000  Size=000007  Align=00001  Fill=0000
     VECTORS           Offs=000000  Size=000002  Align=00001  Fill=0000
 
 
@@ -9,22 +11,28 @@ Segment list:
 -------------
 Name                   Start     End    Size  Align
 ----------------------------------------------------
-CODE                  00C000  00C02E  00002F  00001
+ZEROPAGE              000000  000006  000007  00001
+CODE                  00C000  00C4D5  0004D6  00001
+RODATA                00F000  00F080  000081  00001
 VECTORS               00FFFC  00FFFD  000002  00001
 
 
 Exports list by name:
 ---------------------
-__VIA1_START__            00B000 RLA    
+__VIA1_START__            00B000 RLA    __VIA2_START__            00B100 RLA    
+
 
 
 Exports list by value:
 ----------------------
-__VIA1_START__            00B000 RLA    
+__VIA1_START__            00B000 RLA    __VIA2_START__            00B100 RLA    
+
 
 
 Imports list:
 -------------
 __VIA1_START__ ([linker generated]):
-    main.o                    main.asm(3)
+    main.o                    src/bios/via.inc(2)
+__VIA2_START__ ([linker generated]):
+    main.o                    src/bios/via.inc(3)
 
