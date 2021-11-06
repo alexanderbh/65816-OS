@@ -21,6 +21,7 @@
 ;
 .macro  longa                ;16 bit accumulator & memory
         rep #$20
+.A16
 .endmacro
 ;
 .macro  longr                ;16 bit all registers
@@ -35,6 +36,7 @@
 ;
 .macro  shorta                ;8 bit accumulator & memory
         sep #$20
+.A8
 .endmacro
 ;
 .macro  shorti                ;8 bit index registers

@@ -5,7 +5,7 @@
     STA string_ptr         ;store high byte of message address
     LDA #>str_addr
     STA string_ptr+1       ;store low byte of message address
-    JSR RA8875_WriteString
+    JSL RA8875_WriteString
     PLA
 .endmacro
 

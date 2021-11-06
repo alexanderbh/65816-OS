@@ -11,6 +11,23 @@ InitBIOS:
     JSR InitSPI
     JSR InitRA8875
 
+    LDA #%01101111
+    jsr RA8875_SetForegroundColor
+
+    write welcome_logo1
+    write welcome_logo2
+    write welcome_logo3
+    write welcome_logo4
+    write welcome_logo5
+    write welcome_logo6
+    write welcome_logo7
+
+    lda #$0A
+    jsl RA8875_WriteChar
+
+    LDA #%11111111
+    jsr RA8875_SetForegroundColor
+
     JSR RamTestRun
     
 ; switch out of emulation mode
@@ -25,6 +42,10 @@ InitBIOS:
 
     write bios_init
     write ok_string
+
+
+    LDA #%11111111
+    jsr RA8875_SetForegroundColor
 
     RTS
 

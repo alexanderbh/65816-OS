@@ -232,6 +232,9 @@ InitRA8875:
 
     JSR RA8875_SetTextCursor
 
+    LDA #$FF
+    JSR RA8875_SetForegroundColor
+
     RTS
 
 RA8875_CursorBlink:
@@ -385,7 +388,7 @@ RA8875_WriteStringNext:
 RA8875_WriteStringEnd:
     PLY
     PLA
-    RTS
+    RTL
 
 RA8875_WriteChar:
     PHA
@@ -398,19 +401,24 @@ RA8875_WriteChar:
     JSR RA8875_SingleChar           ; handle single character
 RA8875_WriteCharEnd:
     PLA
-    RTS
+    RTL
 
 ; Handle a single char that can be line feed or carraige return
 RA8875_SingleChar:
-    CMP #$0A                        ; Compare to 0x0A   line feed
-    BNE @check_1                    ; != 0x0A
+    CMP #$0A                         ; Compare to 0x0A   line feed
+    BNE @check_1                     ; != 0x0A
     JSR RA8875_ControlLineFeed       ; Handle as line feed
-    JMP skip_write                  ; Do not print
+    JMP skip_write                   ; Do not print
 @check_1:
-    CMP #$0D                        ; Compare to 0D   carriage return
-    BNE RA8875_WriteStringChar      ; != 0x0D
+    CMP #$0D                         ; Compare to 0D   carriage return
+    BNE @check_2                      ; != 0x0D
     JSR RA8875_ControlCarriageReturn ; handle as carriage return
-    JMP skip_write                  ; Do not print
+    JMP skip_write                   ; Do not print
+@check_2:
+    CMP #$1B                         ; Compare to 1B   escape
+    BNE RA8875_WriteStringChar       ; != 0x1B
+    JSR RA8875_ControlEscape         ; handle as escape sequence
+    JMP skip_write                   ; Do not print
 
 RA8875_WriteStringChar:
     JSR RA8875WriteData
@@ -442,7 +450,18 @@ RA8875_ControlCarriageReturn:
     JSR RA8875WriteCommand          ; write to memory write register
     RTS
 
+RA8875_ControlEscape:
+    INY                             ; Look at next character
+    LDA (string_ptr),Y
+    BEQ RA8875_WriteStringEnd
+    CMP #$5B                        ; CSI look for [
+    BNE SkipControl
+    INY                             ; Next char
+    LDA (string_ptr),Y
+    ; Read digit at a time and make into base 10 number? how
 
+SkipControl:
+    RTS
 
 RA8875_WriteNumber:
     LDX #$FF
@@ -466,7 +485,7 @@ RA8875_WriteDigit:
     PHA
     TXA                             ; Save A pass digit to A
     ORA #$30                        ; ASCII 0
-    JSR RA8875_WriteChar            ; Convert to character and print it
+    JSL RA8875_WriteChar            ; Convert to character and print it
     PLA
     RTS                             ; Restore A and return
 
@@ -477,7 +496,7 @@ RA8875_WriteHex:
     LSR
     LSR                     ; MSD to LSD position.
     LSR
-    JSR RA8875_WriteHex1    ; Output hex digit.
+    JSL RA8875_WriteHex1    ; Output hex digit.
     PLA                     ; Restore A.
 RA8875_WriteHex1:
     AND #$0F                ; Mask LSD for hex print.
@@ -486,5 +505,5 @@ RA8875_WriteHex1:
     BCC RA8875_WriteHex2    ; Yes, output it.
     ADC #$06                ; Add offset for letter.
 RA8875_WriteHex2:
-    JSR RA8875_WriteChar
-    RTS                     ; Return.
+    JSL RA8875_WriteChar
+    RTL                    ; Return.
