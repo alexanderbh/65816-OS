@@ -12,9 +12,9 @@ DumpRegs:
     jsl RA8875_WriteChar
     lda #' '
     jsl RA8875_WriteChar
-    lda 5,s           ;get mode
-    jsl RA8875_WriteHex
     lda 6,s           ;get mode
+    jsl RA8875_WriteHex
+    lda 5,s           ;get mode
     jsl RA8875_WriteHex
     lda #$0A
     jsl RA8875_WriteChar
@@ -26,9 +26,9 @@ DumpRegs:
     jsl RA8875_WriteChar
     lda #' '
     jsl RA8875_WriteChar
-    lda 1,s           ;get mode
-    jsl RA8875_WriteHex
     lda 2,s           ;get mode
+    jsl RA8875_WriteHex
+    lda 1,s           ;get mode
     jsl RA8875_WriteHex
     lda #$0A
     jsl RA8875_WriteChar
@@ -39,9 +39,9 @@ DumpRegs:
     jsl RA8875_WriteChar
     lda #' '
     jsl RA8875_WriteChar
-    lda 3,s           ;get mode
-    jsl RA8875_WriteHex
     lda 4,s           ;get mode
+    jsl RA8875_WriteHex
+    lda 3,s           ;get mode
     jsl RA8875_WriteHex
     lda #$0A
     jsl RA8875_WriteChar

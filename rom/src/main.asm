@@ -39,7 +39,6 @@ ResetVector:
     ldy #$5678
     lda #$9ABC
     jsr DumpRegs
-    pla
 
     longr
     ldx #$EFEF
