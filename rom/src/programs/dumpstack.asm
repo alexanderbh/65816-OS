@@ -1,8 +1,4 @@
 DumpStack:
-    longr
-    pha
-    phx
-    phy
 
     shortr
 
@@ -57,24 +53,42 @@ DumpStack:
     lda 12,s           ;get mode
     jsl RA8875_WriteHex
 
+    lda #' '
+    jsl RA8875_WriteChar
+    
 
-    longr       ;select 16 bit registers
-    clc
-    tsc                   ;get SP (currently $CFEF)
-    adc #s_regsf  ;add bytes in register & library stack frames
-    tax
+    lda 13,s           ;get mode
+    jsl RA8875_WriteHex
+    lda 14,s           ;get mode
+    jsl RA8875_WriteHex
 
-    adc #1        ;add bytes in user stack frame
-    tay 
+    lda #' '
+    jsl RA8875_WriteChar
+    
 
-    lda #s_regsf-1
-    mvp 0,0
+    lda 15,s           ;get mode
+    jsl RA8875_WriteHex
+    lda 16,s           ;get mode
+    jsl RA8875_WriteHex
 
-    tya
-    tcs
 
-    ply
-    plx
-    pla
+    lda #' '
+    jsl RA8875_WriteChar
+    
+
+    lda 17,s           ;get mode
+    jsl RA8875_WriteHex
+    lda 18,s           ;get mode
+    jsl RA8875_WriteHex
+
+    lda #' '
+    jsl RA8875_WriteChar
+    
+
+    lda 19,s           ;get mode
+    jsl RA8875_WriteHex
+    lda 20,s           ;get mode
+    jsl RA8875_WriteHex
+    
 
     rts

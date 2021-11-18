@@ -507,3 +507,12 @@ RA8875_WriteHex1:
 RA8875_WriteHex2:
     JSL RA8875_WriteChar
     RTL                    ; Return.
+
+
+RA8875_WriteHex16:
+    shortr
+    xba                     ; switch high and low A
+    jsl RA8875_WriteHex     ; print first byte
+    xba                     ; switch high and low A
+    jmp RA8875_WriteHex     ; print second byte
+    

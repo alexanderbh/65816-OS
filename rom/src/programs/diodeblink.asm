@@ -6,6 +6,7 @@ running_diode_2: .asciiz "\r$AA"
 .code
 
 DiodeBlinkExec:
+    shortr
     lda #$0A
     jsl RA8875_WriteChar
 DiodeBlinkLoop:
@@ -16,9 +17,9 @@ DiodeBlinkLoop:
     LDA #$AA
     STA VIA1A
 
-    JSR LongDelayDiode
-    JSR LongDelayDiode
-    JSR LongDelayDiode
+    jsr LongDelayDiode
+    jsr LongDelayDiode
+    jsr LongDelayDiode
 
     write running_diode_2
 
@@ -26,14 +27,15 @@ DiodeBlinkLoop:
     LDA #$55
     STA VIA1A
 
-    JSR LongDelayDiode
-    JSR LongDelayDiode
-    JSR LongDelayDiode
+    jsr LongDelayDiode
+    jsr LongDelayDiode
+    jsr LongDelayDiode
 
     JML DiodeBlinkLoop
 
 
 LongDelayDiode:
+    shortr
     ldx #$FF
 LongDelayDiodeLoop1:
     ldy #$FF
