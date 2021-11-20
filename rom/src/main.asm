@@ -12,7 +12,7 @@
 .RODATA
 
 test_string: .asciiz "\n---\n"
-testlen_string: .asciiz "432abc"
+testlen_string: .asciiz "864abcdefgh78"
 space: .asciiz " "
 
 .code
@@ -38,42 +38,25 @@ ResetVector:
     shortr
     write test_string
 
-    longr
-    ldx #$1234
-    ldy #$5678
-    lda #$9ABC
-    jsr DumpRegs
+    ; longr
+    ; ldx #$1234
+    ; ldy #$5678
+    ; lda #$9ABC
+    ; jsr DumpRegs
 
-    longr
-    ldx #$EFEF
-    ldy #$4242
-    lda #$ABCD
-    pha
-    lda #$0123
-    pha
-    lda #$CDEF
-    jsr DumpStack
+    ; longr
+    ; ldx #$EFEF
+    ; ldy #$4242
+    ; lda #$ABCD
+    ; pha
+    ; lda #$0123
+    ; pha
+    ; lda #$CDEF
+    ; jsr DumpStack
 
-    longr
-    pla
+    ; longr
+    ; pla
 
-
-; Readnum
-    shortr
-    write test_string
-    longr
-
-    pea testlen_string				; Add parameter to stack
-
-    lda #Std_ReadNum
-    jsl StdLib						; Call stdlib
-
-    longr
-	plx								; Clean up stack
-
-    ; Debug write result
-    shortr
-    jsl RA8875_WriteHex16
 
 ; print break
     shortr
@@ -87,15 +70,36 @@ ResetVector:
     lda #Std_StrLen
     jsl StdLib						; Call stdlib
 
-    longr
 	plx								; Clean up stack
     
-    shortr
-    jsl RA8875_WriteHex				; Debug write result
+    jsl RA8875_WriteHex16			; Debug write result
 
 ; print break
     shortr
     write test_string
+
+
+
+
+; Readnum
+    longr
+
+    pea testlen_string				; Add parameter to stack
+
+
+    lda #Std_ReadNum
+    jsl StdLib						; Call stdlib
+
+	plx								; Clean up stack
+
+    jsl RA8875_WriteHex16			; Debug write result
+
+; print break
+    shortr
+    write test_string
+
+
+
 
 ; Blink Diode
     jsl DiodeBlinkExec

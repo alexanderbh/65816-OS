@@ -499,6 +499,7 @@ RA8875_WriteHex:
     JSL RA8875_WriteHex1    ; Output hex digit.
     PLA                     ; Restore A.
 RA8875_WriteHex1:
+    PHA
     AND #$0F                ; Mask LSD for hex print.
     ORA #$30                ; Add "0".
     CMP #$3A                ; Digit?
@@ -506,6 +507,7 @@ RA8875_WriteHex1:
     ADC #$06                ; Add offset for letter.
 RA8875_WriteHex2:
     JSL RA8875_WriteChar
+    PLA
     RTL                    ; Return.
 
 
