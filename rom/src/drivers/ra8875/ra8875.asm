@@ -373,6 +373,7 @@ RA8875_SetForegroundColor:
 RA8875_WriteString:
     PHA                            ;save A, Y to stack
     PHY
+    PHX
     LDY #$00
     LDA #RA8875_MRWC
     JSR RA8875WriteCommand          ; write to memory write register
@@ -386,6 +387,7 @@ RA8875_WriteStringNext:
     INY
     BNE RA8875_WriteString0
 RA8875_WriteStringEnd:
+    PLX
     PLY
     PLA
     RTL
@@ -499,7 +501,9 @@ RA8875_WriteHex:
     JSL RA8875_WriteHex1    ; Output hex digit.
     PLA                     ; Restore A.
 RA8875_WriteHex1:
+    PHX
     PHA
+    CLC
     AND #$0F                ; Mask LSD for hex print.
     ORA #$30                ; Add "0".
     CMP #$3A                ; Digit?
@@ -508,6 +512,7 @@ RA8875_WriteHex1:
 RA8875_WriteHex2:
     JSL RA8875_WriteChar
     PLA
+    PLX
     RTL                    ; Return.
 
 

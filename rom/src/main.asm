@@ -12,7 +12,7 @@
 .RODATA
 
 test_string: .asciiz "\n---\n"
-testlen_string: .asciiz "864abcdefgh78"
+testlen_string: .asciiz "135abcdefgh78"
 space: .asciiz " "
 
 .code
@@ -35,8 +35,8 @@ ResetVector:
     jsr InitKernel                  ; Kernel Init
 
     jsr Dummy
-    shortr
-    write test_string
+    ;shortr
+    ;write test_string
 
     ; longr
     ; ldx #$1234
@@ -56,7 +56,6 @@ ResetVector:
 
     ; longr
     ; pla
-
 
 ; print break
     shortr
