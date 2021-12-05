@@ -2,17 +2,35 @@
 .include "via.inc"                          ; include VIA labels
 .include "../drivers/spi/spi.asm"           ; include SPI code
 .include "../drivers/ra8875/ra8875.asm"     ; include Driver for RA8875
+.include "../drivers/ra8875/ra8875_api.asm" ; include API for RA8875
 
 .include "ramtest.asm"
 .include "ramtest_wide.asm"
 
-
+.A8
+.I8
 InitBIOS:
     JSR InitSPI
     JSR InitRA8875
 
+  
+; switch out of emulation mode
+    clc
+    xce
+
+    longr
+    pea test_bios
+    jsl RA8875_WriteString16
+    pla
+
+    shortr
+
     LDA #%01101111
     jsr RA8875_SetForegroundColor
+
+    longr
+
+    write test_bios
 
     write welcome_logo1
     write welcome_logo2
@@ -22,33 +40,32 @@ InitBIOS:
     write welcome_logo6
     write welcome_logo7
 
+    shortr
     lda #$0A
     jsl RA8875_WriteChar
 
     LDA #%11111111
     jsr RA8875_SetForegroundColor
+    longr
 
-    JSR RamTestRun
-    
-; switch out of emulation mode
-    clc
-    xce
+    JSL RamTestRun
+
+
     
     jsr RamTestWideRegistersRun
     jsr RamTestWideRun
 
+    shortr
     LDA #%00011100
     jsr RA8875_SetForegroundColor
+    longr
 
     write bios_init
     write ok_string
 
-
+    shortr
     LDA #%11111111
     jsr RA8875_SetForegroundColor
-
+    longr
+    
     RTS
-
-BiosFail:
-    write fail_string
-    rts

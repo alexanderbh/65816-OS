@@ -1,3 +1,5 @@
+.A8
+.I8
 SPI_VIA = VIA1B
 
 ; prepares spi VIA PORT A for input output

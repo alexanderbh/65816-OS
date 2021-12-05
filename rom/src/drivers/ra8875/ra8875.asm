@@ -1,3 +1,5 @@
+.A8
+.I8
     .include "ra8875.inc"
 
 ; Write Data  destroy A
@@ -370,61 +372,27 @@ RA8875_SetForegroundColor:
 
     RTS
 
-RA8875_WriteString:
-    PHA                            ;save A, Y to stack
-    PHY
-    PHX
-    LDY #$00
-    LDA #RA8875_MRWC
-    JSR RA8875WriteCommand          ; write to memory write register
-RA8875_WriteString0:
-    LDA (string_ptr),Y
-    BEQ RA8875_WriteStringEnd       ; Is char 0 then end write
-
-    JSR RA8875_SingleChar           ; Handle single character
-
-RA8875_WriteStringNext:
-    INY
-    BNE RA8875_WriteString0
-RA8875_WriteStringEnd:
-    PLX
-    PLY
-    PLA
-    RTL
-
-RA8875_WriteChar:
-    PHA
-    BEQ RA8875_WriteCharEnd         ; Is char 0 then end write
-    PHA
-    LDA #RA8875_MRWC
-    JSR RA8875WriteCommand
-
-    PLA
-    JSR RA8875_SingleChar           ; handle single character
-RA8875_WriteCharEnd:
-    PLA
-    RTL
-
-; Handle a single char that can be line feed or carraige return
+; Handle a single char
 RA8875_SingleChar:
-    CMP #$0A                         ; Compare to 0x0A   line feed
-    BNE @check_1                     ; != 0x0A
-    JSR RA8875_ControlLineFeed       ; Handle as line feed
-    JMP skip_write                   ; Do not print
+    CMP #$20                        ; $20 or greater
+    BCS RA8875_WriteStringChar      ; then print character
+    CMP #$0A                        ; Compare to 0x0A   line feed
+    BNE @check_1                    ; != 0x0A
+    JSR RA8875_ControlLineFeed      ; Handle as line feed
+    rts                             ; Do not print
 @check_1:
     CMP #$0D                         ; Compare to 0D   carriage return
     BNE @check_2                      ; != 0x0D
     JSR RA8875_ControlCarriageReturn ; handle as carriage return
-    JMP skip_write                   ; Do not print
+    rts                             ; Do not print
 @check_2:
     CMP #$1B                         ; Compare to 1B   escape
     BNE RA8875_WriteStringChar       ; != 0x1B
     JSR RA8875_ControlEscape         ; handle as escape sequence
-    JMP skip_write                   ; Do not print
+    rts                             ; Do not print
 
 RA8875_WriteStringChar:
     JSR RA8875WriteData
-skip_write:
     RTS
 
 RA8875_ControlLineFeed:
@@ -454,72 +422,13 @@ RA8875_ControlCarriageReturn:
 
 RA8875_ControlEscape:
     INY                             ; Look at next character
-    LDA (string_ptr),Y
+    LDA (7,s),Y
     BEQ RA8875_WriteStringEnd
     CMP #$5B                        ; CSI look for [
     BNE SkipControl
     INY                             ; Next char
-    LDA (string_ptr),Y
+    LDA (7,s),Y
     ; Read digit at a time and make into base 10 number? how
 
 SkipControl:
     RTS
-
-RA8875_WriteNumber:
-    LDX #$FF
-    SEC                             ; Prepare for subtraction
-RA8875_WriteNumber100:
-    INX
-    SBC #100
-    BCS RA8875_WriteNumber100       ; Count how many 100s
-    ADC #100
-    JSR RA8875_WriteDigit           ; Print the 100s
-    LDX #$FF
-    SEC                             ; Prepare for subtraction
-RA8875_WriteNumber10:
-    INX
-    SBC #10
-    BCS RA8875_WriteNumber10         ; Count how many 10s
-    ADC #10
-    JSR RA8875_WriteDigit            ; Print the 10s
-    TAX                              ; Pass 1s into X
-RA8875_WriteDigit:
-    PHA
-    TXA                             ; Save A pass digit to A
-    ORA #$30                        ; ASCII 0
-    JSL RA8875_WriteChar            ; Convert to character and print it
-    PLA
-    RTS                             ; Restore A and return
-
-
-RA8875_WriteHex:
-    PHA                     ; Save A for LSD.
-    LSR
-    LSR
-    LSR                     ; MSD to LSD position.
-    LSR
-    JSL RA8875_WriteHex1    ; Output hex digit.
-    PLA                     ; Restore A.
-RA8875_WriteHex1:
-    PHX
-    PHA
-    CLC
-    AND #$0F                ; Mask LSD for hex print.
-    ORA #$30                ; Add "0".
-    CMP #$3A                ; Digit?
-    BCC RA8875_WriteHex2    ; Yes, output it.
-    ADC #$06                ; Add offset for letter.
-RA8875_WriteHex2:
-    JSL RA8875_WriteChar
-    PLA
-    PLX
-    RTL                    ; Return.
-
-
-RA8875_WriteHex16:
-    shortr
-    xba                     ; switch high and low A
-    jsl RA8875_WriteHex     ; print first byte
-    xba                     ; switch high and low A
-    jmp RA8875_WriteHex     ; print second byte
-    

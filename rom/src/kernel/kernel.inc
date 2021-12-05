@@ -1,5 +1,6 @@
-
-.macro write str_addr
+.A8
+.I8
+.macro write8 str_addr
     PHA
     LDA #<str_addr
     STA string_ptr         ;store high byte of message address
@@ -9,7 +10,16 @@
     PLA
 .endmacro
 
+.A16
+.I16
+.macro write str_addr
+    pea str_addr
+    JSL RA8875_WriteString16
+    PLA
+.endmacro
 
+.A8
+.I8
 .macro write_char char
     PHA
     LDA char

@@ -2,6 +2,7 @@
 
 bios_init: .asciiz "BIOS Initialized"
 ok_string: .asciiz " - OK\n"
+test_bios: .asciiz "INIT...\n"
 fail_string: .asciiz " - FAIL\n"
 
 welcome_logo1: .asciiz " ______   ______   ______     ____     ______       ______   ______\n"

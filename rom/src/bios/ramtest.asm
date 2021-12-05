@@ -4,9 +4,12 @@ ram_test_start: .asciiz "Running ram test"
 
 
 .code
-
+.A16
+.I16
 RamTestRun:
     write ram_test_start
+
+    shortr
 ; Single cell at $0300
     LDA #$42
     STA $0300
@@ -43,12 +46,14 @@ loop0020:
 
     inx                   ;we done?
     bne loop0010          ;no, do next
-
+    
+    longr
     write ok_string
 
-    RTS
+    RTL
 
 
 RamTestFail:
+    longr
     write fail_string
-    RTS
+    RTL

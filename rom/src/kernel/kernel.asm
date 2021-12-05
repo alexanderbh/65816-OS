@@ -1,4 +1,5 @@
-
+.A16
+.I16
 InitKernel:
     write init_kernel_done
     RTS
@@ -6,6 +7,8 @@ InitKernel:
 ; Long Delay
 ;;;
 
+.A8
+.I8
 LongDelay:
     ldx #$FF
 LongDelayLoop1:
@@ -20,7 +23,8 @@ LongDelayLoop2:
 ;;;
 ; Delay
 ;;;
-
+.A8
+.I8
 Delay:
     ldx #$FF
 DelayLoop1:
@@ -35,6 +39,8 @@ DelayLoop2:
 ;;;
 ; Short Delay
 ;;;
+.A8
+.I8
 DelayShort:	ldx #$aa
 DelayShortLoop1:
 	dex

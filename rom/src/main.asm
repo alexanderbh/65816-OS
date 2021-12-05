@@ -13,7 +13,6 @@
 
 test_string: .asciiz "\n---\n"
 testlen_string: .asciiz "1357abcdefgh78"
-space: .asciiz " "
 
 .code
 .include "macros/macros.inc"
@@ -32,6 +31,7 @@ space: .asciiz " "
 
 ResetVector:
     jsr InitBIOS                    ; Entry point for boot
+longr
     jsr InitKernel                  ; Kernel Init
 
     jsr Dummy
@@ -58,11 +58,11 @@ ResetVector:
     ; pla
 
 ; print break
-    shortr
+
     write test_string
 
 ; StrLen
-    longr
+
     
     pea testlen_string				; Add parameter to stack
 
@@ -74,14 +74,14 @@ ResetVector:
     jsl RA8875_WriteHex16			; Debug write result
 
 ; print break
-    shortr
+
     write test_string
 
 
 
 
 ; Readnum
-    longr
+
 
     pea testlen_string				; Add parameter to stack
 
@@ -94,7 +94,7 @@ ResetVector:
     jsl RA8875_WriteHex16			; Debug write result
 
 ; print break
-    shortr
+
     write test_string
 
 
