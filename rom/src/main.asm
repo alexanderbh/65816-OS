@@ -12,7 +12,7 @@
 .RODATA
 
 test_string: .asciiz "\n---\n"
-testlen_string: .asciiz "135abcdefgh78"
+testlen_string: .asciiz "1357abcdefgh78"
 space: .asciiz " "
 
 .code
