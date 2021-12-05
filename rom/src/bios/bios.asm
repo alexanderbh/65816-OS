@@ -22,15 +22,12 @@ InitBIOS:
     pea test_bios
     jsl RA8875_WriteString16
     pla
-
     shortr
 
     LDA #%01101111
     jsr RA8875_SetForegroundColor
 
     longr
-
-    write test_bios
 
     write welcome_logo1
     write welcome_logo2
@@ -67,5 +64,5 @@ InitBIOS:
     LDA #%11111111
     jsr RA8875_SetForegroundColor
     longr
-    
+
     RTS
