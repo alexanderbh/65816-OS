@@ -1,6 +1,6 @@
 .setcpu "65816"
 .P816
-.smart -
+.smart
 .feature string_escapes
 
 .SEGMENT "RAM"                      ; Trigger usage

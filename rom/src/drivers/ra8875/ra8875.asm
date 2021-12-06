@@ -334,7 +334,10 @@ RA8875_TextMode:
 
     RTS
 
+.A16
+.I16
 RA8875_SetForegroundColor:
+    shortr
     PHA
     PHA
         ; writeCommand(0x63);
@@ -369,9 +372,11 @@ RA8875_SetForegroundColor:
     lsr
 
     JSR RA8875WriteData
-
+    longr
     RTS
 
+.A8
+.I8
 ; Handle a single char
 RA8875_SingleChar:
     CMP #$20                        ; $20 or greater

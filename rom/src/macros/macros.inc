@@ -30,8 +30,9 @@
 .I16
 .endmacro
 ;
-.macro  longx              ;16 bit index registers
+.macro  longi              ;16 bit index registers
         rep #$10
+.I16
 .endmacro
 ;
 .macro  shorta                ;8 bit accumulator & memory
@@ -41,6 +42,7 @@
 ;
 .macro  shorti                ;8 bit index registers
         sep #$10
+.I8
 .endmacro
 ;
 .macro  shortr                ;8 bit all registers
@@ -49,6 +51,3 @@
 .I8
 .endmacro
 ;
-.macro  shortx                ;8 bit index registers
-        sep #$10
-.endmacro

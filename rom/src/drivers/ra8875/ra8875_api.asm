@@ -57,7 +57,21 @@ RA8875_WriteChar:
 RA8875_WriteCharEnd:
     RTL
 
-
+.A16
+.I16
+RA8875_WriteChar16:
+    BEQ RA8875_WriteChar16End         ; Is char 0 then end write
+    PHA
+    shortr
+    LDA #RA8875_MRWC
+    JSR RA8875WriteCommand
+    longr
+    PLA
+    shortr
+    JSR RA8875_SingleChar           ; handle single character
+    longr
+RA8875_WriteChar16End:
+    RTL
 
 .A8
 .I8
@@ -122,4 +136,3 @@ RA8875_WriteHex16:
     jsl RA8875_WriteHex     ; print second byte
     longr
     RTL
-    
