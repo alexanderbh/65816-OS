@@ -23,10 +23,10 @@ InitBIOS:
     jsl RA8875_WriteString16
     pla
     
-
+    shortr
     LDA #%01101111
     jsr RA8875_SetForegroundColor
-
+    longr
 
 
     write welcome_logo1
@@ -40,9 +40,10 @@ InitBIOS:
     lda #$0A
     jsl RA8875_WriteChar16
 
+    shortr
     LDA #%11111111
     jsr RA8875_SetForegroundColor
-   
+    longr
 
     JSL RamTestRun
 
@@ -51,14 +52,19 @@ InitBIOS:
     jsr RamTestWideRegistersRun
     jsr RamTestWideRun
 
+    shortr
     LDA #%00011100
     jsr RA8875_SetForegroundColor
-
+    longr
 
     write bios_init
     write ok_string
 
+    shortr
     LDA #%11111111
     jsr RA8875_SetForegroundColor
+    longr
+    
+    write ansi_string
     
     RTS

@@ -2,6 +2,10 @@
 
 bios_init: .asciiz "BIOS Initialized"
 ok_string: .asciiz " - OK\n"
+
+
+ansi_string: .byte "COLOR: ", $1B, $5B, "32mGREEN", $1B, $5B, "37m WHITE\n", $00
+
 test_bios: .asciiz "INIT...\n"
 fail_string: .asciiz " - FAIL\n"
 

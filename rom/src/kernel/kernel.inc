@@ -1,15 +1,3 @@
-.A8
-.I8
-.macro write8 str_addr
-    PHA
-    LDA #<str_addr
-    STA string_ptr         ;store high byte of message address
-    LDA #>str_addr
-    STA string_ptr+1       ;store low byte of message address
-    JSL RA8875_WriteString
-    PLA
-.endmacro
-
 .A16
 .I16
 .macro write str_addr

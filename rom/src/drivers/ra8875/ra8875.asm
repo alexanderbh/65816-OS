@@ -334,10 +334,8 @@ RA8875_TextMode:
 
     RTS
 
-.A16
-.I16
 RA8875_SetForegroundColor:
-    shortr
+    PHY
     PHA
     PHA
         ; writeCommand(0x63);
@@ -372,11 +370,9 @@ RA8875_SetForegroundColor:
     lsr
 
     JSR RA8875WriteData
-    longr
+    PLY
     RTS
 
-.A8
-.I8
 ; Handle a single char
 RA8875_SingleChar:
     CMP #$20                        ; $20 or greater
@@ -427,13 +423,40 @@ RA8875_ControlCarriageReturn:
 
 RA8875_ControlEscape:
     INY                             ; Look at next character
-    LDA (7,s),Y
-    BEQ RA8875_WriteStringEnd
+    LDA (RA8875_WriteString16_ARG+4,s),Y
+    BEQ SkipControl
     CMP #$5B                        ; CSI look for [
     BNE SkipControl
     INY                             ; Next char
-    LDA (7,s),Y
-    ; Read digit at a time and make into base 10 number? how
+    LDA (RA8875_WriteString16_ARG+4,s),Y
+
+    CMP #$33
+    BNE @not_foreground
+    INY                             ; Next char
+    LDA (RA8875_WriteString16_ARG+4,s),Y
+
+    CMP #$37
+    BNE @nextcol1
+    LDA #%11111111
+    jsr RA8875_SetForegroundColor
+    jmp @done
+@nextcol1:
+    CMP #$32
+    BNE @nextcol2
+    LDA #%00011100
+    jsr RA8875_SetForegroundColor
+    jmp @done
+@nextcol2:
+
+@not_foreground:
+
+
+@done:
+    INY
+
+    tya
+    jsl RA8875_WriteHex
+
 
 SkipControl:
     RTS

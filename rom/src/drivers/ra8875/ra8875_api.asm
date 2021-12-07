@@ -24,29 +24,6 @@ RA8875_WriteStringEnd16:
 
 .A8
 .I8
-RA8875_WriteString:
-    PHA                            ;save A, Y to stack
-    PHY
-    PHX
-    LDY #$00
-    LDA #RA8875_MRWC
-    JSR RA8875WriteCommand          ; write to memory write register
-RA8875_WriteString0:
-    LDA (string_ptr),Y
-    BEQ RA8875_WriteStringEnd       ; Is char 0 then end write
-
-    JSR RA8875_SingleChar           ; Handle single character
-
-    INY
-    BNE RA8875_WriteString0
-RA8875_WriteStringEnd:
-    PLX
-    PLY
-    PLA
-    RTL
-
-.A8
-.I8
 RA8875_WriteChar:
     BEQ RA8875_WriteCharEnd         ; Is char 0 then end write
     PHA
