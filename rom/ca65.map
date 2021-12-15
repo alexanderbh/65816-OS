@@ -1,7 +1,7 @@
 Modules list:
 -------------
 main.o:
-    CODE              Offs=000000  Size=000743  Align=00001  Fill=0000
+    CODE              Offs=000000  Size=000741  Align=00001  Fill=0000
     RODATA            Offs=000000  Size=0002D3  Align=00001  Fill=0000
     ZEROPAGE          Offs=000000  Size=000009  Align=00001  Fill=0000
     STDLIB            Offs=000000  Size=000014  Align=00001  Fill=0000
@@ -13,7 +13,7 @@ Segment list:
 Name                   Start     End    Size  Align
 ----------------------------------------------------
 ZEROPAGE              000000  000008  000009  00001
-CODE                  00C000  00C742  000743  00001
+CODE                  00C000  00C740  000741  00001
 STDLIB                00E000  00E013  000014  00001
 RODATA                00F000  00F2D2  0002D3  00001
 VECTORS               00FFFC  00FFFD  000002  00001

@@ -335,7 +335,6 @@ RA8875_TextMode:
     RTS
 
 RA8875_SetForegroundColor:
-    PHY
     PHA
     PHA
         ; writeCommand(0x63);
@@ -370,7 +369,6 @@ RA8875_SetForegroundColor:
     lsr
 
     JSR RA8875WriteData
-    PLY
     RTS
 
 ; Handle a single char
@@ -434,7 +432,6 @@ RA8875_ControlEscape:
     BNE @not_foreground
     INY                             ; Next char
     LDA (RA8875_WriteString16_ARG+4,s),Y
-
     CMP #$37
     BNE @nextcol1
     LDA #%11111111
