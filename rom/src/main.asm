@@ -15,8 +15,8 @@ test_string: .asciiz "\n---\n"
 testlen_string: .asciiz "1357abcdefgh78"
 
 .code
-.include "macros/macros.inc"
 .include "kernel/kernel.inc"
+.include "macros/macros.inc"
 
 .include "bios/bios.asm"
 .include "kernel/kernel.asm"
@@ -33,6 +33,8 @@ ResetVector:
     jsr InitBIOS                    ; Entry point for boot
 longr
     jsr InitKernel                  ; Kernel Init
+
+    cli
 
     jsr Dummy
     ;shortr
@@ -101,12 +103,18 @@ longr
 
 
 ; Blink Diode
-    jsl DiodeBlinkExec
+    jsl LoaderExec
 
 Dummy:
     rts
 
-
+.SEGMENT "NATIVE_VECTORS"
+    .word $0000                 ; COP
+    .word $0000                 ; BRK
+    .word $0000                 ; ABORTB
+    .word $0000                 ; NMIB
+    .word $0000                 ; RES
+    .word InterruptVector       ; IRQB
 .SEGMENT "VECTORS"
     .word ResetVector
 

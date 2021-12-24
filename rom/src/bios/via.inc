@@ -9,6 +9,7 @@
     VIA1_T1CL = __VIA1_START__ + 4                    ; Timer 1 Low order latches
     VIA1_T1CH = __VIA1_START__ + 5                    ; Timer 1 High order counter
     VIA1_ACR = __VIA1_START__ + 11                    ; Auxillary Control Register
+    VIA1_PCR = __VIA1_START__ + 12                    ; Peripheral Control Register
     VIA1_IFR = __VIA1_START__ + 13                    ; Interupt Flag Register
     VIA1_IER = __VIA1_START__ + 14                    ; Interupt Enable Register
 

@@ -1,3 +1,6 @@
+
+.include "interrupt.asm"
+
 .A16
 .I16
 InitKernel:

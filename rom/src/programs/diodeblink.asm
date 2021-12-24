@@ -1,55 +1,66 @@
 .RODATA
 
-running_diode_1: .asciiz "\r$55"
-running_diode_2: .asciiz "\r$AA"
+running_diode_0: .asciiz "\r(*------)"
+running_diode_1: .asciiz "\r(-*-----)"
+running_diode_2: .asciiz "\r(--*----)"
+running_diode_3: .asciiz "\r(---*---)"
+running_diode_4: .asciiz "\r(----*--)"
+running_diode_5: .asciiz "\r(-----*-)"
+running_diode_6: .asciiz "\r(------*)"
 
 .code
 .A16
 .I16
-DiodeBlinkExec:
+LoaderExec:
     lda #$0A
-    jsl RA8875_WriteChar16
+    jsl RA8875_WriteChar16          ; write new line
 
-    shortr
-    LDA #$FF
-    STA VIA1A_DIRECTION
-    longr
+LoaderLoop:
 
-DiodeBlinkLoop:
-
+    write running_diode_0
+    jsr LongDelayLoaderExec
     write running_diode_1
-
-    shortr
-    LDA #$AA
-    STA VIA1A
-
-    jsr LongDelayDiode
-    jsr LongDelayDiode
-    jsr LongDelayDiode
-    longr
-
+    jsr LongDelayLoaderExec
     write running_diode_2
+    jsr LongDelayLoaderExec
+    write running_diode_3
+    jsr LongDelayLoaderExec
+    write running_diode_4
+    jsr LongDelayLoaderExec
+    write running_diode_5
+    jsr LongDelayLoaderExec
+    write running_diode_6
+    jsr LongDelayLoaderExec
+    write running_diode_5
+    jsr LongDelayLoaderExec
+    write running_diode_4
+    jsr LongDelayLoaderExec
+    write running_diode_3
+    jsr LongDelayLoaderExec
+    write running_diode_2
+    jsr LongDelayLoaderExec
+    write running_diode_1
+    jsr LongDelayLoaderExec
 
+    JML LoaderLoop
+
+LongDelayLoaderExec:
     shortr
-    LDA #$55
-    STA VIA1A
-
-    jsr LongDelayDiode
-    jsr LongDelayDiode
-    jsr LongDelayDiode
+    jsr LogDelayLoader
+    jsr LogDelayLoader
+    jsr LogDelayLoader
     longr
-
-    JML DiodeBlinkLoop
+    rts
 
 .A8
 .I8
-LongDelayDiode:
+LogDelayLoader:
     ldx #$FF
-LongDelayDiodeLoop1:
+LogDelayLoaderLoop1:
     ldy #$FF
-LongDelayDiodeLoop2:
+LogDelayLoaderLoop2:
     dey
-    bne LongDelayDiodeLoop2
+    bne LogDelayLoaderLoop2
     dex
-    bne LongDelayDiodeLoop1
+    bne LogDelayLoaderLoop1
     rts

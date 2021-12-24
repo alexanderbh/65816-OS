@@ -1,6 +1,7 @@
 .include "bios.inc"                         ; include BIOS includes
 .include "via.inc"                          ; include VIA labels
 .include "../drivers/spi/spi.asm"           ; include SPI code
+.include "../drivers/keyboard/keyboard.asm" ; include Keyboard driver
 .include "../drivers/ra8875/ra8875.asm"     ; include Driver for RA8875
 .include "../drivers/ra8875/ra8875_api.asm" ; include API for RA8875
 
@@ -12,6 +13,7 @@
 InitBIOS:
     JSR InitSPI
     JSR InitRA8875
+    JSR InitKeyboard
 
   
 ; switch out of emulation mode
