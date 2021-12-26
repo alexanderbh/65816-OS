@@ -103,7 +103,10 @@ longr
 
 
 ; Blink Diode
-    jsl LoaderExec
+    ;jsl LoaderExec
+
+Loop:
+    jmp Loop
 
 Dummy:
     rts

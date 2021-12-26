@@ -10,18 +10,15 @@ InterruptVector:
     phy                   ;save .Y
     ; write intstr
 
-    ;LDA VIA1_IFR
-    ;AND #%00000010
-    ;CMP #%00000010
-    ;BEQ IntKeyboardInterrupt
-    ;JMP IntKeyboardInterrupt
-    shortr
-    lda VIA1A
-    jsl RA8875_WriteHex
-    lda #$0A
-    jsl RA8875_WriteChar
-    bit VIA1A
-    longr
+    lda VIA1_IFR
+    and #%00000010
+    cmp #%00000010
+    beq InterruptKB
+    
+    jmp crti
+
+InterruptKB:
+    jsr InterruptKeyboard
 
 crti:
     longr
