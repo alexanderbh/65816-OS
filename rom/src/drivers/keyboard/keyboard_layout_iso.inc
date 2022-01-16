@@ -1,4 +1,5 @@
 
+.rodata
 ASCIITBL:
                .byte $00               ; 00 no key pressed
                .byte $89               ; 01 F9

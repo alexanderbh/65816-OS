@@ -17,7 +17,8 @@
 
 .RODATA
 
-newline:                .asciiz "\n"
-init_kernel_done:       .asciiz "Initializing KERNEL - OK\n"
+newline:                    .asciiz "\n"
+init_kernel_done:           .asciiz "Init KERNEL - OK\n"
+init_kernel_streams_done:   .asciiz "KERNEL: Streams - OK\n"
 
 .code

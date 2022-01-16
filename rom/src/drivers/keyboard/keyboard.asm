@@ -5,22 +5,17 @@ KB_CONTROL_EXTENDED_INV = %11111101
 KB_CONTROL_SHIFTED      = %10000000
 KB_CONTROL_SHIFTED_INV  = %01111111
 
-.zeropage
+.include "keyboard_layout_iso.inc"
+
+.SEGMENT "RAM"
     kb_byte:                            .res 1
     ; control byte:
     ; bit 0         - release
     ; bit 1         - extended
     ; bit 7         - shifted
     kb_control_byte:                    .res 1
-    kb_buffer_head:                     .res 1
-    kb_buffer_tail:                     .res 1
-
-;.segment "RAM"
-;keyboard_buffer:                    .res 16
 
 .code
-
-.include "keyboard_layout_iso.inc"
 
 InterruptKeyboard:
     shortr
@@ -67,7 +62,9 @@ keyboardHandleAscii:
 
     tax
     lda ASCIITBL,x
-    jsl RA8875_WriteChar                    ; TODO: Do not print here
+    ldx #STREAM_STDIN
+    jsl StreamPutC                          ; Put in standard in stream
+;    jsl RA8875_WriteChar                    ; TODO: Do not print here
 
     rts
 
@@ -76,10 +73,13 @@ keyboardHandleRelease:
     and #KB_CONTROL_RELEASE_INV
     sta kb_control_byte
     ; TODO: Toggle released key
+    ;       Have a map of which keys are pressed
+    
+    ; TODO Handle control release
     lda kb_byte
-    cmp #$12                                ; left shift
+    cmp #$12                                ; left shift released
     beq kbClearShifted
-    cmp #$59                                ; right shift
+    cmp #$59                                ; right shift released
     beq kbClearShifted
 keyboardHandleReleaseCont1:
     jmp InterruptKeyboardReturn
@@ -108,9 +108,9 @@ keyboardCommandTestLoop:
 
 keyboardCommandRun:
     txa
-    asl
+    asl                                 ; *2 to get address from lookup table
     tax
-    jmp (kbCommandRoutines,x)
+    jmp (kbCommandRoutines,x)           ; Jmp to the command routine
 
 kbcommands:
     .byte $12       ; left shift
@@ -118,11 +118,12 @@ kbcommands:
     .byte $14       ; left ctrl
     .byte $E0       ; extended
     .byte $F0       ; break
+    ; TODO: Add right control
 
 kbCommandRoutines:
     .word kbSetShifted
     .word kbSetShifted
-    .word kbnull
+    .word kbnull                        ; TODO: Handle left control
     .word kbSetExtended
     .word kbSetBreak
 
@@ -148,11 +149,10 @@ kbnull:
     lda #$00
     rts
 
+; Initialize Keyboard driver
 InitKeyboard:
     shortr
     stz kb_control_byte
-    stz kb_buffer_head
-    stz kb_buffer_tail
     stz kb_byte
 
     stz VIA1A_DIRECTION             ; read input

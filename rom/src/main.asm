@@ -24,10 +24,7 @@ testlen_string: .asciiz "1357abcdefgh78"
 
 .include "stdlib/stdlib.asm"
 
-.include "programs/diodeblink.asm"
-.include "programs/dump.asm"
-.include "programs/dumpstack.asm"
-.include "programs/dumpregs.asm"
+.include "programs/programs.inc"
 
 ResetVector:
     jsr InitBIOS                    ; Entry point for boot
@@ -100,7 +97,7 @@ longr
     write test_string
 
 
-
+    jsl ShellExec                   ; Run shell program
 
 ; Blink Diode
     ;jsl LoaderExec

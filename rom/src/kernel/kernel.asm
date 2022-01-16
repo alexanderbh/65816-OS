@@ -1,11 +1,14 @@
 
 .include "interrupt.asm"
+.include "streams.asm"
 
 .A16
 .I16
 InitKernel:
+    jsr InitStreams
+    write init_kernel_streams_done
     write init_kernel_done
-    RTS
+    rts
 ;;;
 ; Long Delay
 ;;;

@@ -2,7 +2,7 @@
 	strlen: .asciiz "StrLen Called\n"
 	readnum: .asciiz "ReadNum Called\n"
 
-.code
+.SEGMENT "STDLIB"
 
 
 ;	STRING LENGTH
