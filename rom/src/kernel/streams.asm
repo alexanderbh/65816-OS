@@ -84,7 +84,20 @@ shortr
 @checktail:
     sta StreamLookupHead,x      ; store head
 
+; this is untested.
+; if the stream wraps around
+    cmp 1,s                     ; is head == stack[1]/tail?
+    bne @tailnothead
+    ply                         ; if yes increment tail
+    iny
+    tya
+    sta StreamLookupTail,x
+    jmp @done
+
+
+@tailnothead:
     plx ; clear tail from stack. not used pt
+@done:
     cli
 longr
     rtl
