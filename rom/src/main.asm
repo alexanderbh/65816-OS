@@ -25,7 +25,8 @@ testlen_string: .asciiz "1357abcdefgh78"
 .include "stdlib/stdlib.asm"
 
 .include "programs/programs.inc"
-
+.A8
+.I8
 ResetVector:
     jsr InitBIOS                    ; Entry point for boot
 longr

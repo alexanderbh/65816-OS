@@ -17,20 +17,25 @@ StreamData:
 
 ; Initialize streams
 ; Zeroes out head, tail, data
+.A16
+.I16
 InitStreams:
     shortr
-@clrloop:
     ldx #NUMBER_OF_STREAMS
+@clrloop:
     dex
     stz StreamLookupHead, x
     stz StreamLookupTail, x
+    
     bne @clrloop
-@clrloop2:
     ldx #SIZE_OF_STREAM
+@clrloop2:
     dex
+    stz StreamData, x
     stz StreamData+SIZE_OF_STREAM, x
-    stz StreamData+SIZE_OF_STREAM, x
-    stz StreamData+SIZE_OF_STREAM, x
+    stz StreamData+SIZE_OF_STREAM+SIZE_OF_STREAM, x
+
+
     bne @clrloop2
 
     longr
@@ -41,34 +46,35 @@ InitStreams:
 ;   A - byte to put
 ;   X - stream id
 ; out:
-;   
+.A8
+.I8  
 StreamPutC:
 shortr
     sei
-    pha                         ; Save A
-    phx
     ldy StreamLookupTail,x      ; fetch current tail
-    phy                         ; tail onto stack
+    phy                         ; stack: [tail]
 
     ldy StreamLookupHead,x      ; fetch current head
-    phy                         ; head onto stack
+    phy                         ; stack: [tail, head]
 
-    pha
+    phx                         ; stack: [tail, head, stream id]
+    pha                         ; stack: [tail, head, stream id, A-byte]
     txa
 
     asl                         ; *  2
     asl                         ; *  4
     asl                         ; *  8
     asl                         ; * 16
-    adc 2,s                     ; + head_offset
+    adc 3,s                     ; + head_offset
     tax                         ; X = X * 16 + head_offset
 
-    pla                         ; get back original A
+    pla                         ; stack: [tail, head, stream id], a = A-byte
 
     sta StreamData,x            ; Store byte in stream
 
 ; increment head_offset
-    ply                         ; pull head from stack
+    plx                         ; stack: [tail, head], x=stream id
+    ply                         ; stack: [tail], y = head
     iny                         ; increment head
     tya
     
@@ -78,18 +84,7 @@ shortr
 @checktail:
     sta StreamLookupHead,x      ; store head
 
-    cmp 1,s                     ; compare with tail from stack
-    bne @tailok
-    pla
-    adc #1
-    plx
-    sta StreamLookupTail,x
-    jmp @done
-@tailok:
-    ply                         ; pull tail from stack    
-    ply                         ; pull x from stack
-@done:
-    pla                         ; Restore A
+    plx ; clear tail from stack. not used pt
     cli
 longr
     rtl
@@ -100,9 +95,10 @@ longr
 ; out:
 ;   carry 1: nothing read
 ;   carry 0: success
-;    A: read byte
+;     A: read byte
+.A8
+.I8
 StreamGetC:
-shortr
     sei
     lda StreamLookupTail,x
     cmp StreamLookupHead,x
@@ -110,10 +106,9 @@ shortr
     sec                         ; set carry for: "no char to read"
     jmp @done
 @readc:
-    clc                         ; clear carry for success read
 
     pha                         ; tail on stack
-
+    clc
     adc #1                      ; tail = tail + 1
     cmp #SIZE_OF_STREAM         ; tail === 16?
     bne @savetail               ; if not skip next
@@ -134,7 +129,7 @@ shortr
 
     plx
 
+    clc                         ; clear carry for success read
 @done:
     cli
-longr
     rtl

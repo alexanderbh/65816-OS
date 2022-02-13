@@ -69,4 +69,5 @@ InitBIOS:
     
     write ansi_string
     
+    shortr
     RTS
