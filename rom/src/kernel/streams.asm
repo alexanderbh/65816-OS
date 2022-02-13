@@ -93,9 +93,9 @@ longr
 ; in:
 ;   X - stream id
 ; out:
-;   carry 1: nothing read
-;   carry 0: success
-;     A: read byte
+;   A: read byte
+;       0: nothing
+;       x: read byte
 .A8
 .I8
 StreamGetC:
@@ -103,11 +103,11 @@ StreamGetC:
     lda StreamLookupTail,x
     cmp StreamLookupHead,x
     bne @readc                  ; tail !== head
-    sec                         ; set carry for: "no char to read"
+    lda #0                      ; set A to 0 (nothing read)
     jmp @done
 @readc:
 
-    pha                         ; tail on stack
+    pha                         ; s:[tail]
     clc
     adc #1                      ; tail = tail + 1
     cmp #SIZE_OF_STREAM         ; tail === 16?
@@ -124,12 +124,10 @@ StreamGetC:
     asl                         ; * 16
     adc 1,s                     ; + tail_offset
     tax                         ; X = X * 16 + tail_offset
+    ply                         ; s:[]
 
     lda StreamData,x
 
-    plx
-
-    clc                         ; clear carry for success read
 @done:
     cli
     rtl

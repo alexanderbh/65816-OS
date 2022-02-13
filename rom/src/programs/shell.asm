@@ -8,11 +8,11 @@ ShellExec:
     lda #' '
     jsl RA8875_WriteChar
 
-    ldx STREAM_STDIN
 
 @loop:
+    ldx STREAM_STDIN
     jsl StreamGetC
-    bcs @loop                   ; Noting in stream (carry set)
+    beq @loop                   ; Noting in stream (carry set)
     
     jsl RA8875_WriteChar        ; Write to RA8875       - todo: write to stdout
     jmp @loop
