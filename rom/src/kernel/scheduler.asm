@@ -19,15 +19,11 @@
 
 ; B000-C000 : I/O
 
-.A16
-.I16
+.A8
+.I8
 Scheduler_NextTask:
     sei
-    longr
-    pha
-    write test_string
 
-    shortr
     ldx ActiveTask
     cmp #TASK_STATUS_RUNNING
     bne @loop                           
@@ -35,37 +31,42 @@ Scheduler_NextTask:
     sta TaskStatus,x
 @loop:
     inx
-    cmp #NUMBER_OF_TASKS
+    cpx #NUMBER_OF_TASKS
     beq @rollover
 
     lda TaskStatus,x
-    jsl RA8875_WriteHex
+    ;jsl RA8875_WriteHex
     beq @loop
-    longr
-    write test_string
-    shortr
+    
     cmp #TASK_STATUS_RUNNABLE
     beq @task_switch
     cmp #TASK_STATUS_RUNNING
     beq @return
+
+    jsl RA8875_WriteHex
+    txa
+    jsl RA8875_WriteHex
     longr
     write task_unknown_status
     shortr
+    
     jmp @return
 
-@new_task:
-
-
 @task_switch:
+    longr
+    write task_switching_task
+    shortr
+    txa
+    jsl RA8875_WriteHex
+    jmp @return
+
 
 @rollover:
     ldx #$FF     ; will roll to 0 on inx 
     jmp @loop
 
 @return:
-    longr
+    
 
-
-    pla
     cli
     rtl
