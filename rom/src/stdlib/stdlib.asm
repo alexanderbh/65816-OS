@@ -31,9 +31,9 @@ StdLibTable:
 reg_y       =1                    ;16 bit .Y
 reg_x       =reg_y+2              ;16 bit .X
 reg_a       =reg_x+2              ;16 bit .A
-reg_rts     =reg_a+2              ;24 bit RTS address
+reg_rtl     =reg_a+2              ;24 bit RTL address
 
-args_start  =reg_rts+3         
+args_start  =reg_rtl+3         
 
 ; ARGS      $10 args_start
 ; RTS___    $07 reg_rts

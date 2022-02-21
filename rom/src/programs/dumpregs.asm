@@ -1,3 +1,5 @@
+.A8
+.I8
 DumpRegs:
     longr
     pha

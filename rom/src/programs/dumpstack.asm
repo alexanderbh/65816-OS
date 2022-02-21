@@ -1,16 +1,16 @@
+.I16
+.A16
 DumpStack:
-
     shortr
-
-
-    lda 1,s           ;get mode
-    jsl RA8875_WriteHex
-    lda 2,s           ;get mode
-    jsl RA8875_WriteHex
+  ;  lda 1,s           ;get mode
+  ;  jsl RA8875_WriteHex
+  ;  lda 2,s           ;get mode
+  ;  jsl RA8875_WriteHex
  
-    lda #' '
-    jsl RA8875_WriteChar
+  ;  lda #' '
+  ;  jsl RA8875_WriteChar
 
+; Skip the first two as they are DumpStack return
     lda 3,s           ;get mode
     jsl RA8875_WriteHex
     lda 4,s           ;get mode
@@ -90,5 +90,5 @@ DumpStack:
     lda 20,s           ;get mode
     jsl RA8875_WriteHex
     
-
+    longr
     rts

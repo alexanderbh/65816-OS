@@ -49,7 +49,7 @@ InitStreams:
 .A8
 .I8  
 StreamPutC:
-shortr
+    pha
     sei
     ldy StreamLookupTail,x      ; fetch current tail
     phy                         ; stack: [tail]
@@ -99,7 +99,7 @@ shortr
     plx ; clear tail from stack. not used pt
 @done:
     cli
-longr
+    pla
     rtl
 
 ; Get byte from stream

@@ -29,12 +29,10 @@ testlen_string: .asciiz "1357abcdefgh78"
 .I8
 ResetVector:
     jsr InitBIOS                    ; Entry point for boot
-longr
+    
+    longr
     jsr InitKernel                  ; Kernel Init
 
-    cli
-
-    jsr Dummy
     ;shortr
     ;write test_string
 
@@ -64,18 +62,18 @@ longr
 ; StrLen
 
     
-    pea testlen_string				; Add parameter to stack
+    ; pea testlen_string				; Add parameter to stack
 
-    lda #Std_StrLen
-    jsl StdLib						; Call stdlib
+    ; lda #Std_StrLen
+    ; jsl StdLib						; Call stdlib
 
-	plx								; Clean up stack
+	; plx								; Clean up stack
     
-    jsl RA8875_WriteHex16			; Debug write result
+    ; jsl RA8875_WriteHex16			; Debug write result
 
 ; print break
 
-    write test_string
+    ;write test_string
 
 
 
@@ -83,31 +81,46 @@ longr
 ; Readnum
 
 
-    pea testlen_string				; Add parameter to stack
+    ; pea testlen_string				; Add parameter to stack
 
 
-    lda #Std_ReadNum
-    jsl StdLib						; Call stdlib
+    ; lda #Std_ReadNum
+    ; jsl StdLib						; Call stdlib
 
-	plx								; Clean up stack
+	; plx								; Clean up stack
 
-    jsl RA8875_WriteHex16			; Debug write result
+    ; jsl RA8875_WriteHex16			; Debug write result
 
 ; print break
 
+    ;write test_string
+
+    shortr
+    lda #$00
+    pha
+    longr
+    pea ShellExec
+    jsr DumpStack
+    write test_string
+    jsl TaskSpawn
     write test_string
 
+    shortr
+    cli
+    lda TaskStatus
+    jsl RA8875_WriteHex
+    longr
 
-    jsl ShellExec                   ; Run shell program
+    write test_string
+
+    ;jsl Scheduler_NextTask
+    jsr ShellExec                   ; Run shell program
 
 ; Blink Diode
     ;jsl LoaderExec
 
 Loop:
     jmp Loop
-
-Dummy:
-    rts
 
 .SEGMENT "NATIVE_VECTORS"
     .word $0000                 ; COP

@@ -62,10 +62,15 @@ keyboardHandleAscii:
 
     tax
     lda ASCIITBL,x
+
     ldx #STREAM_STDIN
-    ; jsl RA8875_WriteChar                    ; TODO: Do not print here
+    ;jsl RA8875_WriteChar                    ; TODO: Do not print here
     jsl StreamPutC                          ; Put in standard in stream
 
+    cmp #$69
+    bne @return
+    jsl Scheduler_NextTask
+@return:
     rts
 
 keyboardHandleRelease:

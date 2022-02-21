@@ -20,5 +20,6 @@
 newline:                    .asciiz "\n"
 init_kernel_done:           .asciiz "Init KERNEL - OK\n"
 init_kernel_streams_done:   .asciiz "KERNEL: Streams - OK\n"
+init_kernel_tasks_done:   .asciiz "KERNEL: Tasks - OK\n"
 
 .code

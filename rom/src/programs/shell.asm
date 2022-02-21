@@ -1,3 +1,5 @@
+
+
 ShellExec:
     shortr
 
@@ -18,4 +20,4 @@ ShellExec:
     jmp @loop
 
     longr
-    rtl
+    rts

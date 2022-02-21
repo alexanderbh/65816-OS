@@ -8,7 +8,6 @@ InterruptVector:
     pha                   ;save .C
     phx                   ;save .X
     phy                   ;save .Y
-    ; write intstr
 
     lda VIA1_IFR
     and #%00000010
