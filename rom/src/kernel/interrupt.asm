@@ -1,3 +1,9 @@
+.SEGMENT "RAM"
+
+InterruptStackPointerStart: .res 2
+
+
+.code
 
 .A16
 .I16
@@ -9,11 +15,38 @@ InterruptVector:
     phx                   ;save .X
     phy                   ;save .Y
 
+    tsc
+    sta InterruptStackPointerStart
+
+    shortr
+
     lda VIA1_IFR
-    and #%00000010
-    cmp #%00000010
-    beq InterruptKB
-    
+    and VIA1_IER            ; zero those that were not allowed to pull IRQ down.
+    asl ; timer 1
+    bmi  InterruptTimer1
+    asl ; timer 2
+    asl ; cb1
+    asl ; cb2
+    asl ; shift reg
+    asl ; ca1
+
+    bmi InterruptKB
+
+
+
+    jmp crti
+
+InterruptTimer1:
+    bit VIA1_T1CL
+    inc TimerCounter
+    BNE @lowcnt    ; Branch to end if the low byte didn't roll over to 00.
+    inc TimerCounter+1
+@lowcnt:
+    ;lda TimerCounter+1
+    ;jsr RA8875_WriteHex
+    ;lda TimerCounter
+    ;jsr RA8875_WriteHex
+
     jmp crti
 
 InterruptKB:

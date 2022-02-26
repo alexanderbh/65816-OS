@@ -1,10 +1,10 @@
 Modules list:
 -------------
 main.o:
-    CODE              Offs=000000  Size=000969  Align=00001  Fill=0000
-    RODATA            Offs=000000  Size=000474  Align=00001  Fill=0000
+    CODE              Offs=000000  Size=0009B8  Align=00001  Fill=0000
+    RODATA            Offs=000000  Size=000487  Align=00001  Fill=0000
     ZEROPAGE          Offs=000000  Size=000009  Align=00001  Fill=0000
-    RAM               Offs=000000  Size=0000C8  Align=00001  Fill=0000
+    RAM               Offs=000000  Size=0000FC  Align=00001  Fill=0000
     STDLIB            Offs=000000  Size=0000B4  Align=00001  Fill=0000
     NATIVE_VECTORS    Offs=000000  Size=00000C  Align=00001  Fill=0000
     VECTORS           Offs=000000  Size=000002  Align=00001  Fill=0000
@@ -15,10 +15,10 @@ Segment list:
 Name                   Start     End    Size  Align
 ----------------------------------------------------
 ZEROPAGE              000000  000008  000009  00001
-RAM                   000200  0002C7  0000C8  00001
-CODE                  00C000  00C968  000969  00001
+RAM                   000200  0002FB  0000FC  00001
+CODE                  00C000  00C9B7  0009B8  00001
 STDLIB                00E000  00E0B3  0000B4  00001
-RODATA                00F000  00F473  000474  00001
+RODATA                00F000  00F486  000487  00001
 NATIVE_VECTORS        00FFE4  00FFEF  00000C  00001
 VECTORS               00FFFC  00FFFD  000002  00001
 

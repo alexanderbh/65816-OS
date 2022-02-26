@@ -18,8 +18,8 @@ KB_CONTROL_SHIFTED_INV  = %01111111
 .code
 
 InterruptKeyboard:
-    shortr
 
+    shortr
     lda VIA1A                               ; read byte from VIA
     sta kb_byte
 
@@ -50,7 +50,7 @@ InterruptKeyboard:
 
 InterruptKeyboardReturn:
     bit VIA1A
-    longr
+
     rts
 
 .A8
@@ -68,8 +68,16 @@ keyboardHandleAscii:
     jsl StreamPutC                          ; Put in standard in stream
 
     cmp #$69
-    bne @return
+    bne @next1
     jsl Scheduler_NextTask
+@next1:
+    cmp #$6A
+    bne @return
+    lda TimerCounter+1
+    jsl RA8875_WriteHex
+    lda TimerCounter
+    jsl RA8875_WriteHex
+
 @return:
     rts
 
@@ -161,7 +169,7 @@ InitKeyboard:
     stz kb_byte
 
     stz VIA1A_DIRECTION             ; read input
-    lda #$82
+    lda #%10000010
     sta VIA1_IER
 
     lda #$00

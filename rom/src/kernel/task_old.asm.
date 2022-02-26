@@ -51,7 +51,7 @@ bne @clrloop
 
 ; Spawn a new task
 
-TaskSpawnArg_Addr = 1+3+6      ; jsl 3 bytes return
+TaskSpawnArg_Addr = 1+3      ; jsl 3 bytes return
 .A16
 .I16
 TaskSpawn:
@@ -68,20 +68,30 @@ TaskSpawn:
     txa
     clc
     adc #$A0
+    pha                                 ; s:[$A{X}], X = 0-F
+
     sta TaskStackPointer,x
-    lda #$FF
-    sta TaskStackPointer+1,x            ; Stack pointer: $AxFF
+    lda #$FF-$4                          ; needs 4 elements on the new stack
+    sta TaskStackPointer+1,x
 
-
+    ldy #$FF
     lda TaskSpawnArg_Addr,s
-    sta TaskProgramPointer,x
+    sta (1,s),y
 
+    iny
     lda TaskSpawnArg_Addr+1,s
-    sta TaskProgramPointer+1,x
+    sta (1,s),y
 
+    iny
     lda TaskSpawnArg_Addr+2,s
-    sta TaskProgramBank,x
+    sta (1,s),y
 
+    iny
+    lda #$00                            ; Status register
+    sta (1,s),y
+
+    pla                                 ; s:[]
+    
     stz TaskA,x
     stz TaskX,x
     stz TaskY,x

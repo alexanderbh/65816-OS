@@ -3,8 +3,6 @@
 .smart
 .feature string_escapes
 
-.SEGMENT "RAM"                      ; Trigger usage
-
 .zeropage
 .include "drivers/spi/spi.zp.inc"
 .include "drivers/ra8875/ra8875.zp.inc"
@@ -96,22 +94,32 @@ ResetVector:
     ;write test_string
 
     shortr
-    lda #$00
+    lda #$00            ; push program bank of ShellExec
     pha
     longr
-    pea ShellExec
+    pea ShellExec       ; push 2byte addr of ShellExec
     jsr DumpStack
     write test_string
     jsl TaskSpawn
     write test_string
 
     shortr
-    cli
     lda TaskStatus
     jsl RA8875_WriteHex
+
+    ;lda TaskProgramBank
+    ;jsl RA8875_WriteHex
+    ;lda TaskProgramPointer
+    ;jsl RA8875_WriteHex
+    ;lda TaskProgramPointer+1
+    ;jsl RA8875_WriteHex
+
+
+    cli
     longr
 
     write test_string
+
 
     ;jsl Scheduler_NextTask
     jsr ShellExec                   ; Run shell program

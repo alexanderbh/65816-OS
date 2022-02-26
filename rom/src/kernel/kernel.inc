@@ -18,8 +18,8 @@
 .RODATA
 
 newline:                    .asciiz "\n"
-init_kernel_done:           .asciiz "Init KERNEL - OK\n"
+init_kernel_done:           .asciiz "KERNEL - OK\n"
 init_kernel_streams_done:   .asciiz "KERNEL: Streams - OK\n"
-init_kernel_tasks_done:   .asciiz "KERNEL: Tasks - OK\n"
-
+init_kernel_tasks_done:     .asciiz "KERNEL: Tasks - OK\n"
+init_kernel_scheduler_done: .asciiz "KERNEL: Scheduler - OK\n"
 .code
