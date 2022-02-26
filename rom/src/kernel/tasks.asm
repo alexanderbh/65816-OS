@@ -62,8 +62,8 @@ TaskSpawn:
     jsr TaskFindUnusedTask
     bcs @no_unused_tasks
 
-    txa
-    jsl RA8875_WriteHex
+;    txa
+;    jsl RA8875_WriteHex
 
     txa
     clc

@@ -95,8 +95,6 @@ InitScheduler:
 
     lda #$FFFF
     sta VIA1_T1CL
-    ;lda #$FF
-    ;sta VIA1_T1CH
 
     shortr
     lda  VIA1_ACR       ; Clear the ACR's bit that

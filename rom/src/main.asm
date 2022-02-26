@@ -99,27 +99,32 @@ ResetVector:
     longr
     pea ShellExec       ; push 2byte addr of ShellExec
     jsr DumpStack
-    write test_string
+
     jsl TaskSpawn
+
     write test_string
 
     shortr
     lda TaskStatus
     jsl RA8875_WriteHex
 
-    ;lda TaskProgramBank
-    ;jsl RA8875_WriteHex
-    ;lda TaskProgramPointer
-    ;jsl RA8875_WriteHex
-    ;lda TaskProgramPointer+1
-    ;jsl RA8875_WriteHex
 
+    longr
+    write test_string
+    shortr
 
-    cli
+    lda TaskProgramBank
+    jsl RA8875_WriteHex
+    lda TaskProgramPointer
+    jsl RA8875_WriteHex
+    lda TaskProgramPointer+1
+    jsl RA8875_WriteHex
+
     longr
 
     write test_string
 
+    cli
 
     ;jsl Scheduler_NextTask
     jsr ShellExec                   ; Run shell program
