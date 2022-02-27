@@ -19,7 +19,7 @@
 ; AF00-AFFF : task 16 - stack
 
 
-
+; NOT USED! THIS IS A TEST:
 ; 0000-00FF : kernel direct page
 ; 0100-01FF : kernel stack
 ; 0200-02FF : task 1 DP
@@ -34,20 +34,88 @@ TimerCounter: .res 2
 
 .code
 
+InterruptStackY = 3+1
+InterruptStackX = InterruptStackY+2
+InterruptStackA = InterruptStackX+2
+InterruptDP = InterruptStackA+2
+InterruptDB = InterruptDP+2
+InterruptStatusRegister = InterruptDB+1
+InterruptPC = InterruptStatusRegister+1
+InterruptPB = InterruptPC+2
 .A8
 .I8
 Scheduler_NextTask:
     sei
 
     ldx ActiveTask
+
+    lda TaskStatus,x
     cmp #TASK_STATUS_RUNNING
-    bne @loop                           
+    bne @loop
+
     lda #TASK_STATUS_RUNNABLE               ; if running then set to runnable
     sta TaskStatus,x
+
+; save current task stage
+    ;longr
+    ;write task_save_old
+    ;write test_string
+    ;jsr DumpStack
+    ;shortr
+
+    ;ldx ActiveTask
+    ;txa
+    ;jsl RA8875_WriteHex
+    ;lda #' '
+    ;jsl RA8875_WriteChar
+
+    lda InterruptDB,s
+    sta TaskDataBank,x
+
+    lda InterruptStatusRegister,s
+    sta TaskStatusRegister,x
+
+    ;ldx ActiveTask
+    txa
+    asl
+    tax
+
+    lda InterruptStackA,s
+    sta TaskA,x
+    lda InterruptStackA+1,s
+    sta TaskA+1,x
+    lda InterruptStackX,s
+    sta TaskX,x
+    lda InterruptStackX+1,s
+    sta TaskX+1,x
+    lda InterruptStackY,s
+    sta TaskY,x
+    lda InterruptStackY+1,s
+    sta TaskY+1,x
+    
+
+    lda InterruptPC,s
+    sta TaskProgramPointer,x
+
+    ;jsl RA8875_WriteHex
+    ;lda #' '
+    ;jsl RA8875_WriteChar
+
+    lda InterruptPC+1,s
+    sta TaskProgramPointer+1,x
+
+    ;jsl RA8875_WriteHex
+    ;lda #$A
+    ;jsl RA8875_WriteChar
+
+    ldx ActiveTask
 @loop:
     inx
     cpx #NUMBER_OF_TASKS
-    beq @rollover
+    bne @fine
+    ldx #$FF     ; will roll to 0 on inx 
+    jmp @loop
+@fine:
 
     lda TaskStatus,x
     
@@ -56,7 +124,7 @@ Scheduler_NextTask:
     cmp #TASK_STATUS_RUNNABLE
     beq @task_switch
     cmp #TASK_STATUS_RUNNING
-    beq @return
+    beq @goreturn
 
     jsl RA8875_WriteHex
     txa
@@ -64,21 +132,68 @@ Scheduler_NextTask:
     longr
     write task_unknown_status
     shortr
-    
+@goreturn:
     jmp @return
 
 @task_switch:
-    longr
-    write task_switching_task
-    shortr
+    stx ActiveTask
+
+    ;longr
+    ;write task_switching_task
+    ;shortr
+
+    ;ldx ActiveTask
+    ;txa
+    ;jsl RA8875_WriteHex
+    ;lda #' '
+    ;jsl RA8875_WriteChar
+
+    ;ldx ActiveTask
+
+    lda #TASK_STATUS_RUNNING               ; if running then set to runnable
+    sta TaskStatus,x
+
+    lda TaskDataBank,x
+    sta InterruptDB,s
+
+    lda TaskStatusRegister,x
+    sta InterruptStatusRegister,s
+
     txa
+    asl
+    tax
+
+    lda TaskA,x
+    sta InterruptStackA,s
+    lda TaskA+1,x
+    sta InterruptStackA+1,s
+    lda TaskY,x
+    sta InterruptStackY,s
+    lda TaskY+1,x
+    sta InterruptStackY+1,s
+    lda TaskX,x
+    sta InterruptStackX,s
+    lda TaskX+1,x
+    sta InterruptStackX+1,s
+
+    lda TaskProgramPointer,x
+    sta InterruptPC,s
+
     jsl RA8875_WriteHex
+    lda #' '
+    jsl RA8875_WriteChar
+
+    lda TaskProgramPointer+1,x
+    sta InterruptPC+1,s
+
+    jsl RA8875_WriteHex
+    lda #$A
+    jsl RA8875_WriteChar
+    ;txa
+    ;jsl RA8875_WriteHex
+
     jmp @return
 
-
-@rollover:
-    ldx #$FF     ; will roll to 0 on inx 
-    jmp @loop
 
 @return:
     

@@ -9,12 +9,14 @@ TASK_STATUS_RUNNABLE = 2
 
 .SEGMENT "RAM"
 
-KernelSp: .res 0
-ActiveTask: .res 0
+KernelSp: .res 1
+ActiveTask: .res 1
 TaskStatus: .res NUMBER_OF_TASKS
 TaskStackPointer: .res NUMBER_OF_TASKS * 2
+TaskDataBank: .res NUMBER_OF_TASKS
 TaskProgramBank: .res NUMBER_OF_TASKS
 TaskProgramPointer: .res NUMBER_OF_TASKS * 2
+TaskStatusRegister: .res NUMBER_OF_TASKS
 TaskA: .res NUMBER_OF_TASKS * 2
 TaskX: .res NUMBER_OF_TASKS * 2
 TaskY: .res NUMBER_OF_TASKS * 2
@@ -33,8 +35,10 @@ InitTasks:
     ldx #NUMBER_OF_TASKS
 @clrloop:
     dex
-    stz TaskStatus, x
-    stz TaskProgramBank, x
+    stz TaskStatus,x
+    stz TaskStatusRegister,x
+    stz TaskProgramBank,x
+    stz TaskDataBank,x
     longr
     stz TaskStackPointer, x
     stz TaskProgramPointer, x
@@ -44,7 +48,8 @@ InitTasks:
     shortr
 bne @clrloop
 
-    stz ActiveTask
+    lda #$FF
+    sta ActiveTask
     
     longr
     rts
@@ -62,10 +67,21 @@ TaskSpawn:
     jsr TaskFindUnusedTask
     bcs @no_unused_tasks
 
-;    txa
-;    jsl RA8875_WriteHex
+    ;txa
+    ;jsl RA8875_WriteHex
+
+
+    lda #TASK_STATUS_RUNNABLE
+    sta TaskStatus,x
+
+    lda TaskSpawnArg_Addr+2,s
+    sta TaskProgramBank,x
 
     txa
+    tay
+    asl
+    tax
+    tya
     clc
     adc #$A0
     sta TaskStackPointer,x
@@ -79,15 +95,14 @@ TaskSpawn:
     lda TaskSpawnArg_Addr+1,s
     sta TaskProgramPointer+1,x
 
-    lda TaskSpawnArg_Addr+2,s
-    sta TaskProgramBank,x
 
     stz TaskA,x
-    stz TaskX,x
+    stz TaskA+1,x
     stz TaskY,x
+    stz TaskY+1,x
+    stz TaskX,x
+    stz TaskX+1,x
 
-    lda #TASK_STATUS_RUNNABLE
-    sta TaskStatus,x
 
     jmp @return
 

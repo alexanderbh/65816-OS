@@ -98,9 +98,13 @@ ResetVector:
     pha
     longr
     pea ShellExec       ; push 2byte addr of ShellExec
-    jsr DumpStack
+    ;jsr DumpStack
 
     jsl TaskSpawn
+    pla
+    shortr
+    pla
+    longr
 
     write test_string
 
@@ -121,13 +125,37 @@ ResetVector:
     jsl RA8875_WriteHex
 
     longr
+    write test_string
+    shortr
+
+    lda #$00            ; push program bank of ShellExec
+    pha
+    longr
+    pea ClockExec       ; push 2byte addr of ShellExec
+
+    jsl TaskSpawn
+
+    pla ; elean up 16bits
 
     write test_string
+    shortr
+    pla ; clean up
+    lda TaskProgramBank+1
+    jsl RA8875_WriteHex
+    lda TaskProgramPointer+2
+    jsl RA8875_WriteHex
+    lda TaskProgramPointer+3
+    jsl RA8875_WriteHex
+
+    longr
+    write test_string
+    shortr
+
 
     cli
 
     ;jsl Scheduler_NextTask
-    jsr ShellExec                   ; Run shell program
+    ;jsr ShellExec                   ; Run shell program
 
 ; Blink Diode
     ;jsl LoaderExec

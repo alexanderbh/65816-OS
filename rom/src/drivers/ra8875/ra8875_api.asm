@@ -25,6 +25,7 @@ RA8875_WriteStringEnd16:
 .A8
 .I8
 RA8875_WriteChar:
+    PHX
     BEQ RA8875_WriteCharEnd         ; Is char 0 then end write
     PHA
     LDA #RA8875_MRWC
@@ -32,6 +33,7 @@ RA8875_WriteChar:
     PLA
     JSR RA8875_SingleChar           ; handle single character
 RA8875_WriteCharEnd:
+    PLX
     RTL
 
 .A16

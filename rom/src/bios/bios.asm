@@ -31,13 +31,13 @@ InitBIOS:
     longr
 
 
-    write welcome_logo1
-    write welcome_logo2
-    write welcome_logo3
-    write welcome_logo4
-    write welcome_logo5
-    write welcome_logo6
-    write welcome_logo7
+;    write welcome_logo1
+;    write welcome_logo2
+;    write welcome_logo3
+;    write welcome_logo4
+;    write welcome_logo5
+;    write welcome_logo6
+;    write welcome_logo7
 
     lda #$0A
     jsl RA8875_WriteChar16

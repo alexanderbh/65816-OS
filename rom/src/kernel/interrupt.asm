@@ -1,22 +1,13 @@
-.SEGMENT "RAM"
-
-InterruptStackPointerStart: .res 2
-
-
 .code
-
 .A16
 .I16
 InterruptVector:
-    phb                   ;save DB
-    phd                   ;save DP
+    phb                   ;save DB - data bank
+    phd                   ;save DP - direct page
     longr                 ;select 16 bit registers
     pha                   ;save .C
     phx                   ;save .X
     phy                   ;save .Y
-
-    tsc
-    sta InterruptStackPointerStart
 
     shortr
 
