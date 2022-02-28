@@ -32,12 +32,14 @@ InterruptTimer1:
     inc TimerCounter
     BNE @lowcnt    ; Branch to end if the low byte didn't roll over to 00.
     inc TimerCounter+1
-    jsl Scheduler_NextTask
 @lowcnt:
-    ;lda TimerCounter+1
-    ;jsr RA8875_WriteHex
-    ;lda TimerCounter
-    ;jsr RA8875_WriteHex
+    inc SchedulerCount
+    lda SchedulerCount
+    cmp #$30
+    bne @noschedule
+    stz SchedulerCount
+    jsl Scheduler_NextTask
+@noschedule:
 
     jmp crti
 

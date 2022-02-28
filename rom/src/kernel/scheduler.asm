@@ -2,8 +2,8 @@
 ; Push to the stack:
 ;
 ;   PB  - Program Bank           - 1 byte
-;   PCH - Program Counter High   - 1 bytes
-;   PCL - Program Counter Low    - 1 bytes
+;   PCH - Program Counter High   - 1 byte
+;   PCL - Program Counter Low    - 1 byte
 ;   SR  - Status Register        - 1 byte
 ;
 ; PB set to $00
@@ -26,14 +26,6 @@
 ; 0300-03FF : task 1 stack
 
 ; B000-C000 : I/O
-
-
-.SEGMENT "RAM"
-
-TimerCounter: .res 2
-
-.code
-
 InterruptStackY = 3+1
 InterruptStackX = InterruptStackY+2
 InterruptStackA = InterruptStackX+2
@@ -42,6 +34,20 @@ InterruptDB = InterruptDP+2
 InterruptStatusRegister = InterruptDB+1
 InterruptPC = InterruptStatusRegister+1
 InterruptPB = InterruptPC+2
+
+.SEGMENT "RAM"
+
+SchedulerCount: .res 1
+
+TimerCounter: .res 2
+
+TempStackReturnBank: .res 1
+TempStackReturnPC: .res 2
+
+.code
+
+
+
 .A8
 .I8
 Scheduler_NextTask:
@@ -60,7 +66,6 @@ Scheduler_NextTask:
     ;longr
     ;write task_save_old
     ;write test_string
-    ;jsr DumpStack
     ;shortr
 
     ;ldx ActiveTask
@@ -68,17 +73,46 @@ Scheduler_NextTask:
     ;jsl RA8875_WriteHex
     ;lda #' '
     ;jsl RA8875_WriteChar
-
+    ;lda #$A
+    ;jsl RA8875_WriteChar
+    ;lda #'o'
+    ;jsl RA8875_WriteChar
+    ;longr
+    ;jsl DumpStack
+    ;shortr
+    ldx ActiveTask
     lda InterruptDB,s
     sta TaskDataBank,x
 
+    lda InterruptPB,s
+    sta TaskProgramBank,x
+
     lda InterruptStatusRegister,s
     sta TaskStatusRegister,x
+
+
 
     ;ldx ActiveTask
     txa
     asl
     tax
+
+; SAVE STACK POINTER
+    longa
+    tsc                                 ; A = stack pointer
+    clc
+    adc #InterruptPB                 ; A = stack pointer - ...
+    sta TaskStackPointer,x
+    shorta
+
+    ; lda TaskStackPointer+1,x 
+    ; jsl RA8875_WriteHex
+    ; lda #' '
+    ; jsl RA8875_WriteChar
+    ; lda TaskStackPointer,x
+    ; jsl RA8875_WriteHex
+    ; lda #' '
+    ; jsl RA8875_WriteChar
 
     lda InterruptStackA,s
     sta TaskA,x
@@ -136,7 +170,20 @@ Scheduler_NextTask:
     jmp @return
 
 @task_switch:
+
+
+; SWITCH TO NEW TASK
+
     stx ActiveTask
+
+ ;   lda #$A
+ ;   jsl RA8875_WriteChar
+ ;   lda #'s'
+;    jsl RA8875_WriteChar
+;    longr
+;    jsl DumpStack
+;    shortr
+
 
     ;longr
     ;write task_switching_task
@@ -153,16 +200,60 @@ Scheduler_NextTask:
     lda #TASK_STATUS_RUNNING               ; if running then set to runnable
     sta TaskStatus,x
 
+    lda 1,s
+    sta TempStackReturnPC+1
+    lda 2,s
+    sta TempStackReturnPC
+    lda 3,s
+    sta TempStackReturnBank
+; Set up stack
+    txa
+    asl
+    tax
+    longr
+    lda TaskStackPointer,x
+    clc
+    sbc #InterruptPB-1
+    tcs
+    shortr
+
+    lda TempStackReturnPC+1
+    sta 1,s
+    lda TempStackReturnPC
+    sta 2,s
+    lda TempStackReturnBank
+    sta 3,s
+
+    ldx ActiveTask
+
+    lda TaskProgramBank,x
+    sta InterruptPB,s
+
     lda TaskDataBank,x
     sta InterruptDB,s
 
     lda TaskStatusRegister,x
     sta InterruptStatusRegister,s
 
+; Set Direct Page to $9x00
+    txa
+    clc
+    adc #$90                                ; A = $9x
+    longr
+    xba                                     ; A = $9x??
+    and #$FF00                              ; A = $9x00
+    ;tcd
     txa
     asl
     tax
+    sta InterruptDP,x
+    shortr
 
+
+
+
+
+; Set registers
     lda TaskA,x
     sta InterruptStackA,s
     lda TaskA+1,x
@@ -176,22 +267,25 @@ Scheduler_NextTask:
     lda TaskX+1,x
     sta InterruptStackX+1,s
 
-    lda TaskProgramPointer,x
-    sta InterruptPC,s
-
-    jsl RA8875_WriteHex
-    lda #' '
-    jsl RA8875_WriteChar
 
     lda TaskProgramPointer+1,x
     sta InterruptPC+1,s
-
-    jsl RA8875_WriteHex
-    lda #$A
-    jsl RA8875_WriteChar
-    ;txa
     ;jsl RA8875_WriteHex
 
+    lda TaskProgramPointer,x
+    sta InterruptPC,s
+    ;jsl RA8875_WriteHex
+
+    ;lda #$A
+    ;jsl RA8875_WriteChar
+
+    ;lda #'n'
+    ;jsl RA8875_WriteChar
+    ;longr
+    ;jsl DumpStack
+    ;shortr
+    ;lda #$A
+    ;jsl RA8875_WriteChar
     jmp @return
 
 

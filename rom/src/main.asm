@@ -26,6 +26,9 @@ testlen_string: .asciiz "1357abcdefgh78"
 .A8
 .I8
 ResetVector:
+    ldx #$FF
+    txs
+    cld
     jsr InitBIOS                    ; Entry point for boot
     
     longr
@@ -48,14 +51,13 @@ ResetVector:
     ; lda #$0123
     ; pha
     ; lda #$CDEF
-    ; jsr DumpStack
 
     ; longr
     ; pla
 
 ; print break
 
-    write test_string
+    ;write test_string
 
 ; StrLen
 
@@ -98,24 +100,23 @@ ResetVector:
     pha
     longr
     pea ShellExec       ; push 2byte addr of ShellExec
-    ;jsr DumpStack
 
     jsl TaskSpawn
     pla
     shortr
     pla
-    longr
-
-    write test_string
-
-    shortr
-    lda TaskStatus
-    jsl RA8875_WriteHex
 
 
-    longr
-    write test_string
-    shortr
+    ;longr
+    ;write test_string
+    ;shortr
+    ;lda TaskStatus
+    ;jsl RA8875_WriteHex
+
+
+    ;longr
+    ;write test_string
+    ;shortr
 
     lda TaskProgramBank
     jsl RA8875_WriteHex
@@ -124,9 +125,9 @@ ResetVector:
     lda TaskProgramPointer+1
     jsl RA8875_WriteHex
 
-    longr
-    write test_string
-    shortr
+    ;longr
+    ;write test_string
+    ;shortr
 
     lda #$00            ; push program bank of ShellExec
     pha
@@ -137,7 +138,7 @@ ResetVector:
 
     pla ; elean up 16bits
 
-    write test_string
+    ;write test_string
     shortr
     pla ; clean up
     lda TaskProgramBank+1
@@ -146,10 +147,6 @@ ResetVector:
     jsl RA8875_WriteHex
     lda TaskProgramPointer+3
     jsl RA8875_WriteHex
-
-    longr
-    write test_string
-    shortr
 
 
     cli

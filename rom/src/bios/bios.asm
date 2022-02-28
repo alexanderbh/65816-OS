@@ -21,14 +21,14 @@ InitBIOS:
     xce
 
     longr
-    pea test_bios
-    jsl RA8875_WriteString16
-    pla
+    ;pea test_bios
+    ;jsl RA8875_WriteString16
+    ;pla
     
-    shortr
-    LDA #%01101111
-    jsr RA8875_SetForegroundColor
-    longr
+    ;shortr
+    ;LDA #%01101111
+    ;jsr RA8875_SetForegroundColor
+    ;longr
 
 
 ;    write welcome_logo1
@@ -39,13 +39,13 @@ InitBIOS:
 ;    write welcome_logo6
 ;    write welcome_logo7
 
-    lda #$0A
-    jsl RA8875_WriteChar16
+    ;lda #$0A
+    ;jsl RA8875_WriteChar16
 
-    shortr
-    LDA #%11111111
-    jsr RA8875_SetForegroundColor
-    longr
+    ;shortr
+    ;LDA #%11111111
+    ;jsr RA8875_SetForegroundColor
+    ;longr
 
     JSL RamTestRun
 
@@ -54,18 +54,18 @@ InitBIOS:
     jsr RamTestWideRegistersRun
     jsr RamTestWideRun
 
-    shortr
-    LDA #%00011100
-    jsr RA8875_SetForegroundColor
+    ;shortr
+    ;LDA #%00011100
+    ;jsr RA8875_SetForegroundColor
     longr
 
     write bios_init
     write ok_string
 
-    shortr
-    LDA #%11111111
-    jsr RA8875_SetForegroundColor
-    longr
+    ;shortr
+    ;LDA #%11111111
+    ;jsr RA8875_SetForegroundColor
+    ;longr
     
     write ansi_string
     

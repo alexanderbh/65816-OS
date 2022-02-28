@@ -84,9 +84,9 @@ TaskSpawn:
     tya
     clc
     adc #$A0
-    sta TaskStackPointer,x
+    sta TaskStackPointer+1,x
     lda #$FF
-    sta TaskStackPointer+1,x            ; Stack pointer: $AxFF
+    sta TaskStackPointer,x            ; Stack pointer: $AxFF
 
 
     lda TaskSpawnArg_Addr,s

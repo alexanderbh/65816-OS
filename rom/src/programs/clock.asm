@@ -14,6 +14,9 @@ ClockExec:
     jsr LongDelay
     jsr LongDelay
     jsr LongDelay
+    jsr LongDelay
+    jsr LongDelay
+
 
     jmp @loop
 

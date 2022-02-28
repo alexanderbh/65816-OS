@@ -50,6 +50,15 @@ loop0020:
     longr
     write ok_string
 
+    lda #$00
+    ldx #$0000
+@loop:
+    sta $A000,x
+    
+    inx
+    cpx #$1000
+    bne @loop
+
     RTL
 
 
