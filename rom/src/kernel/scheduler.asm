@@ -235,23 +235,16 @@ Scheduler_NextTask:
     lda TaskStatusRegister,x
     sta InterruptStatusRegister,s
 
-; Set Direct Page to $9x00
-    txa
-    clc
-    adc #$90                                ; A = $9x
-    longr
-    xba                                     ; A = $9x??
-    and #$FF00                              ; A = $9x00
-    ;tcd
     txa
     asl
     tax
+; Set Direct Page to $9x00
+    lda ActiveTask
+    clc
+    adc #$90                                ; A = $9x
+
     sta InterruptDP,x
-    shortr
-
-
-
-
+    ;jsl RA8875_WriteHex
 
 ; Set registers
     lda TaskA,x
