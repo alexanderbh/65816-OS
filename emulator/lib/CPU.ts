@@ -1,17 +1,20 @@
 import { log } from "./Logger";
 import { System } from "./System";
-import { join, low, addr } from "./Utils";
+import { join, low, addr, bank } from "./Utils";
 
 export class CPU {
   private system: System;
   cycles: number;
   PC: Address;
+  PBR: Byte;
+  DP: Byte;
   A: Register;
   X: Register;
   Y: Register;
 
   // Processor register
   P: {
+    N: boolean; // Negative
     C: boolean; // Carry
     Z: boolean; // Zero
     M: boolean; // A register size: false=16bit true=8bit
@@ -27,48 +30,63 @@ export class CPU {
 
   public reset() {
     this.cycles = 0;
+    this.PBR = 0;
+    this.DP = 0;
     this.PC = 0xfffc;
     this.E = true;
     this.P = {
+      N: false,
       C: false,
       Z: true,
       M: true,
       X: true,
     };
-    this.A = new Register();
-    this.X = new Register();
-    this.Y = new Register();
+    this.A = new Register(this);
+    this.X = new Register(this);
+    this.Y = new Register(this);
     this.cycles += 7;
     const resetVector = this.system.readWord(this.PC);
     this.PC = addr(resetVector);
   }
 
-  public step() {
-    const opcode = this.system.read(this.PC);
-    log.debug(
-      `Read opcode from: ${this.PC.toString(16)}: ${opcode.toString(16)}`
-    );
-    this.incProgramCounter(1);
-    switch (opcode) {
-      case 0x18:
-        this.Op_clc();
-        break;
-      case 0x38:
-        this.Op_sec();
-        break;
-      case 0xa9:
-        this.Op_lda(this.Am_immm());
-        break;
-      case 0xc2:
-        this.Op_rep(this.Am_immb());
-        break;
-      case 0xe2:
-        this.Op_sep(this.Am_immb());
-        break;
-      case 0xfb:
-        this.Op_xce();
-        break;
+  public step(steps: number = 1) {
+    for (var step = 0; step < steps; step++) {
+      const opcode = this.system.read(this.PC);
+      log.debug(
+        `Read opcode from: ${this.PC.toString(16)}: ${opcode.toString(16)}`
+      );
+      this.incProgramCounter(1);
+      switch (opcode) {
+        case 0x18:
+          this.Op_clc();
+          break;
+        case 0x38:
+          this.Op_sec();
+          break;
+        case 0xa9:
+          this.Op_lda(this.Am_immm());
+          break;
+        case 0xc2:
+          this.Op_rep(this.Am_immb());
+          break;
+        case 0xe2:
+          this.Op_sep(this.Am_immb());
+          break;
+        case 0xfb:
+          this.Op_xce();
+          break;
+      }
     }
+  }
+
+  public setNZ(b: Byte) {
+    this.P.Z = b === 0;
+    this.SetN(b & 0x80);
+  }
+
+  public setNZWord(w: Word) {
+    this.P.Z = w === 0;
+    this.SetN(w & 0x8000);
   }
 
   private incProgramCounter(num: number) {
@@ -89,6 +107,7 @@ export class CPU {
     const tmpC = this.P.C;
     this.P.C = this.E;
     this.E = tmpC;
+    this.DP = 0;
     // TODO: What happens to registers when switching off emulation?
     this.cycles += 2;
   }
@@ -149,31 +168,46 @@ export class CPU {
 
   // Immidiate byte
   private Am_immb(): Address {
-    const addr = this.PC;
+    const addr = bank(this.PBR) | this.PC;
     this.incProgramCounter(1);
     this.cycles += 0;
     return addr;
   }
 
+  // Direct Page
+  private Am_dpag(): Address {
+    const offset = this.system.read(bank(this.PBR) | this.PC);
+    this.incProgramCounter(1);
+    this.cycles += 1;
+    return this.DP + offset;
+  }
+
   private SetC(n: number) {
-    this.P.C = n != 0;
+    this.P.C = n !== 0;
+  }
+  private SetN(n: number) {
+    this.P.N = n !== 0;
   }
 }
 
 class Register {
+  private cpu: CPU;
   public byte: Byte;
   public word: Word;
 
-  public constructor() {
+  public constructor(cpu: CPU) {
+    this.cpu = cpu;
     this.byte = 0;
     this.word = 0;
   }
   public setByte(b: Byte) {
     this.byte = b;
     this.word = join(b, 0);
+    this.cpu.setNZ(b);
   }
   public setWord(w: Word) {
     this.word = w;
     this.byte = low(w);
+    this.cpu.setNZWord(w);
   }
 }

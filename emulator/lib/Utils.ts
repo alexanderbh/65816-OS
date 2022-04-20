@@ -16,6 +16,10 @@ export const high = (w: Word): Byte => {
   return w >> 8;
 };
 
+export const bank = (bank: Byte): number => {
+  return bank << 16;
+};
+
 export const generateRom = (data: Byte[]): ROM => {
   const data4k = new Array<number>(0x4000);
   data.forEach((b, i) => (data4k[i] = b));

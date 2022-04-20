@@ -1,5 +1,6 @@
 import { System } from "../System";
 import { generateRom } from "../Utils";
+import { make, F } from "./ProgramGenerator";
 
 describe("RAM", () => {
   it("should read write ram", () => {
@@ -16,9 +17,46 @@ describe("RAM", () => {
   });
 });
 
+describe("Flags", () => {
+  it("should set Z flag on lda", () => {
+    const rom = generateRom([F.LdaImmediate, 0x42, F.LdaImmediate, 0x00]);
+    const sys = new System(rom);
+
+    sys.cpu.reset();
+    expect(sys.cpu.P.Z).toEqual(true);
+    sys.cpu.step();
+    expect(sys.cpu.P.Z).toEqual(false);
+    sys.cpu.step();
+    expect(sys.cpu.P.Z).toEqual(true);
+  });
+  it("should set N flag on lda", () => {
+    const rom = generateRom([F.LdaImmediate, 0xef, F.LdaImmediate, 0x0f]);
+    const sys = new System(rom);
+
+    sys.cpu.reset();
+    expect(sys.cpu.P.N).toEqual(false);
+    sys.cpu.step();
+    expect(sys.cpu.P.N).toEqual(true);
+    sys.cpu.step();
+    expect(sys.cpu.P.N).toEqual(false);
+  });
+  it("should set N flag on lda long", () => {
+    const rom = generateRom(
+      make([F.EmulationOff, F.A16bit, F.LdaImmediate, 0x00, 0x83])
+    );
+    const sys = new System(rom);
+
+    sys.cpu.reset();
+    expect(sys.cpu.P.N).toEqual(false);
+    sys.cpu.step(4);
+    expect(sys.cpu.P.N).toEqual(true);
+    expect(sys.cpu.A.word).toEqual(0x8300);
+  });
+});
+
 describe("Opcodes", () => {
   it("lda immediate: 0xA9", () => {
-    const rom = generateRom([0xa9, 0x42]);
+    const rom = generateRom([F.LdaImmediate, 0x42]);
     const sys = new System(rom);
 
     sys.cpu.reset();
@@ -28,7 +66,7 @@ describe("Opcodes", () => {
     expect(sys.cpu.A.word).toEqual(0x42);
   });
   it("lda immediate: 0xA9 - emulation off", () => {
-    const rom = generateRom([0x18, 0xfb, 0xa9, 0x42]);
+    const rom = generateRom(make([F.EmulationOff, F.LdaImmediate, 0x42]));
     const sys = new System(rom);
 
     sys.cpu.reset();
@@ -44,8 +82,19 @@ describe("Opcodes", () => {
     expect(sys.cpu.A.byte).toEqual(0x42);
     expect(sys.cpu.A.word).toEqual(0x42);
   });
-  it("lda immediate: 0xA9 - emulation off - A: 16bit", () => {
-    const rom = generateRom([0x18, 0xfb, 0xc2, 0x20, 0xa9, 0x42, 0x69]);
+  it("lda immediate: 0xA9 - emulation off - A: 16bit -> 8bit", () => {
+    const rom = generateRom(
+      make([
+        F.EmulationOff,
+        F.A16bit,
+        F.LdaImmediate,
+        0x42,
+        0x69,
+        F.A8bit,
+        F.LdaImmediate,
+        0xba,
+      ])
+    );
     const sys = new System(rom);
 
     sys.cpu.reset();
@@ -65,5 +114,11 @@ describe("Opcodes", () => {
 
     sys.cpu.step(); // 0xa9, 0x42 0x69
     expect(sys.cpu.A.word).toEqual(0x6942);
+
+    sys.cpu.step(); // 0xe2, 0x20
+    expect(sys.cpu.P.M).toEqual(true);
+
+    sys.cpu.step(); // 0xa9, 0xba
+    expect(sys.cpu.A.byte).toEqual(0xba);
   });
 });
