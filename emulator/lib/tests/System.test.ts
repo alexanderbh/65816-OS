@@ -1,5 +1,5 @@
-import { ROM, System } from "../system";
-import { generateRom } from "../utils";
+import { System } from "../System";
+import { generateRom } from "../Utils";
 
 describe("RAM", () => {
   it("should read write ram", () => {

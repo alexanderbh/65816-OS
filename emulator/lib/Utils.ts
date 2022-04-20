@@ -1,4 +1,5 @@
-import { ROM, ROM_START } from "./system";
+import { ROM } from "./ROM";
+import { ROM_START } from "./System";
 
 export const addr = (w: Word): Address => {
   return w as unknown as Address;
