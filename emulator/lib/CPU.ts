@@ -55,26 +55,19 @@ export class CPU {
       log.debug(
         `Read opcode from: ${this.PC.toString(16)}: ${opcode.toString(16)}`
       );
+
       this.incProgramCounter(1);
-      switch (opcode) {
-        case 0x18:
-          this.Op_clc();
-          break;
-        case 0x38:
-          this.Op_sec();
-          break;
-        case 0xa9:
-          this.Op_lda(this.Am_immm());
-          break;
-        case 0xc2:
-          this.Op_rep(this.Am_immb());
-          break;
-        case 0xe2:
-          this.Op_sep(this.Am_immb());
-          break;
-        case 0xfb:
-          this.Op_xce();
-          break;
+      // prettier-ignore
+      {
+        switch (opcode) {
+          case 0x18: this.Op_clc(); break;
+          case 0x38: this.Op_sec(); break;
+          case 0xa5: this.Op_lda(this.Am_dpag()); break;
+          case 0xa9: this.Op_lda(this.Am_immm()); break;
+          case 0xc2: this.Op_rep(this.Am_immb()); break;
+          case 0xe2: this.Op_sep(this.Am_immb()); break;
+          case 0xfb: this.Op_xce(); break;
+        }
       }
     }
   }

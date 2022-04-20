@@ -2,6 +2,7 @@ export const F = {
   EmulationOff: [0x18, 0xfb],
   A16bit: [0xc2, 0x20],
   A8bit: [0xe2, 0x20],
+  LdaDP: 0xa5,
   LdaImmediate: 0xa9,
 };
 

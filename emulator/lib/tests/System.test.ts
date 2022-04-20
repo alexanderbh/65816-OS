@@ -55,6 +55,40 @@ describe("Flags", () => {
 });
 
 describe("Opcodes", () => {
+  it("lda direct page: 0xA5", () => {
+    const rom = generateRom([F.LdaDP, 0x05, F.LdaDP, 0x06]);
+    const sys = new System(rom);
+
+    sys.cpu.reset();
+
+    // Inject RAM for testing
+    sys.write(0x0005, 0x42);
+    sys.write(0x0006, 0x69);
+
+    sys.cpu.step();
+    expect(sys.cpu.A.byte).toEqual(0x42);
+    sys.cpu.step();
+    expect(sys.cpu.A.byte).toEqual(0x69);
+  });
+  it("lda direct page: 0xA5 - 16bit", () => {
+    const rom = generateRom(
+      make([F.EmulationOff, F.A16bit, F.LdaDP, 0x05, F.LdaDP, 0x42])
+    );
+    const sys = new System(rom);
+
+    sys.cpu.reset();
+
+    // Inject RAM for testing
+    sys.write(0x0005, 0x42);
+    sys.write(0x0006, 0x69);
+    sys.write(0x0042, 0x34);
+    sys.write(0x0043, 0x12);
+
+    sys.cpu.step(4);
+    expect(sys.cpu.A.word).toEqual(0x6942);
+    sys.cpu.step();
+    expect(sys.cpu.A.word).toEqual(0x1234);
+  });
   it("lda immediate: 0xA9", () => {
     const rom = generateRom([F.LdaImmediate, 0x42]);
     const sys = new System(rom);
@@ -82,7 +116,7 @@ describe("Opcodes", () => {
     expect(sys.cpu.A.byte).toEqual(0x42);
     expect(sys.cpu.A.word).toEqual(0x42);
   });
-  it("lda immediate: 0xA9 - emulation off - A: 16bit -> 8bit", () => {
+  it("lda immediate: 0xA9 - 16bit to 8bit", () => {
     const rom = generateRom(
       make([
         F.EmulationOff,
