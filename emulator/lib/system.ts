@@ -85,7 +85,10 @@ class CPU {
 
   // Processor register
   P: {
+    C: boolean; // Carry
+    Z: boolean; // Zero
     M: boolean; // A register size: false=16bit true=8bit
+    X: boolean; // index register size: false=16bit true=8bit
   };
 
   // Emulation mode
@@ -100,7 +103,10 @@ class CPU {
     this.pc = 0xfffc;
     this.E = true;
     this.P = {
+      C: false,
+      Z: true,
       M: true,
+      X: true,
     };
     this.A = new Register();
     this.cycles += 7;
@@ -115,8 +121,23 @@ class CPU {
     );
     this.readBytes(1);
     switch (opcode) {
+      case 0x18:
+        this.Op_clc();
+        break;
+      case 0x38:
+        this.Op_sec();
+        break;
       case 0xa9:
         this.Op_lda(this.Am_immm());
+        break;
+      case 0xc2:
+        this.Op_rep(this.Am_immb());
+        break;
+      case 0xe2:
+        this.Op_sep(this.Am_immb());
+        break;
+      case 0xfb:
+        this.Op_xce();
         break;
     }
   }
@@ -135,12 +156,77 @@ class CPU {
     }
   }
 
+  private Op_xce() {
+    const tmpC = this.P.C;
+    this.P.C = this.E;
+    this.E = tmpC;
+    // TODO: What happens to registers when switching off emulation?
+    this.cycles += 2;
+  }
+  private Op_clc() {
+    this.SetC(0);
+    this.cycles += 2;
+  }
+  private Op_sec() {
+    this.SetC(1);
+    this.cycles += 2;
+  }
+
+  private Op_sep(addr: Address) {
+    const b = this.system.read(addr);
+    // TODO: Set b register as byte
+    if (this.E) {
+      this.P.M = true;
+      this.P.X = true;
+    } else {
+      if (b & 0x20) {
+        this.P.M = true;
+      }
+      if (b & 0x30) {
+        this.P.X = true;
+      }
+    }
+    if (this.P.X) {
+      // TODO: Truncate index registers
+    }
+    this.cycles += 3;
+  }
+  private Op_rep(addr: Address) {
+    const b = this.system.read(addr);
+    // TODO: Set b register as byte
+    if (this.E) {
+      this.P.M = true;
+      this.P.X = true;
+    } else {
+      if (b & 0x20) {
+        this.P.M = false;
+      }
+      if (b & 0x30) {
+        this.P.X = false;
+      }
+    }
+    this.cycles += 3;
+  }
+
+  // Immidiate based on size of A
   private Am_immm(): Address {
     const addr = this.pc;
     const size = this.E || this.P.M ? 1 : 2;
     this.readBytes(size);
     this.cycles += size - 1;
     return addr;
+  }
+
+  // Immidiate byte
+  private Am_immb(): Address {
+    const addr = this.pc;
+    this.readBytes(1);
+    this.cycles += 0;
+    return addr;
+  }
+
+  private SetC(n: number) {
+    this.P.C = n != 0;
   }
 }
 
