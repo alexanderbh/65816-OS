@@ -1,8 +1,16 @@
 import { addr, high, join, low } from "./utils";
 
 export const ROM_START = 0xc000;
+enum LOG_LEVEL {
+  DEBUG = 0,
+  INFO = 1,
+}
+
+const log_level: LOG_LEVEL = LOG_LEVEL.INFO;
+
 const log = {
-  debug: (m: string) => console.log(m),
+  debug: (m: string) => log_level >= LOG_LEVEL.DEBUG && console.log(m),
+  info: (m: string) => log_level >= LOG_LEVEL.INFO && console.log(m),
 };
 
 export class System implements AddressBus {
@@ -82,6 +90,8 @@ class CPU {
   cycles: number;
   pc: Address;
   A: Register;
+  X: Register;
+  Y: Register;
 
   // Processor register
   P: {
@@ -109,6 +119,8 @@ class CPU {
       X: true,
     };
     this.A = new Register();
+    this.X = new Register();
+    this.Y = new Register();
     this.cycles += 7;
     const resetVector = this.system.readWord(this.pc);
     this.pc = addr(resetVector);
@@ -187,7 +199,8 @@ class CPU {
       }
     }
     if (this.P.X) {
-      // TODO: Truncate index registers
+      this.X.setWord(join(this.X.byte, 0));
+      this.Y.setWord(join(this.Y.byte, 0));
     }
     this.cycles += 3;
   }

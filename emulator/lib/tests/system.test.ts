@@ -35,12 +35,12 @@ describe("Opcodes", () => {
     expect(sys.cpu.P.C).toEqual(false);
     expect(sys.cpu.E).toEqual(true);
 
-    sys.cpu.step();
+    sys.cpu.step(); // 0x18
     expect(sys.cpu.P.C).toEqual(false);
-    sys.cpu.step();
+    sys.cpu.step(); // 0xfb
     expect(sys.cpu.E).toEqual(false);
 
-    sys.cpu.step();
+    sys.cpu.step(); //0xa9, 0x42
     expect(sys.cpu.A.byte).toEqual(0x42);
     expect(sys.cpu.A.word).toEqual(0x42);
   });
