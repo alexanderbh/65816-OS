@@ -1,7 +1,7 @@
 import { ROM, System } from "../system";
 import { generateRom } from "../utils";
 
-describe("Can read RAM", () => {
+describe("RAM", () => {
   it("should read write ram", () => {
     const sys = new System();
     sys.write(42, 88);
