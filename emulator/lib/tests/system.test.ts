@@ -1,4 +1,5 @@
-import { System } from "../system";
+import { ROM, System } from "../system";
+import { generateRom } from "../utils";
 
 describe("Can read RAM", () => {
   it("should read write ram", () => {
@@ -8,9 +9,22 @@ describe("Can read RAM", () => {
     expect(sys.read(42)).toEqual(88);
   });
 
-  it("should read 0 from empty ram", () => {
+  it("should read undefined from empty ram", () => {
     const sys = new System();
 
-    expect(sys.read(42)).toEqual(0);
+    expect(sys.read(42)).toEqual(undefined);
+  });
+});
+
+describe("Opcodes", () => {
+  it("lda immediate: 0xA9", () => {
+    const rom = generateRom([0xa9, 0x42]);
+    const sys = new System(rom);
+
+    sys.cpu.reset();
+    sys.cpu.step();
+
+    expect(sys.cpu.A.byte).toEqual(0x42);
+    expect(sys.cpu.A.word).toEqual(0x42);
   });
 });
