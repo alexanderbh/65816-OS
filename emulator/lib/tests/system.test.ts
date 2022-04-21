@@ -27,7 +27,7 @@ describe("Opcodes", () => {
     expect(sys.cpu.A.byte).toEqual(0x42);
     expect(sys.cpu.A.word).toEqual(0x42);
   });
-  it("lda immediate: 0xA9 - emulation off", () => {
+  it("lda immediate: 0xA9 - emulation off - A:  8bit", () => {
     const rom = generateRom([0x18, 0xfb, 0xa9, 0x42]);
     const sys = new System(rom);
 
