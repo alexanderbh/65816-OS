@@ -1,4 +1,5 @@
-import { ROM, ROM_START } from "./system";
+import { ROM } from "./ROM";
+import { ROM_START } from "./System";
 
 export const addr = (w: Word): Address => {
   return w as unknown as Address;
@@ -13,6 +14,10 @@ export const low = (w: Word): Byte => {
 
 export const high = (w: Word): Byte => {
   return w >> 8;
+};
+
+export const bank = (bank: Byte): number => {
+  return bank << 16;
 };
 
 export const generateRom = (data: Byte[]): ROM => {
