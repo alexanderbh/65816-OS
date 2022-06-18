@@ -40,6 +40,7 @@ InterruptPB = InterruptPC+2
 SchedulerCount: .res 1
 
 TimerCounter: .res 2
+TaskSwitches: .res 2
 
 TempStackReturnBank: .res 1
 TempStackReturnPC: .res 2
@@ -293,9 +294,11 @@ Scheduler_NextTask:
 .I16
 InitScheduler:
     
-    stz TimerCounter   ; set interrupt timer counter to 0
+    stz TimerCounter        ; set interrupt timer counter to 0
+    stz TaskSwitches        ; set task switch count to 0
 
-    lda #$FFFF
+; should be approx 256 times per second
+    lda #9896
     sta VIA1_T1CL
 
     shortr

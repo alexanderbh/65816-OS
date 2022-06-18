@@ -1,43 +1,20 @@
 
+.SEGMENT "RAM"
+
+ClockCounter: .res 2
+
+.code
 .A16
 .I16
 ClockExec:
     shortr
-    lda #$FF
+    lda #$0
     sta $0
 @loop:
-    ;lda TimerCounter+1
-    ;cmp $0
-    ;beq @loop
-
-    ;lda TimerCounter+1
-    ;sta $0
-    ;jsl RA8875_WriteHex
-    ;lda TimerCounter
-    ;jsl RA8875_WriteHex
-
-    phd
-    
-    lda 2,s
-    jsl RA8875_WriteHex
-    lda 1,s
-    jsl RA8875_WriteHex
-    
-    pla
-    pla
-
-    jsr LongDelay
-    jsr LongDelay
-    jsr LongDelay
-    jsr LongDelay
-    jsr LongDelay
-    jsr LongDelay
-    jsr LongDelay
-    jsr LongDelay
-    jsr LongDelay
-    jsr LongDelay
-    jsr LongDelay
-    jsr LongDelay
+    inc ClockCounter
+    BNE @lowonly    ; Branch to end if the low byte didn't roll over to 00.
+    inc ClockCounter+1
+    @lowonly:
 
 
     jmp @loop

@@ -35,9 +35,13 @@ InterruptTimer1:
 @lowcnt:
     inc SchedulerCount
     lda SchedulerCount
-    cmp #$30
+    cmp #$06
     bne @noschedule
     stz SchedulerCount
+    inc TaskSwitches
+    BNE @lowcntSwitch    ; Branch to end if the low byte didn't roll over to 00.
+    inc TaskSwitches+1
+@lowcntSwitch:
     jsl Scheduler_NextTask
 @noschedule:
 
