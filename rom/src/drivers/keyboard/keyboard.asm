@@ -67,16 +67,31 @@ keyboardHandleAscii:
     ;jsl RA8875_WriteChar                    ; TODO: Do not print here
     jsl StreamPutC                          ; Put in standard in stream
 
+
+; DEBUG SINGLE KEY COMMANDS. TODO REMOVE THIS
     cmp #$69
     bne @next1
-    jsl Scheduler_NextTask
+    lda TaskSwitches+1
+    jsl RA8875_WriteHex
+    lda TaskSwitches
+    jsl RA8875_WriteHex
 @next1:
     cmp #$6A
-    bne @return
+    bne @next2
     lda TimerCounter+1
     jsl RA8875_WriteHex
     lda TimerCounter
     jsl RA8875_WriteHex
+
+    
+@next2:
+    cmp #$6B
+    bne @return
+    lda ClockCounter+1
+    jsl RA8875_WriteHex
+    lda ClockCounter
+    jsl RA8875_WriteHex
+; END DEBUG
 
 @return:
     rts

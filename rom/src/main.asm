@@ -129,11 +129,10 @@ ResetVector:
     ;write test_string
     ;shortr
 
-    lda #$00            ; push program bank of ShellExec
+    lda #$00            ; push program bank of ClockExec
     pha
     longr
-    pea ClockExec       ; push 2byte addr of ShellExec
-
+    pea ClockExec       ; push 2byte addr of ClockExec
     jsl TaskSpawn
 
     pla ; elean up 16bits
@@ -141,12 +140,14 @@ ResetVector:
     ;write test_string
     shortr
     pla ; clean up
-    lda TaskProgramBank+1
-    jsl RA8875_WriteHex
-    lda TaskProgramPointer+2
-    jsl RA8875_WriteHex
-    lda TaskProgramPointer+3
-    jsl RA8875_WriteHex
+    
+    ; debug printing of task
+    ;lda TaskProgramBank+1
+    ;jsl RA8875_WriteHex
+    ;lda TaskProgramPointer+2
+    ;jsl RA8875_WriteHex
+    ;lda TaskProgramPointer+3
+    ;jsl RA8875_WriteHex
 
 
     cli
