@@ -6,13 +6,16 @@ type ROMContainerProps = {
 export const ROMContainer: React.FC<ROMContainerProps> = ({ rom }) => {
   return (
     <Grid container>
-      <Grid item>
+      <Grid item xs={12}>
         <Typography variant="body1" gutterBottom>
           ROM
         </Typography>
       </Grid>
-      <Grid item sx={{ overflowWrap: "anywhere" }}>
-        <Typography variant="caption" sx={{ fontSize: "9px" }}>
+      <Grid item xs={12}>
+        <Typography
+          variant="body1"
+          sx={{ fontSize: "12px", whiteSpace: "pre-line" }}
+        >
           {rom}
         </Typography>
       </Grid>

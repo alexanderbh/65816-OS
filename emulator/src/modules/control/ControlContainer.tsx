@@ -2,61 +2,40 @@ import { Button, Divider, Grid, IconButton, Typography } from "@mui/material";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import PauseIcon from "@mui/icons-material/Pause";
 import SkipNextIcon from "@mui/icons-material/SkipNext";
-import { useRef } from "react";
+import { ROMLoader } from "./components/ROMLoader";
 
 type ControlContainerProps = {
-  setRom: (rom: string) => void;
+  loadRom: (rom: ArrayBuffer) => void;
+  step: undefined | (() => void);
+  play: undefined | (() => void);
+  stop: undefined | (() => void);
+  reset: undefined | (() => void);
 };
 export const ControlContainer: React.FC<ControlContainerProps> = ({
-  setRom,
+  loadRom,
+  step,
+  play,
+  stop,
+  reset,
 }) => {
-  const fileUploadRef = useRef(null);
-  let fileReader: FileReader;
-
-  const handleFileRead = (e: ProgressEvent<FileReader>) => {
-    const content = fileReader.result;
-    console.log("file", content);
-    if (content) {
-      setRom(content?.toString());
-    }
-  };
-
-  const handleFileChosen = (file: FileList | null) => {
-    fileReader = new FileReader();
-
-    fileReader.onloadend = handleFileRead;
-    fileReader.readAsText(file!.item(0)!);
-  };
   return (
     <>
       <Typography variant="caption">CONTROL</Typography>
       <Grid container spacing={2}>
         <Grid item>
-          <Button
-            size="small"
-            onClick={() => {
-              if (fileUploadRef?.current) {
-                (fileUploadRef.current as any).click();
-              }
-            }}
-            variant="contained"
-          >
-            LOAD ROM
-          </Button>
-          <input
-            ref={fileUploadRef}
-            type="file"
-            id="file"
-            style={{ display: "none" }}
-            className="input-file"
-            onChange={(e) => handleFileChosen(e.target.files)}
-          />
+          <ROMLoader loadRom={loadRom} />
         </Grid>
         <Grid item>
           <Divider orientation="vertical" />
         </Grid>
         <Grid item>
-          <Button size="small" onClick={() => {}} variant="contained">
+          <Button
+            size="small"
+            onClick={() => {
+              reset && reset();
+            }}
+            variant="contained"
+          >
             RESET
           </Button>
         </Grid>
@@ -64,13 +43,34 @@ export const ControlContainer: React.FC<ControlContainerProps> = ({
           <Divider orientation="vertical" />
         </Grid>
         <Grid item>
-          <IconButton size="small" color="primary" onClick={() => {}}>
+          <IconButton
+            size="small"
+            color="primary"
+            disabled={play === undefined}
+            onClick={() => {
+              play && play();
+            }}
+          >
             <PlayArrowIcon />
           </IconButton>
-          <IconButton size="small" color="primary" onClick={() => {}}>
+          <IconButton
+            size="small"
+            color="primary"
+            disabled={stop === undefined}
+            onClick={() => {
+              stop && stop();
+            }}
+          >
             <PauseIcon />
           </IconButton>
-          <IconButton size="small" color="primary" onClick={() => {}}>
+          <IconButton
+            size="small"
+            color="primary"
+            disabled={step === undefined}
+            onClick={() => {
+              step && step();
+            }}
+          >
             <SkipNextIcon />
           </IconButton>
         </Grid>
