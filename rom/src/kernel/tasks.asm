@@ -136,11 +136,12 @@ TaskSpawn:
 .A8
 .I8
 TaskFindUnusedTask:
+        clc
         pha
         ldx #0
     @loop:
         lda TaskStatus,x
-        beq @found 
+        beq @return 
         inx
         cpx #NUMBER_OF_TASKS         ; Reach end of tasks list?
         bne @loop
@@ -149,14 +150,12 @@ TaskFindUnusedTask:
     @loop2:
         lda TaskStatus,x
         cmp #TASK_STATUS_EXITED
-        bcs @found
+        bcs @return
         inx
         cpx #NUMBER_OF_TASKS
         bne @loop2
         sec                         ; reached the end the second time.
-        jmp @return                 ; no slots available. return with carry set
-    @found:
-        clc
+                                    ; no slots available. return with carry set
     @return:
         pla
         rts
