@@ -81,7 +81,8 @@ Scheduler_NextTask:
     ;longr
     ;jsl DumpStack
     ;shortr
-    ldx ActiveTask
+    ;ldx ActiveTask
+    
     lda InterruptDB,s
     sta TaskDataBank,x
 

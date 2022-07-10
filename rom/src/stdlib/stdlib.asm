@@ -21,6 +21,7 @@ StdLib:
 StdLibTable:
     .word Stdlib_StrLen
     .word Stdlib_ReadNum
+    .word StdLib_StrCompareUntilWhiteSpace
 
 
 .include "strings.asm"
