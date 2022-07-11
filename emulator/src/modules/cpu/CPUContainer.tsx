@@ -1,10 +1,24 @@
 import { Grid, Typography } from "@mui/material";
+import { useMemo } from "react";
 import { CPUState } from "../../App";
 
 type CPUContainerProps = {
   cpuState: CPUState;
 };
 export const CPUContainer: React.FC<CPUContainerProps> = ({ cpuState }) => {
+  const hz = useMemo(() => {
+    if (cpuState.hz === 0) {
+      return "-";
+    }
+    if (cpuState.hz > 500000) {
+      return (cpuState.hz / 1000000).toFixed(2) + " MHz";
+    }
+    if (cpuState.hz > 50000) {
+      return (cpuState.hz / 100000).toFixed(2) + " kHz";
+    }
+    return cpuState.hz.toFixed(2) + " Hz";
+  }, [cpuState.hz]);
+
   return (
     <>
       <Typography variant="body1" gutterBottom>
@@ -31,10 +45,7 @@ export const CPUContainer: React.FC<CPUContainerProps> = ({ cpuState }) => {
       </Grid>
       <Grid container spacing={4}>
         <Grid item xs={8}>
-          HZ:{" "}
-          {cpuState.hz === 0
-            ? "-"
-            : (cpuState.hz / 1000000).toFixed(2) + " MHz"}
+          HZ: {hz}
         </Grid>
       </Grid>
     </>

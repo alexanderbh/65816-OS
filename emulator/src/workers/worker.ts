@@ -7,6 +7,8 @@ let sys: System | undefined;
 
 let lastUpdate = 0;
 
+let slowDownFactor = 0;
+
 let breaker = false;
 
 let hz = 0;
@@ -25,7 +27,14 @@ async function run() {
       cyclesLastMeasure = Date.now();
     }
     counter++;
-
+    if (
+      slowDownFactor > 0 &&
+      counter % Math.max(1, 1001 - slowDownFactor) === 0
+    ) {
+      await new Promise((resolve) =>
+        setTimeout(resolve, Math.max(0, slowDownFactor - 1000))
+      );
+    }
     if (counter % 1000000 === 0) {
       await new Promise((resolve) => setTimeout(resolve, 0));
     }
