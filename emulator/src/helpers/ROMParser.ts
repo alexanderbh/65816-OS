@@ -1,9 +1,13 @@
+import { ROM_OFFSET } from "../App";
+
 export const ParseRom = (romBuffer: ArrayBuffer): string => {
   const rom = new Uint8Array(romBuffer);
   let result = "";
   let addDots = false;
+  console.log("length", rom.length);
   for (let addr = 0; addr < rom.length / 16; addr += 1) {
-    const addrPrefix = addr.toString(16).padStart(4, "0") + " ";
+    const addrPrefix =
+      (16 * addr + ROM_OFFSET).toString(16).padEnd(4, "0") + " ";
     const bytes: string[] = [];
     let lineHasData = false;
     for (let word = 0; word < 16; word++) {
@@ -24,5 +28,4 @@ export const ParseRom = (romBuffer: ArrayBuffer): string => {
     }
   }
   return result;
-  //return "0000: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n0010: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00";
 };

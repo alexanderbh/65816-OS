@@ -7,12 +7,10 @@ import { RAMContainer } from "./modules/ram/RAMContainer";
 import { ROMContainer } from "./modules/rom/ROMContainer";
 import { theme } from "./theme/ThemeSetup";
 import { ParseRom } from "./helpers/ROMParser";
-import { System } from "./lib/System";
-import { ROM } from "./lib/ROM";
 
-export const ROM_OFFSET = 0x4000;
+export const ROM_OFFSET = 0x8000;
 
-let system: System | undefined;
+const worker = new Worker(new URL("./workers/worker.ts", import.meta.url));
 
 export type CPUState = {
   A: string;
@@ -23,7 +21,9 @@ export type CPUState = {
 };
 
 function App() {
-  const [timer, setTimer] = useState<NodeJS.Timeout | undefined>();
+  const [systemState, setSystemState] = useState<"stopped" | "running">(
+    "stopped"
+  );
   const [rom, setRom] = useState<string | undefined>();
   const [cpuState, setCpuState] = useState<CPUState>({
     A: "-",
@@ -35,21 +35,25 @@ function App() {
 
   const loadRom = useCallback((romBuffer: ArrayBuffer) => {
     setRom(ParseRom(romBuffer));
-    const sys = new System(
-      new ROM(Array.from(new Uint8Array(romBuffer)), ROM_OFFSET)
-    );
-    sys.observe((newSystem) => {
-      setCpuState({
-        A: newSystem.cpu.A.toString(),
-        X: newSystem.cpu.X.toString(),
-        Y: newSystem.cpu.Y.toString(),
-        PC: newSystem.cpu.PC.toString(16).padStart(4, "0"),
-        cycles: newSystem.cpu.cycles + "",
-      });
+    worker.postMessage({
+      cmd: "load",
+      romBuffer,
     });
-    sys.reset();
-
-    system = sys;
+    worker.addEventListener("message", (e) => {
+      switch (e.data.cmd) {
+        case "update":
+          setCpuState(e.data.cpu);
+          break;
+        case "running":
+          setSystemState("running");
+          break;
+        case "stopped":
+          setSystemState("stopped");
+          break;
+        default:
+          console.warn("Command not recognized in app");
+      }
+    });
   }, []);
 
   return (
@@ -60,30 +64,26 @@ function App() {
           <ControlContainer
             loadRom={loadRom}
             reset={() => {
-              system?.reset();
+              worker.postMessage({ cmd: "reset" });
             }}
             step={
-              rom
+              systemState === "stopped" && rom
                 ? () => {
-                    system?.cpu.step();
+                    worker.postMessage({ cmd: "step" });
                   }
                 : undefined
             }
             play={
-              !timer && rom
+              systemState === "stopped" && rom
                 ? () => {
-                    const to = setInterval(() => {
-                      system?.cpu.step();
-                    }, 100);
-                    setTimer(to);
+                    worker.postMessage({ cmd: "start" });
                   }
                 : undefined
             }
             stop={
-              timer
+              systemState === "running"
                 ? () => {
-                    clearTimeout(timer);
-                    setTimer(undefined);
+                    worker.postMessage({ cmd: "stop" });
                   }
                 : undefined
             }
