@@ -25,8 +25,16 @@ export const CPUContainer: React.FC<CPUContainerProps> = ({ cpuState }) => {
         <Grid item xs={4}>
           PC: {cpuState.PC}
         </Grid>
-        <Grid item xs={4}>
+        <Grid item xs={8}>
           Cycles: {cpuState.cycles}
+        </Grid>
+      </Grid>
+      <Grid container spacing={4}>
+        <Grid item xs={8}>
+          HZ:{" "}
+          {cpuState.hz === 0
+            ? "-"
+            : (cpuState.hz / 1000000).toFixed(2) + " MHz"}
         </Grid>
       </Grid>
     </>

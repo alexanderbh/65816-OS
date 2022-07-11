@@ -5,7 +5,49 @@ import { System } from "../lib/System";
 
 let sys: System | undefined;
 
-let timer: number;
+let lastUpdate = 0;
+
+let breaker = false;
+
+let hz = 0;
+
+async function run() {
+  let cyclesLastCount = sys?.cpu.cycles || 0;
+  let cyclesLastMeasure = Date.now();
+  let counter = 0;
+  while (breaker !== true) {
+    sys && sys.cpu.step();
+    const delta = Date.now() - cyclesLastMeasure;
+    if (delta >= 250) {
+      const newCycles = (sys?.cpu.cycles || 0) - cyclesLastCount;
+      hz = (newCycles / (delta / 250)) * 4;
+      cyclesLastCount = sys?.cpu.cycles || 0;
+      cyclesLastMeasure = Date.now();
+    }
+    counter++;
+
+    if (counter % 1000000 === 0) {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    }
+  }
+  breaker = false;
+}
+
+function updateState() {
+  if (sys) {
+    self.postMessage({
+      cmd: "update",
+      cpu: {
+        A: sys.cpu.A.toString(),
+        X: sys.cpu.X.toString(),
+        Y: sys.cpu.Y.toString(),
+        PC: sys.cpu.PC.toString(16).padStart(4, "0"),
+        cycles: sys.cpu.cycles + "",
+        hz: hz,
+      },
+    });
+  }
+}
 
 self.addEventListener(
   "message",
@@ -16,16 +58,10 @@ self.addEventListener(
           new ROM(Array.from(new Uint8Array(e.data.romBuffer)), 0x4000)
         );
         sys.observe((newSystem) => {
-          self.postMessage({
-            cmd: "update",
-            cpu: {
-              A: newSystem.cpu.A.toString(),
-              X: newSystem.cpu.X.toString(),
-              Y: newSystem.cpu.Y.toString(),
-              PC: newSystem.cpu.PC.toString(16).padStart(4, "0"),
-              cycles: newSystem.cpu.cycles + "",
-            },
-          });
+          if (lastUpdate < Date.now() - 20) {
+            lastUpdate = Date.now();
+            updateState();
+          }
         });
         sys.reset();
         break;
@@ -36,17 +72,13 @@ self.addEventListener(
         break;
       case "start":
         self.postMessage({ cmd: "running" });
-
-        timer = this.setInterval(() => {
-          sys && sys.cpu.step();
-        }, 0);
-
+        console.log("STARTT");
+        run();
         break;
       case "stop":
-        if (timer) {
-          this.clearInterval(timer);
-          timer = 0;
-        }
+        console.log("stoppp");
+        breaker = true;
+        updateState();
         self.postMessage({ cmd: "stopped" });
         break;
       default:

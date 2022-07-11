@@ -18,6 +18,7 @@ export type CPUState = {
   Y: string;
   PC: string;
   cycles: string;
+  hz: number;
 };
 
 function App() {
@@ -31,6 +32,7 @@ function App() {
     Y: "-",
     PC: "-",
     cycles: "-",
+    hz: 0,
   });
 
   const loadRom = useCallback((romBuffer: ArrayBuffer) => {

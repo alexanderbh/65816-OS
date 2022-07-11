@@ -58,9 +58,9 @@ export class CPU {
   public step(steps: number = 1) {
     for (var step = 0; step < steps; step++) {
       const opcode = this.system.read(this.PC);
-      // log.debug(
-      //  `Read opcode from: ${this.PC.toString(16)}: ${opcode.toString(16)}`
-      //);
+      log.debug(
+        `Read opcode from: ${this.PC.toString(16)}: ${opcode.toString(16)}`
+      );
 
       this.incProgramCounter(1);
       // prettier-ignore
