@@ -8,6 +8,8 @@ const EMPTY_STATUS_REGISTER = {
   Z: true,
   M: true,
   X: true,
+  I: true,
+  V: false,
 };
 
 export class CPU {
@@ -23,10 +25,12 @@ export class CPU {
   // Processor register
   P: {
     N: boolean; // Negative
+    V: boolean; // Overflow
     C: boolean; // Carry
     Z: boolean; // Zero
     M: boolean; // A register size: false=16bit true=8bit
     X: boolean; // index register size: false=16bit true=8bit
+    I: boolean; // Interrupt disable
   } = EMPTY_STATUS_REGISTER;
 
   // Emulation mode

@@ -24,28 +24,25 @@ export const CPUContainer: React.FC<CPUContainerProps> = ({ cpuState }) => {
       <Typography variant="body1" gutterBottom>
         CPU
       </Typography>
-      <Grid container spacing={4}>
-        <Grid item xs={4}>
+      <Grid container columnSpacing={2}>
+        <Grid item xs={6}>
           A: {cpuState.A}
-        </Grid>
-        <Grid item xs={4}>
+          <br />
           X: {cpuState.X}
-        </Grid>
-        <Grid item xs={4}>
+          <br />
           Y: {cpuState.Y}
-        </Grid>
-      </Grid>
-      <Grid container spacing={4}>
-        <Grid item xs={4}>
+          <br />
+          NVMXIZC
+          <br />
+          {cpuState.P}
+          <br />
+          <br />
           PC: {cpuState.PC}
         </Grid>
-        <Grid item xs={8}>
+        <Grid item xs={6}>
+          HZ:{hz}
+          <br />
           Cycles: {cpuState.cycles}
-        </Grid>
-      </Grid>
-      <Grid container spacing={4}>
-        <Grid item xs={8}>
-          HZ: {hz}
         </Grid>
       </Grid>
     </>

@@ -53,6 +53,16 @@ function updateState() {
         PC: sys.cpu.PC.toString(16).padStart(4, "0"),
         cycles: sys.cpu.cycles + "",
         hz: hz,
+        // NVMXDIZC
+        P: [
+          sys.cpu.P.N,
+          sys.cpu.P.V,
+          sys.cpu.P.M,
+          sys.cpu.P.X,
+          sys.cpu.P.I,
+          sys.cpu.P.Z,
+          sys.cpu.P.C,
+        ].map((s) => (s ? "1" : "0")),
       },
     });
   }
