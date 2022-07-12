@@ -7,19 +7,21 @@ import { RAMContainer } from "./modules/ram/RAMContainer";
 import { ROMContainer } from "./modules/rom/ROMContainer";
 import { theme } from "./theme/ThemeSetup";
 import { ParseRom } from "./helpers/ROMParser";
+import { CPUPRegister } from "./lib/CPU";
 
 export const ROM_OFFSET = 0x8000;
 
 const worker = new Worker(new URL("./workers/worker.ts", import.meta.url));
 
 export type CPUState = {
-  A: string;
-  X: string;
-  Y: string;
-  PC: string;
-  cycles: string;
+  A: number | null;
+  X: number | null;
+  Y: number | null;
+  PC: number | null;
+  cycles: number | null;
   hz: number;
-  P: string;
+  P: CPUPRegister | null;
+  E: boolean;
 };
 
 function App() {
@@ -28,13 +30,14 @@ function App() {
   );
   const [rom, setRom] = useState<string | undefined>();
   const [cpuState, setCpuState] = useState<CPUState>({
-    A: "-",
-    X: "-",
-    Y: "-",
-    PC: "-",
-    cycles: "-",
+    A: null,
+    X: null,
+    Y: null,
+    PC: null,
+    cycles: null,
     hz: 0,
-    P: "-------",
+    P: null,
+    E: true,
   });
 
   const loadRom = useCallback((romBuffer: ArrayBuffer) => {

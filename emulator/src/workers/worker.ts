@@ -1,5 +1,6 @@
 /* eslint-disable no-restricted-globals */
 
+import { CPUState } from "../App";
 import { ROM } from "../lib/ROM";
 import { System } from "../lib/System";
 
@@ -44,26 +45,20 @@ async function run() {
 
 function updateState() {
   if (sys) {
+    const cpuState: CPUState = {
+      A: sys.cpu.A.word,
+      X: sys.cpu.X.word,
+      Y: sys.cpu.Y.word,
+      PC: sys.cpu.PC,
+      cycles: sys.cpu.cycles,
+      hz: hz,
+      // NVMXDIZC
+      P: sys.cpu.P,
+      E: sys.cpu.E,
+    };
     self.postMessage({
       cmd: "update",
-      cpu: {
-        A: sys.cpu.A.toString(),
-        X: sys.cpu.X.toString(),
-        Y: sys.cpu.Y.toString(),
-        PC: sys.cpu.PC.toString(16).padStart(4, "0"),
-        cycles: sys.cpu.cycles + "",
-        hz: hz,
-        // NVMXDIZC
-        P: [
-          sys.cpu.P.N,
-          sys.cpu.P.V,
-          sys.cpu.P.M,
-          sys.cpu.P.X,
-          sys.cpu.P.I,
-          sys.cpu.P.Z,
-          sys.cpu.P.C,
-        ].map((s) => (s ? "1" : "0")),
-      },
+      cpu: cpuState,
     });
   }
 }
@@ -91,14 +86,17 @@ self.addEventListener(
         break;
       case "start":
         self.postMessage({ cmd: "running" });
-        console.log("STARTT");
+        console.log("START");
         run();
         break;
       case "stop":
-        console.log("stoppp");
+        console.log("stop");
         breaker = true;
         updateState();
         self.postMessage({ cmd: "stopped" });
+        break;
+      case "reset":
+        sys && sys?.reset();
         break;
       default:
         console.warn("Command not recognized in worker");

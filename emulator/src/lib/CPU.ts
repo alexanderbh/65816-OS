@@ -2,7 +2,7 @@ import { log } from "./Logger";
 import { System } from "./System";
 import { join, low, addr, bank } from "./Utils";
 
-const EMPTY_STATUS_REGISTER = {
+const EMPTY_STATUS_REGISTER: CPUPRegister = {
   N: false,
   C: false,
   Z: true,
@@ -10,6 +10,16 @@ const EMPTY_STATUS_REGISTER = {
   X: true,
   I: true,
   V: false,
+};
+
+export type CPUPRegister = {
+  N: boolean; // Negative
+  V: boolean; // Overflow
+  C: boolean; // Carry
+  Z: boolean; // Zero
+  M: boolean; // A register size: false=16bit true=8bit
+  X: boolean; // index register size: false=16bit true=8bit
+  I: boolean; // Interrupt disable
 };
 
 export class CPU {
@@ -23,15 +33,7 @@ export class CPU {
   Y: Register = new Register(this);
 
   // Processor register
-  P: {
-    N: boolean; // Negative
-    V: boolean; // Overflow
-    C: boolean; // Carry
-    Z: boolean; // Zero
-    M: boolean; // A register size: false=16bit true=8bit
-    X: boolean; // index register size: false=16bit true=8bit
-    I: boolean; // Interrupt disable
-  } = EMPTY_STATUS_REGISTER;
+  P: CPUPRegister = EMPTY_STATUS_REGISTER;
 
   // Emulation mode
   E: boolean = false;
@@ -73,8 +75,13 @@ export class CPU {
         switch (opcode) {
           case 0x18: this.Op_clc(); break;
           case 0x38: this.Op_sec(); break;
+          case 0x69: this.Op_adc(this.Am_immm()); break;
           case 0x4c: this.Op_jmp(this.Am_immb()); break;
+          case 0xa0: this.Op_ldy(this.Am_immm()); break;
+          case 0xa2: this.Op_ldx(this.Am_immm()); break;
+          case 0xa4: this.Op_ldy(this.Am_dpag()); break;
           case 0xa5: this.Op_lda(this.Am_dpag()); break;
+          case 0xa6: this.Op_ldx(this.Am_dpag()); break;
           case 0xa9: this.Op_lda(this.Am_immm()); break;
           case 0xc2: this.Op_rep(this.Am_immb()); break;
           case 0xe2: this.Op_sep(this.Am_immb()); break;
@@ -99,12 +106,48 @@ export class CPU {
     this.PC += num;
   }
 
+  private Op_adc(addr: Address) {
+    if (this.E || this.P.M) {
+      const n = this.system.read(addr);
+      const result = this.A.byte + n + (this.P.C ? 1 : 0);
+      this.SetC(result & 0x100);
+      this.SetV((~(this.A.byte ^ n) & (this.A.byte ^ result) & 0x80) > 0);
+      this.A.setByte(result);
+    } else {
+      const n = this.system.read(addr);
+      const result = this.A.byte + n + (this.P.C ? 1 : 0);
+      this.SetC(result & 0x10000);
+      this.SetV((~(this.A.byte ^ n) & (this.A.byte ^ result) & 0x8000) > 0);
+      this.A.setWord(result);
+    }
+  }
+
   private Op_lda(addr: Address) {
     if (this.E || this.P.M) {
       this.A.setByte(this.system.read(addr));
       this.cycles += 2;
     } else {
       this.A.setWord(this.system.readWord(addr));
+      this.cycles += 3;
+    }
+  }
+
+  private Op_ldy(addr: Address) {
+    if (this.E || this.P.I) {
+      this.Y.setByte(this.system.read(addr));
+      this.cycles += 2;
+    } else {
+      this.Y.setWord(this.system.readWord(addr));
+      this.cycles += 3;
+    }
+  }
+
+  private Op_ldx(addr: Address) {
+    if (this.E || this.P.I) {
+      this.X.setByte(this.system.read(addr));
+      this.cycles += 2;
+    } else {
+      this.X.setWord(this.system.readWord(addr));
       this.cycles += 3;
     }
   }
@@ -196,6 +239,9 @@ export class CPU {
   private SetC(n: number) {
     this.P.C = n !== 0;
   }
+  private SetV(v: boolean) {
+    this.P.V = v;
+  }
   private SetN(n: number) {
     this.P.N = n !== 0;
   }
@@ -212,16 +258,16 @@ class Register {
     this.word = 0;
   }
   public setByte(b: Byte) {
+    b = b & 0xff;
     this.byte = b;
     this.word = join(b, 0);
     this.cpu.setNZ(b);
-    this.cpu.changed();
   }
   public setWord(w: Word) {
+    w = w & 0xffff;
     this.word = w;
     this.byte = low(w);
     this.cpu.setNZWord(w);
-    this.cpu.changed();
   }
 
   public toString() {
