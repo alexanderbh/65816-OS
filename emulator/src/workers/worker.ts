@@ -30,10 +30,11 @@ async function run() {
     counter++;
     if (
       slowDownFactor > 0 &&
-      counter % Math.max(1, 1001 - slowDownFactor) === 0
+      counter % Math.max(1, 100 - slowDownFactor) === 0
     ) {
+      const newLocal = slowDownFactor * 10;
       await new Promise((resolve) =>
-        setTimeout(resolve, Math.max(0, slowDownFactor - 1000))
+        setTimeout(resolve, Math.max(0, newLocal))
       );
     }
     if (counter % 1000000 === 0) {
@@ -98,6 +99,10 @@ self.addEventListener(
         breaker = true;
         updateState();
         self.postMessage({ cmd: "stopped" });
+        break;
+      case "speed":
+        slowDownFactor = 100 - e.data.value;
+        console.log("SlowDown", slowDownFactor);
         break;
       case "reset":
         sys && sys?.reset();

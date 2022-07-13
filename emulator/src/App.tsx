@@ -100,6 +100,9 @@ function App() {
                   }
                 : undefined
             }
+            onSpeedChanged={(v) =>
+              worker.postMessage({ cmd: "speed", value: v })
+            }
           />
         </Box>
         <Box sx={{ flex: 2 }}>
