@@ -3,10 +3,12 @@ import { RAM } from "./RAM";
 import { ROM } from "./ROM";
 
 export const ROM_START = 0xc000;
+export const RAM_START = 0;
+export const RAM_END = 0xafff;
 
 export class System implements AddressBus {
   private observer: (cpu: System) => void;
-  private ram: RAM;
+  public ram: RAM;
   private rom?: ROM;
   cpu: CPU;
   private memoryMap: { start: Address; end: Address; device: AddressBus }[];
@@ -17,7 +19,7 @@ export class System implements AddressBus {
     this.rom = rom;
     this.cpu = new CPU(this);
     this.memoryMap = [];
-    this.memoryMap.push({ start: 0, end: 0xafff, device: this.ram });
+    this.memoryMap.push({ start: RAM_START, end: RAM_END, device: this.ram });
     if (this.rom) {
       this.memoryMap.push({ start: ROM_START, end: 0xffff, device: this.rom });
     }

@@ -1,6 +1,8 @@
 import { Grid, Typography } from "@mui/material";
 import { useMemo } from "react";
 import { CPUState } from "../../App";
+import { toHex } from "../../helpers/Formatters";
+import { colors } from "../../theme/ThemeSetup";
 
 type CPUContainerProps = {
   cpuState: CPUState;
@@ -26,25 +28,68 @@ export const CPUContainer: React.FC<CPUContainerProps> = ({ cpuState }) => {
       </Typography>
       <Grid container columnSpacing={2}>
         <Grid item xs={6}>
-          A: {cpuState.A}
+          <RegisterValue
+            title="A"
+            n={cpuState.A}
+            byteSize={cpuState.E || cpuState.P?.M}
+          />
           <br />
-          X: {cpuState.X}
+          <RegisterValue
+            title="X"
+            n={cpuState.X}
+            byteSize={cpuState.E || cpuState.P?.I}
+          />
           <br />
-          Y: {cpuState.Y}
+          <RegisterValue
+            title="Y"
+            n={cpuState.Y}
+            byteSize={cpuState.E || cpuState.P?.I}
+          />
           <br />
-          NVMXIZC
+          NVMXIZCE
           <br />
-          {cpuState.P}
+          {!cpuState.P
+            ? "--------"
+            : [
+                cpuState.P.N,
+                cpuState.P.V,
+                cpuState.P.M,
+                cpuState.P.X,
+                cpuState.P.I,
+                cpuState.P.Z,
+                cpuState.P.C,
+                cpuState.E,
+              ].map((s) => (s ? "1" : "0"))}
           <br />
           <br />
-          PC: {cpuState.PC}
+          <RegisterValue title="PC" n={cpuState.PC} hideDecimal />
         </Grid>
         <Grid item xs={6}>
-          HZ:{hz}
+          Clock: {hz}
           <br />
           Cycles: {cpuState.cycles}
         </Grid>
       </Grid>
+    </>
+  );
+};
+
+const RegisterValue: React.FC<{
+  n: number | null;
+  byteSize?: boolean;
+  hideDecimal?: boolean;
+  title: string;
+}> = ({ n, title, byteSize = false, hideDecimal = false }) => {
+  return (
+    <>
+      {title}:{" "}
+      <span style={{ color: colors.blue }}>{toHex(n, byteSize ? 2 : 4)}</span>
+      {!hideDecimal && (
+        <span style={{ color: colors.lowlight }}>
+          {"  "}
+          {n}
+        </span>
+      )}
     </>
   );
 };

@@ -1,5 +1,6 @@
 /* eslint-disable no-restricted-globals */
 
+import { CPUState } from "../App";
 import { ROM } from "../lib/ROM";
 import { System } from "../lib/System";
 
@@ -20,9 +21,9 @@ async function run() {
   while (breaker !== true) {
     sys && sys.cpu.step();
     const delta = Date.now() - cyclesLastMeasure;
-    if (delta >= 250) {
+    if (delta >= 1000) {
       const newCycles = (sys?.cpu.cycles || 0) - cyclesLastCount;
-      hz = (newCycles / (delta / 250)) * 4;
+      hz = newCycles / (delta / 1000);
       cyclesLastCount = sys?.cpu.cycles || 0;
       cyclesLastMeasure = Date.now();
     }
@@ -45,26 +46,26 @@ async function run() {
 
 function updateState() {
   if (sys) {
+    const cpuState: CPUState = {
+      A: sys.cpu.A.word,
+      X: sys.cpu.X.word,
+      Y: sys.cpu.Y.word,
+      PC: sys.cpu.PC,
+      cycles: sys.cpu.cycles,
+      hz: hz,
+      // NVMXDIZC
+      P: sys.cpu.P,
+      E: sys.cpu.E,
+      RAM: {
+        mem: sys.ram.mem,
+        lastAccess: sys.ram.lastAccess as number,
+        lastAccessSize: sys.ram.lastAccessSize,
+        lastAccessType: sys.ram.lastAccessType,
+      },
+    };
     self.postMessage({
       cmd: "update",
-      cpu: {
-        A: sys.cpu.A.toString(),
-        X: sys.cpu.X.toString(),
-        Y: sys.cpu.Y.toString(),
-        PC: sys.cpu.PC.toString(16).padStart(4, "0"),
-        cycles: sys.cpu.cycles + "",
-        hz: hz,
-        // NVMXDIZC
-        P: [
-          sys.cpu.P.N,
-          sys.cpu.P.V,
-          sys.cpu.P.M,
-          sys.cpu.P.X,
-          sys.cpu.P.I,
-          sys.cpu.P.Z,
-          sys.cpu.P.C,
-        ].map((s) => (s ? "1" : "0")),
-      },
+      cpu: cpuState,
     });
   }
 }
@@ -77,8 +78,8 @@ self.addEventListener(
         sys = new System(
           new ROM(Array.from(new Uint8Array(e.data.romBuffer)), 0x4000)
         );
-        sys.observe((newSystem) => {
-          if (lastUpdate < Date.now() - 20) {
+        sys.observe(() => {
+          if (lastUpdate < Date.now() - 50) {
             lastUpdate = Date.now();
             updateState();
           }
@@ -92,11 +93,9 @@ self.addEventListener(
         break;
       case "start":
         self.postMessage({ cmd: "running" });
-        console.log("STARTT");
         run();
         break;
       case "stop":
-        console.log("stoppp");
         breaker = true;
         updateState();
         self.postMessage({ cmd: "stopped" });
@@ -104,6 +103,9 @@ self.addEventListener(
       case "speed":
         slowDownFactor = 100 - e.data.value;
         console.log("SlowDown", slowDownFactor);
+        break;
+      case "reset":
+        sys && sys?.reset();
         break;
       default:
         console.warn("Command not recognized in worker");
