@@ -91,6 +91,9 @@ function App() {
                   }
                 : undefined
             }
+            onSpeedChanged={(v) =>
+              worker.postMessage({ cmd: "speed", value: v })
+            }
           />
         </Box>
         <Grid container sx={{ height: "100%" }}>
