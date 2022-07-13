@@ -21,9 +21,9 @@ async function run() {
   while (breaker !== true) {
     sys && sys.cpu.step();
     const delta = Date.now() - cyclesLastMeasure;
-    if (delta >= 250) {
+    if (delta >= 1000) {
       const newCycles = (sys?.cpu.cycles || 0) - cyclesLastCount;
-      hz = (newCycles / (delta / 250)) * 4;
+      hz = newCycles / (delta / 1000);
       cyclesLastCount = sys?.cpu.cycles || 0;
       cyclesLastMeasure = Date.now();
     }
@@ -55,6 +55,7 @@ function updateState() {
       // NVMXDIZC
       P: sys.cpu.P,
       E: sys.cpu.E,
+      RAM: sys.ram.mem,
     };
     self.postMessage({
       cmd: "update",
@@ -71,8 +72,8 @@ self.addEventListener(
         sys = new System(
           new ROM(Array.from(new Uint8Array(e.data.romBuffer)), 0x4000)
         );
-        sys.observe((newSystem) => {
-          if (lastUpdate < Date.now() - 20) {
+        sys.observe(() => {
+          if (lastUpdate < Date.now() - 50) {
             lastUpdate = Date.now();
             updateState();
           }
@@ -86,11 +87,9 @@ self.addEventListener(
         break;
       case "start":
         self.postMessage({ cmd: "running" });
-        console.log("START");
         run();
         break;
       case "stop":
-        console.log("stop");
         breaker = true;
         updateState();
         self.postMessage({ cmd: "stopped" });

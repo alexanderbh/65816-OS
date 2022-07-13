@@ -1,5 +1,12 @@
 import { createTheme } from "@mui/material";
 
+export const colors = {
+  main: "#00a800",
+  highlight: "#ff6500",
+  lowlight: "#b9b9b9",
+  blue: "#0097ff",
+};
+
 export const theme = createTheme({
   typography: {
     fontFamily: "PrintChar21, Arial",
@@ -7,7 +14,7 @@ export const theme = createTheme({
   palette: {
     mode: "dark",
     primary: {
-      main: "#33FF33",
+      main: colors.main,
     },
   },
   components: {

@@ -6,7 +6,6 @@ import { CPUContainer } from "./modules/cpu/CPUContainer";
 import { RAMContainer } from "./modules/ram/RAMContainer";
 import { ROMContainer } from "./modules/rom/ROMContainer";
 import { theme } from "./theme/ThemeSetup";
-import { ParseRom } from "./helpers/ROMParser";
 import { CPUPRegister } from "./lib/CPU";
 
 export const ROM_OFFSET = 0x8000;
@@ -22,13 +21,14 @@ export type CPUState = {
   hz: number;
   P: CPUPRegister | null;
   E: boolean;
+  RAM: Uint8Array | null;
 };
 
 function App() {
+  const [romBuffer, setRomBuffer] = useState<ArrayBuffer | undefined>();
   const [systemState, setSystemState] = useState<"stopped" | "running">(
     "stopped"
   );
-  const [rom, setRom] = useState<string | undefined>();
   const [cpuState, setCpuState] = useState<CPUState>({
     A: null,
     X: null,
@@ -38,10 +38,11 @@ function App() {
     hz: 0,
     P: null,
     E: true,
+    RAM: null,
   });
 
   const loadRom = useCallback((romBuffer: ArrayBuffer) => {
-    setRom(ParseRom(romBuffer));
+    setRomBuffer(romBuffer);
     worker.postMessage({
       cmd: "load",
       romBuffer,
@@ -64,7 +65,7 @@ function App() {
   }, []);
 
   return (
-    <Box sx={{ height: "100%" }}>
+    <Box sx={{ height: "100vh", display: "flex", flexDirection: "column" }}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <Box sx={{ p: 1, borderBottom: "5px solid grey" }}>
@@ -74,14 +75,14 @@ function App() {
               worker.postMessage({ cmd: "reset" });
             }}
             step={
-              systemState === "stopped" && rom
+              systemState === "stopped" && romBuffer !== undefined
                 ? () => {
                     worker.postMessage({ cmd: "step" });
                   }
                 : undefined
             }
             play={
-              systemState === "stopped" && rom
+              systemState === "stopped" && romBuffer !== undefined
                 ? () => {
                     worker.postMessage({ cmd: "start" });
                   }
@@ -96,44 +97,46 @@ function App() {
             }
           />
         </Box>
-        <Grid container sx={{ height: "100%" }}>
-          <Grid item xs={12} sm={6}>
-            <Box
-              sx={{
-                p: 1,
-                height: "100%",
-                borderRight: { xs: "0px", sm: "5px solid grey" },
-                borderBottom: "5px solid grey",
-              }}
-            >
-              <ROMContainer rom={rom} />
-            </Box>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <Grid container>
-              <Grid item xs={12}>
-                <Box
-                  sx={{
-                    p: 1,
-                    borderBottom: "5px solid grey",
-                  }}
-                >
-                  <CPUContainer cpuState={cpuState} />
-                </Box>
-              </Grid>
-              <Grid item xs={12}>
-                <Box
-                  sx={{
-                    p: 1,
-                    borderBottom: "5px solid grey",
-                  }}
-                >
-                  <RAMContainer />
-                </Box>
+        <Box sx={{ flex: 2 }}>
+          <Grid container alignItems="stretch" direction="row">
+            <Grid item xs={12} sm={6}>
+              <Box
+                sx={{
+                  p: 1,
+                  height: "100%",
+                  borderRight: { xs: "0px", sm: "5px solid grey" },
+                  borderBottom: "5px solid grey",
+                }}
+              >
+                <ROMContainer romBuffer={romBuffer} PC={cpuState.PC} />
+              </Box>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <Grid container>
+                <Grid item xs={12}>
+                  <Box
+                    sx={{
+                      p: 1,
+                      borderBottom: "5px solid grey",
+                    }}
+                  >
+                    <CPUContainer cpuState={cpuState} />
+                  </Box>
+                </Grid>
+                <Grid item xs={12}>
+                  <Box
+                    sx={{
+                      p: 1,
+                      borderBottom: "5px solid grey",
+                    }}
+                  >
+                    <RAMContainer mem={cpuState.RAM} />
+                  </Box>
+                </Grid>
               </Grid>
             </Grid>
           </Grid>
-        </Grid>
+        </Box>
       </ThemeProvider>
     </Box>
   );

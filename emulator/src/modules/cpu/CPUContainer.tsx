@@ -2,6 +2,7 @@ import { Grid, Typography } from "@mui/material";
 import { useMemo } from "react";
 import { CPUState } from "../../App";
 import { toHex } from "../../helpers/Formatters";
+import { colors } from "../../theme/ThemeSetup";
 
 type CPUContainerProps = {
   cpuState: CPUState;
@@ -81,9 +82,10 @@ const RegisterValue: React.FC<{
 }> = ({ n, title, byteSize = false, hideDecimal = false }) => {
   return (
     <>
-      {title}: {toHex(n, byteSize ? 2 : 4)}
+      {title}:{" "}
+      <span style={{ color: colors.blue }}>{toHex(n, byteSize ? 2 : 4)}</span>
       {!hideDecimal && (
-        <span style={{ color: "burlywood" }}>
+        <span style={{ color: colors.lowlight }}>
           {"  "}
           {n}
         </span>
