@@ -2,13 +2,14 @@
 .code
 
 ResetVector:
+    LDA #$BA
+    STA $04
+    LDA #$BE
+    STA $05
 Loop2:
-    LDA $00
-    LDA $01
-    LDA $02
-    LDA $03
     LDA $04
-    LDA $05
+    ADC #$01
+    STA $04
     jmp Loop2
 
 

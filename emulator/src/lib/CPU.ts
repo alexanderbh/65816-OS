@@ -63,6 +63,7 @@ export class CPU {
 
   public step(steps: number = 1) {
     for (var step = 0; step < steps; step++) {
+      this.system.ram.clearAccess();
       const opcode = this.system.read(this.PC);
       log.debug(
         `Read opcode from: ${this.PC.toString(16)}: ${opcode.toString(16)}`
@@ -77,6 +78,7 @@ export class CPU {
           case 0x38: this.Op_sec(); break;
           case 0x69: this.Op_adc(this.Am_immm()); break;
           case 0x4c: this.Op_jmp(this.Am_immb()); break;
+          case 0x85: this.Op_sta(this.Am_dpag()); break;
           case 0xa0: this.Op_ldy(this.Am_immm()); break;
           case 0xa2: this.Op_ldx(this.Am_immm()); break;
           case 0xa4: this.Op_ldy(this.Am_dpag()); break;
@@ -128,6 +130,15 @@ export class CPU {
       this.cycles += 2;
     } else {
       this.A.setWord(this.system.readWord(addr));
+      this.cycles += 3;
+    }
+  }
+  private Op_sta(addr: Address) {
+    if (this.E || this.P.M) {
+      this.system.write(addr, this.A.byte);
+      this.cycles += 2;
+    } else {
+      this.system.writeWord(addr, this.A.word);
       this.cycles += 3;
     }
   }

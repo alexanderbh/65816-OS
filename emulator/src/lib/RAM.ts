@@ -35,4 +35,8 @@ export class RAM implements AddressBus {
     this.mem[addr] = low(data);
     this.mem[addr + 1] = high(data);
   }
+
+  public clearAccess() {
+    this.lastAccess = undefined;
+  }
 }
