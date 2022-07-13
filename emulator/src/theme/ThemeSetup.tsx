@@ -5,6 +5,7 @@ export const colors = {
   highlight: "#ff6500",
   lowlight: "#b9b9b9",
   blue: "#0097ff",
+  pink: "#ff0097",
 };
 
 export const theme = createTheme({

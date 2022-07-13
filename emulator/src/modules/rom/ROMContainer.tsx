@@ -14,7 +14,12 @@ export const ROMContainer: React.FC<ROMContainerProps> = ({
 }) => {
   const rom = useMemo(() => {
     if (romBuffer) {
-      return ParseMemory(new Uint8Array(romBuffer), PC, ROM_START, ROM_OFFSET);
+      return ParseMemory(
+        new Uint8Array(romBuffer),
+        { addr: PC, size: 2 },
+        ROM_START,
+        ROM_OFFSET
+      );
     }
     return "";
   }, [romBuffer, PC]);

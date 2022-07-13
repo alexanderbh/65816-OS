@@ -1,15 +1,28 @@
 import { Box, Grid, Typography } from "@mui/material";
 import { useMemo } from "react";
+import { CPUState } from "../../App";
 import { ParseMemory } from "../../helpers/ROMParser";
+import { colors } from "../../theme/ThemeSetup";
 
 type RAMContainerProps = {
-  mem: Uint8Array | null;
+  mem: CPUState["RAM"] | null;
 };
 
 export const RAMContainer: React.FC<RAMContainerProps> = ({ mem }) => {
   const ram = useMemo(() => {
     if (mem) {
-      return ParseMemory(mem, null, 0, 0, true);
+      console.log(mem);
+      return ParseMemory(
+        mem.mem,
+        {
+          addr: mem.lastAccess as number,
+          size: mem.lastAccessSize,
+          color: mem.lastAccessType === "read" ? colors.blue : colors.pink,
+        },
+        0,
+        0,
+        true
+      );
     }
     return "";
   }, [mem]);

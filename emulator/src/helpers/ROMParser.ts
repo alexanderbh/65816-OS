@@ -2,7 +2,11 @@ import { colors } from "../theme/ThemeSetup";
 
 export const ParseMemory = (
   mem: Uint8Array,
-  PC: number | null,
+  highlight: {
+    addr: number | null;
+    size: 2 | 4;
+    color?: string;
+  },
   start: number,
   offset = 0,
   showZeros = false
@@ -21,16 +25,20 @@ export const ParseMemory = (
       const bb = mem[byteAddr];
       if (bb > 0) {
         lineHasData = true;
-        const byteString = bb?.toString(16).toUpperCase().padStart(2, "0");
-        if (PC === byteAddr + offset) {
-          bytes.push(
-            `<span style="color:${colors.highlight}">${byteString}</span>`
-          );
-        } else {
-          bytes.push(byteString);
-        }
+      }
+      const byteString = bb?.toString(16).toUpperCase().padStart(2, "0");
+      if (
+        highlight.addr !== null &&
+        (highlight.addr === byteAddr + offset ||
+          (highlight.size === 4 && highlight.addr + 2 === byteAddr + offset))
+      ) {
+        bytes.push(
+          `<span style="color:${
+            highlight.color ?? colors.highlight
+          }">${byteString}</span>`
+        );
       } else {
-        bytes.push("00");
+        bytes.push(byteString);
       }
     }
     if (lineHasData || showZeros) {

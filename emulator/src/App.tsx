@@ -21,7 +21,12 @@ export type CPUState = {
   hz: number;
   P: CPUPRegister | null;
   E: boolean;
-  RAM: Uint8Array | null;
+  RAM: null | {
+    mem: Uint8Array;
+    lastAccess: number;
+    lastAccessSize: 2 | 4;
+    lastAccessType: "read" | "write";
+  };
 };
 
 function App() {

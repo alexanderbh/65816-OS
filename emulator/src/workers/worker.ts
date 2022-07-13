@@ -55,7 +55,12 @@ function updateState() {
       // NVMXDIZC
       P: sys.cpu.P,
       E: sys.cpu.E,
-      RAM: sys.ram.mem,
+      RAM: {
+        mem: sys.ram.mem,
+        lastAccess: sys.ram.lastAccess as number,
+        lastAccessSize: sys.ram.lastAccessSize,
+        lastAccessType: sys.ram.lastAccessType,
+      },
     };
     self.postMessage({
       cmd: "update",
