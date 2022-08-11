@@ -1,0 +1,21 @@
+ca65 V2.18 - Ubuntu 2.19-1
+Main file   : src/main.asm
+Current file: src/main.asm
+
+000000r 1               
+000000r 1               .code
+000000r 1               
+000000r 1               ResetVector:
+000000r 1  A9 01            LDA #$01
+000002r 1  A9 02            LDA #$02
+000004r 1  A9 03            LDA #$03
+000006r 1  A9 04            LDA #$04
+000008r 1  A9 05            LDA #$05
+00000Ar 1  A9 06            LDA #$06
+00000Cr 1  A9 07            LDA #$07
+00000Er 1  A9 08            LDA #$08
+000010r 1  4C rr rr         jmp ResetVector
+000013r 1               
+000013r 1               .SEGMENT "VECTORS"
+000000r 1  rr rr            .word ResetVector
+000000r 1               

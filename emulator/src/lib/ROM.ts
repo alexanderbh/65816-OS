@@ -3,9 +3,9 @@ import { join } from "./Utils";
 
 export class ROM implements AddressBus {
   private startDataOffset: number;
-  data: Byte[];
+  data: Uint8Array;
 
-  public constructor(data: Byte[], dataOffset: number) {
+  public constructor(data: Uint8Array, dataOffset: number) {
     this.startDataOffset = dataOffset;
     this.data = data;
   }

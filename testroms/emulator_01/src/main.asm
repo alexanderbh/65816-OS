@@ -2,7 +2,6 @@
 .code
 
 ResetVector:
-Loop2:
     LDA #$01
     LDA #$02
     LDA #$03
@@ -11,7 +10,7 @@ Loop2:
     LDA #$06
     LDA #$07
     LDA #$08
-    jmp Loop2
+    jmp ResetVector
 
 .SEGMENT "VECTORS"
     .word ResetVector

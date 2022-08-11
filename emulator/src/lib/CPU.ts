@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/naming-convention */
+import { randomInt } from "crypto";
 import { log } from "./Logger";
 import { System } from "./System";
-import { join, low, addr, bank } from "./Utils";
+import { join, low, bank, high } from "./Utils";
 
 const EMPTY_STATUS_REGISTER: CPUPRegister = {
   N: false,
@@ -25,12 +27,16 @@ export type CPUPRegister = {
 export class CPU {
   private system: System;
   cycles: number = 0;
-  PC: Address = 0xfffc;
+  PC: Register = new Register("PC", this, { size: 4, value: 0xfffc });
   PBR: Byte = 0;
   DP: Byte = 0;
-  A: Register = new Register(this);
-  X: Register = new Register(this);
-  Y: Register = new Register(this);
+  A: Register = new Register("A", this);
+  X: Register = new Register("X", this);
+  Y: Register = new Register("Y", this);
+  S: Register = new Register("SP", this, {
+    size: 4,
+    value: 0x0100 + randomInt(0, 255),
+  });
 
   // Processor register
   P: CPUPRegister = EMPTY_STATUS_REGISTER;
@@ -50,23 +56,23 @@ export class CPU {
     this.cycles = 0;
     this.PBR = 0;
     this.DP = 0;
-    this.PC = 0xfffc;
+    this.PC.reset();
     this.E = true;
     this.P = EMPTY_STATUS_REGISTER;
-    this.A = new Register(this);
-    this.X = new Register(this);
-    this.Y = new Register(this);
+    this.A.reset();
+    this.X.reset();
+    this.Y.reset();
     this.cycles += 7;
-    const resetVector = this.system.readWord(this.PC);
-    this.PC = addr(resetVector);
+    const resetVector = this.system.readWord(this.PC.word);
+    this.PC.setWord(resetVector);
   }
 
   public step(steps: number = 1) {
     for (var step = 0; step < steps; step++) {
       this.system.ram.clearAccess();
-      const opcode = this.system.read(this.PC);
+      const opcode = this.system.read(this.PC.word);
       log.debug(
-        `Read opcode from: ${this.PC.toString(16)}: ${opcode.toString(16)}`
+        `Read opcode from: ${this.PC.toString()}: ${opcode.toString(16)}`
       );
 
       this.incProgramCounter(1);
@@ -75,7 +81,9 @@ export class CPU {
       {
         switch (opcode) {
           case 0x18: this.Op_clc(); break;
+          case 0x20: this.Op_jsr(this.Am_absl()); break;
           case 0x38: this.Op_sec(); break;
+          case 0x60: this.Op_rts(); break;
           case 0x69: this.Op_adc(this.Am_immm()); break;
           case 0x4c: this.Op_jmp(this.Am_immb()); break;
           case 0x85: this.Op_sta(this.Am_dpag()); break;
@@ -104,8 +112,56 @@ export class CPU {
     this.SetN(w & 0x8000);
   }
 
+  // Stack
+  private pushByte(b: Byte) {
+    this.system.write(this.S.word, b);
+    if (this.E) {
+      let newSL = this.S.word - 1;
+      if (this.S.byte === 0) {
+        newSL = 0xff;
+      }
+      this.S.setWord(join(newSL, high(this.S.word)));
+    } else {
+      this.S.setWord(this.S.word - 1);
+    }
+  }
+  private pushWord(w: Word) {
+    this.pushByte(high(w));
+    this.pushByte(low(w));
+  }
+  private pullByte() {
+    if (this.E) {
+      let newSL = this.S.word + 1;
+      if (this.S.byte === 0xff) {
+        newSL = 0x00;
+      }
+      this.S.setWord(join(newSL, high(this.S.word)));
+    } else {
+      this.S.setWord(this.S.word + 1);
+    }
+    return this.system.read(this.S.word);
+  }
+  private pullWord() {
+    const l = this.pullByte();
+    const h = this.pullByte();
+
+    return join(l, h);
+  }
+
   private incProgramCounter(num: number) {
-    this.PC += num;
+    // TODO: Support overflow of PC
+    this.PC.setWord(this.PC.word + num);
+  }
+
+  private Op_rts() {
+    this.PC.setWord(this.pullWord() + 1);
+    this.cycles += 6;
+  }
+
+  private Op_jsr(addr: Address) {
+    this.pushWord(this.PC.word - 1);
+    this.PC.setWord(addr);
+    this.cycles += 4;
   }
 
   private Op_adc(addr: Address) {
@@ -218,13 +274,13 @@ export class CPU {
   }
 
   private Op_jmp(ad: Address) {
-    this.PC = addr(this.system.readWord(ad));
+    this.PC.setWord(this.system.readWord(ad));
     this.cycles += 3;
   }
 
   // Immidiate based on size of A
   private Am_immm(): Address {
-    const addr = this.PC;
+    const addr = this.PC.word;
     const size = this.E || this.P.M ? 1 : 2;
     this.incProgramCounter(size);
     this.cycles += size - 1;
@@ -233,15 +289,23 @@ export class CPU {
 
   // Immidiate byte
   private Am_immb(): Address {
-    const addr = bank(this.PBR) | this.PC;
+    const addr = bank(this.PBR) | this.PC.word;
     this.incProgramCounter(1);
     this.cycles += 0;
     return addr;
   }
 
+  // Absolute
+  private Am_absl(): Address {
+    const addr = this.system.readWord(bank(this.PBR) | this.PC.word);
+    this.incProgramCounter(2);
+    this.cycles += 2;
+    return addr;
+  }
+
   // Direct Page
   private Am_dpag(): Address {
-    const offset = this.system.read(bank(this.PBR) | this.PC);
+    const offset = this.system.read(bank(this.PBR) | this.PC.word);
     this.incProgramCounter(1);
     this.cycles += 1;
     return this.DP + offset;
@@ -258,17 +322,38 @@ export class CPU {
   }
 }
 
-class Register {
-  private cpu: CPU;
+export class Register {
   public byte: Byte;
   public word: Word;
+  public size: 2 | 4 = 2;
 
-  public constructor(cpu: CPU) {
-    this.cpu = cpu;
+  public constructor(
+    public name: string,
+    private cpu: CPU,
+    private initialValue?: { size: 2; value: Byte } | { size: 4; value: Word }
+  ) {
     this.byte = 0;
     this.word = 0;
+    this.size = initialValue?.size || 2;
+    this.reset();
+  }
+
+  public reset() {
+    this.byte =
+      this.initialValue?.size === 2
+        ? this.initialValue.value
+        : this.initialValue?.size === 4
+        ? low(this.initialValue.value)
+        : 0;
+    this.word =
+      this.initialValue?.size === 2
+        ? join(this.initialValue.value, 0)
+        : this.initialValue?.size === 4
+        ? this.initialValue.value
+        : 0;
   }
   public setByte(b: Byte) {
+    // TODO: Over/underflow handled here? or on every use?
     b = b & 0xff;
     this.byte = b;
     this.word = join(b, 0);
@@ -282,6 +367,8 @@ class Register {
   }
 
   public toString() {
-    return this.word.toString(16).padStart(4, "0");
+    return this.size === 4
+      ? this.word.toString(16).padStart(4, "0")
+      : this.byte.toString(16).padStart(2, "0");
   }
 }
