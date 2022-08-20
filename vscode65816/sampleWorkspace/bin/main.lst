@@ -36,9 +36,15 @@ Current file: src/main.asm
 00001Cr 2               PostIncl:
 00001Cr 2  69 01            ADC #$01
 00001Er 2  69 02            ADC #$02
-000020r 2  60               RTS
-000021r 2               
-000021r 1               
-000021r 1               .SEGMENT "VECTORS"
+000020r 2               
+000020r 2  20 rr rr         JSR Add41
+000023r 2               
+000023r 2  20 rr rr         JSR Add41
+000026r 2               ; comment
+000026r 2  20 rr rr         JSR Add41
+000029r 2  60               RTS
+00002Ar 2               
+00002Ar 1               
+00002Ar 1               .SEGMENT "VECTORS"
 000000r 1  rr rr            .word ResetVector
 000000r 1               

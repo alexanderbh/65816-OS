@@ -67,6 +67,7 @@ export class MockDebugSession extends LoggingDebugSession {
   private static threadID = 1;
 
   private _workspacePath?: string;
+  private _symbolNameTable: Map<number, string> = new Map();
 
   private _system: System;
 
@@ -439,25 +440,29 @@ export class MockDebugSession extends LoggingDebugSession {
     //   //totalFrames: 1000000 			// not the correct size, should result in a max. of two requests
     //   //totalFrames: endFrame + 20 	// dynamically increases the size with every requested chunk, results in paging
     // };
-    let addrLookup = this._pcToFileLine.get(this._system.cpu.PC.word);
 
-    if (!addrLookup) {
-      addrLookup = {
-        file: this._workspacePath + "/src/main.asm",
-        line: 0,
-      };
-    }
     response.body = {
-      stackFrames: [
-        new StackFrame(
-          0,
-          "main",
-          // This filename hack is not viable
-          this.createSource(addrLookup.file),
-          addrLookup.line
-        ),
-      ],
-      totalFrames: 1,
+      stackFrames: this._system.cpu.callTrace
+        .slice()
+        .reverse()
+        .map(({ entry, exit }, index) => {
+          let addrLookup = this._pcToFileLine.get(
+            exit || this._system.cpu.PC.word
+          );
+          if (!addrLookup) {
+            addrLookup = {
+              file: this._workspacePath + "/src/main.asm",
+              line: 0,
+            };
+          }
+          return new StackFrame(
+            index,
+            this._symbolNameTable.get(entry) || "unknown",
+            this.createSource(addrLookup.file),
+            addrLookup.line
+          );
+        }),
+      totalFrames: this._system.cpu.callTrace.length,
     };
     this.sendResponse(response);
   }
@@ -877,6 +882,9 @@ export class MockDebugSession extends LoggingDebugSession {
           start: parseInt(argObj.start),
           size: parseInt(argObj.size),
         });
+      }
+      if (entry[0] === "sym") {
+        this._symbolNameTable.set(parseInt(argObj.val, 16), argObj.name);
       }
     });
 

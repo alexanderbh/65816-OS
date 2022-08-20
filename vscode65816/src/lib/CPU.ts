@@ -44,6 +44,8 @@ export class CPU {
   // Emulation mode
   E: boolean = false;
 
+  callTrace: { entry: number; exit?: number }[] = [];
+
   public constructor(system: System) {
     this.system = system;
   }
@@ -65,6 +67,7 @@ export class CPU {
     this.cycles += 7;
     const resetVector = this.system.readWord(this.PC.word);
     this.PC.setWord(resetVector);
+    this.callTrace.push({ entry: resetVector });
   }
 
   public step(steps: number = 1) {
@@ -154,11 +157,15 @@ export class CPU {
   }
 
   private Op_rts() {
+    this.callTrace.pop();
+    this.callTrace[this.callTrace.length - 1].exit = undefined;
     this.PC.setWord(this.pullWord() + 1);
     this.cycles += 6;
   }
 
   private Op_jsr(addr: Address) {
+    this.callTrace[this.callTrace.length - 1].exit = this.PC.word - 3;
+    this.callTrace.push({ entry: addr });
     this.pushWord(this.PC.word - 1);
     this.PC.setWord(addr);
     this.cycles += 4;
