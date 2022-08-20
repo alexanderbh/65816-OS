@@ -56,6 +56,8 @@ interface ILaunchRequestArguments extends DebugProtocol.LaunchRequestArguments {
   noDebug?: boolean;
   /** if specified, results in a simulated compile error in launch. */
   compileError?: "default" | "show" | "hide";
+
+  workspacePath: string;
 }
 
 interface IAttachRequestArguments extends ILaunchRequestArguments {}
@@ -63,6 +65,8 @@ interface IAttachRequestArguments extends ILaunchRequestArguments {}
 export class MockDebugSession extends LoggingDebugSession {
   // we don't support multiple threads, so we can use a hardcoded ID for the default thread
   private static threadID = 1;
+
+  private _workspacePath?: string;
 
   private _system: System;
 
@@ -77,6 +81,9 @@ export class MockDebugSession extends LoggingDebugSession {
   private _valuesInHex = false;
   private _useInvalidatedEvent = false;
   private _sourceFile?: string;
+
+  private _pcToFileLine: Map<number, { file: string; line: number }> =
+    new Map();
 
   /**
    * Creates a new debug adapter that is used for one debug session.
@@ -279,9 +286,18 @@ export class MockDebugSession extends LoggingDebugSession {
       false
     );
 
+    this._workspacePath = args.workspacePath;
     // wait 1 second until configuration has finished (and configurationDoneRequest has been called)
     await this._configurationDone.wait(1000);
 
+    // prepare PC map
+    const dgbFileContent = await this.fileAccessor.readFile(
+      this.normalizePathAndCasing(args.program.replace(".bin", ".dbg"))
+    );
+    const dgbFile = dgbFileContent.toString();
+    this.preparePCMapping(dgbFile);
+
+    // Load binary
     this._sourceFile = this.normalizePathAndCasing(args.program);
     // start the program in the runtime
     const rom = new ROM(
@@ -289,7 +305,7 @@ export class MockDebugSession extends LoggingDebugSession {
       0x4000
     );
     this._system.start(rom, !args.noDebug, !!args.stopOnEntry);
-    console.log("STARTED");
+
     // await this._system.start(args.program, !!args.stopOnEntry, !args.noDebug);
 
     if (args.compileError) {
@@ -423,14 +439,22 @@ export class MockDebugSession extends LoggingDebugSession {
     //   //totalFrames: 1000000 			// not the correct size, should result in a max. of two requests
     //   //totalFrames: endFrame + 20 	// dynamically increases the size with every requested chunk, results in paging
     // };
+    let addrLookup = this._pcToFileLine.get(this._system.cpu.PC.word);
+
+    if (!addrLookup) {
+      addrLookup = {
+        file: this._workspacePath + "/src/main.asm",
+        line: 0,
+      };
+    }
     response.body = {
       stackFrames: [
         new StackFrame(
           0,
           "main",
           // This filename hack is not viable
-          this.createSource(this._sourceFile!.replace(".bin", ".lst")),
-          this.convertDebuggerLineToClient(this._system.cpu.PC.word)
+          this.createSource(addrLookup.file),
+          addrLookup.line
         ),
       ],
       totalFrames: 1,
@@ -807,5 +831,79 @@ export class MockDebugSession extends LoggingDebugSession {
       undefined,
       "mock-adapter-data"
     );
+  }
+
+  private preparePCMapping(dbgFile: string): void {
+    const files: Map<number, { file: string }> = new Map();
+    const segments: Map<number, { name: string; start: number }> = new Map();
+    const lines: Map<number, { file: number; line: number; span?: number }> =
+      new Map();
+    const spans: Map<number, { segment: number; start: number; size: number }> =
+      new Map();
+
+    dbgFile.split("\n").forEach((line) => {
+      const entry = line.split("\t");
+      if (entry.length !== 2) {
+        return;
+      }
+      const args = entry[1].split(",");
+      const argObj: any = {};
+      args.forEach((arg) => {
+        const [key, value] = arg.split("=");
+        argObj[key] = value;
+      });
+
+      if (entry[0] === "file") {
+        files.set(parseInt(argObj.id), {
+          file: argObj.name.replaceAll('"', ""),
+        });
+      }
+      if (entry[0] === "seg") {
+        segments.set(parseInt(argObj.id), {
+          name: argObj.name,
+          start: parseInt(argObj.start, 16),
+        });
+      }
+      if (entry[0] === "line") {
+        lines.set(parseInt(argObj.id), {
+          file: parseInt(argObj.file),
+          line: parseInt(argObj.line),
+          span: argObj.span ? parseInt(argObj.span) : undefined,
+        });
+      }
+      if (entry[0] === "span") {
+        spans.set(parseInt(argObj.id), {
+          segment: parseInt(argObj.seg),
+          start: parseInt(argObj.start),
+          size: parseInt(argObj.size),
+        });
+      }
+    });
+
+    lines.forEach((line, id) => {
+      if (line.span === undefined) {
+        return;
+      }
+      const span = spans.get(line.span);
+      if (!span) {
+        return;
+      }
+      const segment = segments.get(span.segment);
+
+      if (!segment) {
+        return;
+      }
+
+      const file = files.get(line.file);
+
+      if (!file) {
+        return;
+      }
+
+      this._pcToFileLine.set(segment.start + span.start, {
+        file: this._workspacePath + "/" + file.file,
+        line: line.line,
+      });
+    });
   }
 }

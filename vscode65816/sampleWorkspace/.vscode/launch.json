@@ -9,6 +9,7 @@
 			"request": "launch",
 			"name": "Debug 65816",
 			"program": "${workspaceFolder}/bin/main.bin",
+			"workspacePath": "${workspaceFolder}",
 			"stopOnEntry": true,
 			"trace": false,
 			"preLaunchTask": "build-debug",

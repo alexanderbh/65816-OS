@@ -12,8 +12,16 @@ ResetVector:
     LDA #$05
     LDA #$06
     LDA #$07
+    JSR PostIncl
     LDA #$08
     jmp ResetVector
+
+.SEGMENT "RAM"
+    .byte 0
+    
+.code
+
+.include "postincl.asm"
 
 .SEGMENT "VECTORS"
     .word ResetVector

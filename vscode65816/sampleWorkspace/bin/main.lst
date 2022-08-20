@@ -20,9 +20,25 @@ Current file: src/main.asm
 00000Er 1  A9 05            LDA #$05
 000010r 1  A9 06            LDA #$06
 000012r 1  A9 07            LDA #$07
-000014r 1  A9 08            LDA #$08
-000016r 1  4C rr rr         jmp ResetVector
-000019r 1               
-000019r 1               .SEGMENT "VECTORS"
+000014r 1  20 rr rr         JSR PostIncl
+000017r 1  A9 08            LDA #$08
+000019r 1  4C rr rr         jmp ResetVector
+00001Cr 1               
+00001Cr 1               .SEGMENT "RAM"
+000000r 1  00               .byte 0
+000001r 1               
+000001r 1               .code
+00001Cr 1               
+00001Cr 1               .include "postincl.asm"
+00001Cr 2               
+00001Cr 2               
+00001Cr 2               
+00001Cr 2               PostIncl:
+00001Cr 2  69 01            ADC #$01
+00001Er 2  69 02            ADC #$02
+000020r 2  60               RTS
+000021r 2               
+000021r 1               
+000021r 1               .SEGMENT "VECTORS"
 000000r 1  rr rr            .word ResetVector
 000000r 1               
