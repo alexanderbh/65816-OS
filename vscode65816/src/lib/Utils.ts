@@ -5,6 +5,14 @@ export const join = (l: Byte, h: Byte): Word => {
   return l | (h << 8);
 };
 
+export const addr = (h: Byte, m: Word): Address => {
+  return bank(h) | m;
+};
+
+export const word = (addr: Address): Word => {
+  return addr & 0x00ffff;
+};
+
 export const low = (w: Word): Byte => {
   return w & 0x00ff;
 };

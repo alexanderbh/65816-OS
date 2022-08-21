@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { randomInt } from "crypto";
-import { log } from "./Logger";
 import { System } from "./System";
-import { join, low, bank, high } from "./Utils";
+import { join, low, bank, high, addr, word } from "./Utils";
 
 const EMPTY_STATUS_REGISTER: CPUPRegister = {
   N: false,
@@ -29,6 +28,7 @@ export class CPU {
   cycles: number = 0;
   PC: Register = new Register("PC", this, false, { size: 4, value: 0xfffc });
   PBR: Register = new Register("PBR", this, false);
+  DBR: Register = new Register("DBR", this, false);
   DP: Register = new Register("DP", this, false);
   A: Register = new Register("A", this, true);
   X: Register = new Register("X", this, true);
@@ -57,6 +57,7 @@ export class CPU {
   public reset() {
     this.cycles = 0;
     this.PBR.reset();
+    this.DBR.reset();
     this.DP.reset();
     this.PC.reset();
     this.E = true;
@@ -65,7 +66,7 @@ export class CPU {
     this.X.reset();
     this.Y.reset();
     this.cycles += 7;
-    const resetVector = this.system.readWord(this.PC.word);
+    const resetVector = this.system.readWord(addr(0, this.PC.word));
     this.PC.setWord(resetVector);
     this.callTrace.push({ entry: resetVector });
   }
@@ -73,10 +74,7 @@ export class CPU {
   public step(steps: number = 1) {
     for (var step = 0; step < steps; step++) {
       this.system.ram.clearAccess();
-      const opcode = this.system.read(this.PC.word);
-      log.debug(
-        `Read opcode from: ${this.PC.toString()}: ${opcode.toString(16)}`
-      );
+      const opcode = this.system.read(bank(this.PBR.byte) | this.PC.word);
 
       this.incProgramCounter(1);
       // prettier-ignore
@@ -88,7 +86,7 @@ export class CPU {
           case 0x38: this.Op_sec(); break;
           case 0x60: this.Op_rts(); break;
           case 0x69: this.Op_adc(this.Am_immm()); break;
-          case 0x4c: this.Op_jmp(this.Am_immb()); break;
+          case 0x4c: this.Op_jmp(this.Am_absl()); break;
           case 0x85: this.Op_sta(this.Am_dpag()); break;
           case 0xa0: this.Op_ldy(this.Am_immm()); break;
           case 0xa2: this.Op_ldx(this.Am_immm()); break;
@@ -117,7 +115,7 @@ export class CPU {
 
   // Stack
   private pushByte(b: Byte) {
-    this.system.write(this.S.word, b);
+    this.system.write(addr(0, this.S.word), b);
     if (this.E) {
       let newSL = this.S.word - 1;
       if (this.S.byte === 0) {
@@ -142,7 +140,7 @@ export class CPU {
     } else {
       this.S.setWord(this.S.word + 1);
     }
-    return this.system.read(this.S.word);
+    return this.system.read(addr(0, this.S.word));
   }
   private pullWord() {
     const l = this.pullByte();
@@ -167,7 +165,7 @@ export class CPU {
     this.callTrace[this.callTrace.length - 1].exit = this.PC.word - 3;
     this.callTrace.push({ entry: addr });
     this.pushWord(this.PC.word - 1);
-    this.PC.setWord(addr);
+    this.PC.setWord(word(addr));
     this.cycles += 4;
   }
 
@@ -280,18 +278,18 @@ export class CPU {
     this.cycles += 3;
   }
 
-  private Op_jmp(ad: Address) {
-    this.PC.setWord(this.system.readWord(ad));
+  private Op_jmp(ea: Address) {
+    this.PC.setWord(word(ea));
     this.cycles += 3;
   }
 
   // Immidiate based on size of A
   private Am_immm(): Address {
-    const addr = this.PC.word;
+    const ea = addr(this.PBR.byte, this.PC.word);
     const size = this.E || this.P.M ? 1 : 2;
     this.incProgramCounter(size);
     this.cycles += size - 1;
-    return addr;
+    return ea;
   }
 
   // Immidiate byte
@@ -304,10 +302,13 @@ export class CPU {
 
   // Absolute
   private Am_absl(): Address {
-    const addr = this.system.readWord(bank(this.PBR.byte) | this.PC.word);
+    const ea = addr(
+      this.DBR.byte,
+      this.system.readWord(addr(this.PBR.byte, this.PC.word))
+    );
     this.incProgramCounter(2);
     this.cycles += 2;
-    return addr;
+    return ea;
   }
 
   // Direct Page
@@ -370,7 +371,7 @@ export class Register {
     }
   }
   public setWord(w: Word) {
-    w = w & 0xffff;
+    w = w & 0x00ffff;
     this.word = w;
     this.byte = low(w);
     if (this.updatesPRegister) {

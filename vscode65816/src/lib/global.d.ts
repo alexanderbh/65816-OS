@@ -5,12 +5,13 @@ type Flavor<T, FlavorT> = T & Flavoring<FlavorT>;
 
 type Byte = Flavor<number, "Byte">;
 type Word = Flavor<number, "Word">;
+type Sesqui = Flavor<number, "Sesqui">;
 type Opcode = Flavor<number, "Opcode">;
-type Address = Word;
+type Address = Sesqui;
 
 interface AddressBus {
-  read(addr: Word): Byte;
-  readWord(addr: Word): Word;
-  write(addr: Word, data: Byte);
-  writeWord(addr: Word, data: Word);
+  read(addr: Address): Byte;
+  readWord(addr: Address): Word;
+  write(addr: Address, data: Byte): void;
+  writeWord(addr: Address, data: Word): void;
 }

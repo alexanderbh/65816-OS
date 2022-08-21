@@ -495,6 +495,7 @@ export class MockDebugSession extends LoggingDebugSession {
         this._system.cpu.S,
         this._system.cpu.DP,
         this._system.cpu.PBR,
+        this._system.cpu.DBR,
       ];
       const p = this._system.cpu.P;
       response.body = {
@@ -785,7 +786,7 @@ export class MockDebugSession extends LoggingDebugSession {
   private convertFromRuntime(v: Register): DebugProtocol.Variable {
     let dapVariable: DebugProtocol.Variable = {
       name: v.name,
-      value: v.toString(),
+      value: "0x" + v.toString(),
       type: "string",
       variablesReference: 0,
       evaluateName: "$" + v.name,
