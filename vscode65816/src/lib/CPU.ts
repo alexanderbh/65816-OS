@@ -71,10 +71,11 @@ export class CPU {
     this.callTrace.push({ entry: resetVector });
   }
 
-  public step(steps: number = 1) {
+  public step(steps: number = 1): Byte {
+    let opcode: Byte = 0;
     for (var step = 0; step < steps; step++) {
       this.system.ram.clearAccess();
-      const opcode = this.system.read(bank(this.PBR.byte) | this.PC.word);
+      opcode = this.system.read(bank(this.PBR.byte) | this.PC.word);
 
       this.incProgramCounter(1);
       // prettier-ignore
@@ -101,6 +102,7 @@ export class CPU {
       }
     }
     this.changed();
+    return opcode;
   }
 
   public setNZ(b: Byte) {

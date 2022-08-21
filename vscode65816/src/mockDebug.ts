@@ -206,7 +206,7 @@ export class MockDebugSession extends LoggingDebugSession {
     response.body.supportsCompletionsRequest = false;
 
     // make VS Code send cancel request
-    response.body.supportsCancelRequest = true;
+    response.body.supportsCancelRequest = false;
 
     // make VS Code send the breakpointLocations request
     response.body.supportsBreakpointLocationsRequest = true;
@@ -606,7 +606,7 @@ export class MockDebugSession extends LoggingDebugSession {
     response: DebugProtocol.NextResponse,
     args: DebugProtocol.NextArguments
   ): void {
-    this._system.step();
+    this._system.stepOver();
     this.sendResponse(response);
   }
 
@@ -618,24 +618,10 @@ export class MockDebugSession extends LoggingDebugSession {
     this.sendResponse(response);
   }
 
-  protected stepInTargetsRequest(
-    response: DebugProtocol.StepInTargetsResponse,
-    args: DebugProtocol.StepInTargetsArguments
-  ) {
-    // const targets = this._system.getStepInTargets(args.frameId);
-    // response.body = {
-    //   targets: targets.map((t) => {
-    //     return { id: t.id, label: t.label };
-    //   }),
-    // };
-    this.sendResponse(response);
-  }
-
   protected stepInRequest(
     response: DebugProtocol.StepInResponse,
     args: DebugProtocol.StepInArguments
   ): void {
-    // TODO: Support step in
     this._system.step();
     this.sendResponse(response);
   }
@@ -733,15 +719,6 @@ export class MockDebugSession extends LoggingDebugSession {
       ],
     };
     this.sendResponse(response);
-  }
-
-  protected cancelRequest(
-    response: DebugProtocol.CancelResponse,
-    args: DebugProtocol.CancelArguments
-  ) {
-    if (args.requestId) {
-      this._cancellationTokens.set(args.requestId, true);
-    }
   }
 
   protected setInstructionBreakpointsRequest(
