@@ -27,13 +27,13 @@ export type CPUPRegister = {
 export class CPU {
   private system: System;
   cycles: number = 0;
-  PC: Register = new Register("PC", this, { size: 4, value: 0xfffc });
-  PBR: Byte = 0;
-  DP: Byte = 0;
-  A: Register = new Register("A", this);
-  X: Register = new Register("X", this);
-  Y: Register = new Register("Y", this);
-  S: Register = new Register("SP", this, {
+  PC: Register = new Register("PC", this, false, { size: 4, value: 0xfffc });
+  PBR: Register = new Register("PBR", this, false);
+  DP: Register = new Register("DP", this, false);
+  A: Register = new Register("A", this, true);
+  X: Register = new Register("X", this, true);
+  Y: Register = new Register("Y", this, true);
+  S: Register = new Register("S", this, false, {
     size: 4,
     value: 0x0100 + randomInt(0, 255),
   });
@@ -56,8 +56,8 @@ export class CPU {
 
   public reset() {
     this.cycles = 0;
-    this.PBR = 0;
-    this.DP = 0;
+    this.PBR.reset();
+    this.DP.reset();
     this.PC.reset();
     this.E = true;
     this.P = EMPTY_STATUS_REGISTER;
@@ -230,7 +230,7 @@ export class CPU {
     const tmpC = this.P.C;
     this.P.C = this.E;
     this.E = tmpC;
-    this.DP = 0;
+    this.DP.setByte(0);
     // TODO: What happens to registers when switching off emulation?
     this.cycles += 2;
   }
@@ -296,7 +296,7 @@ export class CPU {
 
   // Immidiate byte
   private Am_immb(): Address {
-    const addr = bank(this.PBR) | this.PC.word;
+    const addr = bank(this.PBR.byte) | this.PC.word;
     this.incProgramCounter(1);
     this.cycles += 0;
     return addr;
@@ -304,7 +304,7 @@ export class CPU {
 
   // Absolute
   private Am_absl(): Address {
-    const addr = this.system.readWord(bank(this.PBR) | this.PC.word);
+    const addr = this.system.readWord(bank(this.PBR.byte) | this.PC.word);
     this.incProgramCounter(2);
     this.cycles += 2;
     return addr;
@@ -312,10 +312,10 @@ export class CPU {
 
   // Direct Page
   private Am_dpag(): Address {
-    const offset = this.system.read(bank(this.PBR) | this.PC.word);
+    const offset = this.system.read(bank(this.PBR.byte) | this.PC.word);
     this.incProgramCounter(1);
     this.cycles += 1;
-    return this.DP + offset;
+    return this.DP.byte + offset;
   }
 
   private SetC(n: number) {
@@ -337,6 +337,7 @@ export class Register {
   public constructor(
     public name: string,
     private cpu: CPU,
+    private updatesPRegister: boolean,
     private initialValue?: { size: 2; value: Byte } | { size: 4; value: Word }
   ) {
     this.byte = 0;
@@ -364,13 +365,17 @@ export class Register {
     b = b & 0xff;
     this.byte = b;
     this.word = join(b, 0);
-    this.cpu.setNZ(b);
+    if (this.updatesPRegister) {
+      this.cpu.setNZ(b);
+    }
   }
   public setWord(w: Word) {
     w = w & 0xffff;
     this.word = w;
     this.byte = low(w);
-    this.cpu.setNZWord(w);
+    if (this.updatesPRegister) {
+      this.cpu.setNZWord(w);
+    }
   }
 
   public toString() {

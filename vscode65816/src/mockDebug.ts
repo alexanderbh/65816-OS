@@ -72,8 +72,9 @@ export class MockDebugSession extends LoggingDebugSession {
   private _system: System;
 
   private _variableHandles = new Handles<
-    "locals" | "registers" | "emulator" | RuntimeVariable
+    "locals" | "registers" | "emulator" | "p" | RuntimeVariable
   >();
+  private _pVariableHandle = this._variableHandles.create("p");
 
   private _configurationDone = new Subject();
 
@@ -307,25 +308,7 @@ export class MockDebugSession extends LoggingDebugSession {
     );
     this._system.start(rom, !args.noDebug, !!args.stopOnEntry);
 
-    // await this._system.start(args.program, !!args.stopOnEntry, !args.noDebug);
-
-    if (args.compileError) {
-      // simulate a compile/build error in "launch" request:
-      // the error should not result in a modal dialog since 'showUser' is set to false.
-      // A missing 'showUser' should result in a modal dialog.
-      this.sendErrorResponse(response, {
-        id: 1001,
-        format: `compile error: some fake error.`,
-        showUser:
-          args.compileError === "show"
-            ? true
-            : args.compileError === "hide"
-            ? false
-            : undefined,
-      });
-    } else {
-      this.sendResponse(response);
-    }
+    this.sendResponse(response);
   }
 
   protected setFunctionBreakPointsRequest(
@@ -396,10 +379,7 @@ export class MockDebugSession extends LoggingDebugSession {
   protected threadsRequest(response: DebugProtocol.ThreadsResponse): void {
     // runtime supports no threads so just return a default thread.
     response.body = {
-      threads: [
-        new Thread(MockDebugSession.threadID, "thread 1"),
-        new Thread(MockDebugSession.threadID + 1, "thread 2"),
-      ],
+      threads: [new Thread(MockDebugSession.threadID, "65C816")],
     };
     this.sendResponse(response);
   }
@@ -408,39 +388,6 @@ export class MockDebugSession extends LoggingDebugSession {
     response: DebugProtocol.StackTraceResponse,
     args: DebugProtocol.StackTraceArguments
   ): void {
-    // const startFrame =
-    //   typeof args.startFrame === "number" ? args.startFrame : 0;
-    // const maxLevels = typeof args.levels === "number" ? args.levels : 1000;
-    // const endFrame = startFrame + maxLevels;
-
-    // const stk = this._system.stack(startFrame, endFrame);
-
-    // response.body = {
-    //   stackFrames: stk.frames.map((f, ix) => {
-    //     const sf: DebugProtocol.StackFrame = new StackFrame(
-    //       f.index,
-    //       f.name,
-    //       this.createSource(f.file),
-    //       this.convertDebuggerLineToClient(f.line)
-    //     );
-    //     if (typeof f.column === "number") {
-    //       sf.column = this.convertDebuggerColumnToClient(f.column);
-    //     }
-    //     if (typeof f.instruction === "number") {
-    //       const address = this.formatAddress(f.instruction);
-    //       sf.name = `${f.name} ${address}`;
-    //       sf.instructionPointerReference = address;
-    //     }
-
-    //     return sf;
-    //   }),
-    //   // 4 options for 'totalFrames':
-    //   //omit totalFrames property: 	// VS Code has to probe/guess. Should result in a max. of two requests
-    //   totalFrames: stk.count, // stk.count is the correct size, should result in a max. of two requests
-    //   //totalFrames: 1000000 			// not the correct size, should result in a max. of two requests
-    //   //totalFrames: endFrame + 20 	// dynamically increases the size with every requested chunk, results in paging
-    // };
-
     response.body = {
       stackFrames: this._system.cpu.callTrace
         .slice()
@@ -546,9 +493,35 @@ export class MockDebugSession extends LoggingDebugSession {
         this._system.cpu.Y,
         this._system.cpu.PC,
         this._system.cpu.S,
+        this._system.cpu.DP,
+        this._system.cpu.PBR,
       ];
+      const p = this._system.cpu.P;
       response.body = {
-        variables: vs.map((v) => this.convertFromRuntime(v)),
+        variables: vs
+          .map((vr) => this.convertFromRuntime(vr))
+          .concat([
+            {
+              name: "P",
+              variablesReference: this._pVariableHandle,
+              value: [p.N, p.C, p.Z, p.M, p.X, p.I, p.V]
+                .map((vl) => (vl ? "1" : "0"))
+                .join(""),
+            },
+          ]),
+      };
+    } else if (v === "p") {
+      const p = this._system.cpu.P;
+      response.body = {
+        variables: [
+          { name: "N", value: p.N ? "1" : "0", variablesReference: 0 },
+          { name: "C", value: p.C ? "1" : "0", variablesReference: 0 },
+          { name: "Z", value: p.Z ? "1" : "0", variablesReference: 0 },
+          { name: "M", value: p.M ? "1" : "0", variablesReference: 0 },
+          { name: "X", value: p.X ? "1" : "0", variablesReference: 0 },
+          { name: "I", value: p.I ? "1" : "0", variablesReference: 0 },
+          { name: "V", value: p.V ? "1" : "0", variablesReference: 0 },
+        ],
       };
     } else if (v === "emulator") {
       response.body = {
