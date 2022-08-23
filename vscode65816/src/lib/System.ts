@@ -91,27 +91,31 @@ export class System extends EventEmitter implements AddressBus {
     }
   }
 
+  public stepOut() {
+    let depth = 1;
+    const oneRun = () => {
+      for (let i = 0; i < 10000; i++) {
+        const opcode = this.cpu.step();
+        if (opcode === 0x20 || opcode === 0x22 || opcode === 0xfc) {
+          depth++;
+        }
+        if (opcode === 0x60 || opcode === 0x6b) {
+          depth--;
+        }
+        if (depth === 0) {
+          this.sendEvent("stopOnStep");
+          return;
+        }
+      }
+      this.interval = setTimeout(oneRun, 0);
+    };
+    this.interval = setTimeout(oneRun, 0);
+  }
+
   public stepOver() {
     const opcode = this.cpu.step();
     if (opcode === 0x20 || opcode === 0x22 || opcode === 0xfc) {
-      let depth = 1;
-      const oneRun = () => {
-        for (let i = 0; i < 10000; i++) {
-          const opcode = this.cpu.step();
-          if (opcode === 0x20 || opcode === 0x22 || opcode === 0xfc) {
-            depth++;
-          }
-          if (opcode === 0x60 || opcode === 0x6b) {
-            depth--;
-          }
-          if (depth === 0) {
-            this.sendEvent("stopOnStep");
-            return;
-          }
-        }
-        this.interval = setTimeout(oneRun, 0);
-      };
-      this.interval = setTimeout(oneRun, 0);
+      this.stepOut();
     } else {
       this.sendEvent("stopOnStep");
     }

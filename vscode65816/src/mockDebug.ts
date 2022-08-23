@@ -631,7 +631,7 @@ export class MockDebugSession extends LoggingDebugSession {
     args: DebugProtocol.StepOutArguments
   ): void {
     // TODO: Support step out
-    this._system.step();
+    this._system.stepOut();
     this.sendResponse(response);
   }
 
