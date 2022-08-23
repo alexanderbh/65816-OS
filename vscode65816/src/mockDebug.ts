@@ -548,7 +548,31 @@ export class MockDebugSession extends LoggingDebugSession {
     const container = this._variableHandles.get(args.variablesReference);
 
     if (container === "registers") {
-      // TODO
+      if (args.name === "A") {
+        this._system.cpu.A.setWord(parseInt(args.value, 16));
+        response.body = this.convertFromRuntime(this._system.cpu.A);
+      } else if (args.name === "Y") {
+        this._system.cpu.Y.setWord(parseInt(args.value, 16));
+        response.body = this.convertFromRuntime(this._system.cpu.Y);
+      } else if (args.name === "X") {
+        this._system.cpu.X.setWord(parseInt(args.value, 16));
+        response.body = this.convertFromRuntime(this._system.cpu.X);
+      } else if (args.name === "PC") {
+        this._system.cpu.PC.setWord(parseInt(args.value, 16));
+        response.body = this.convertFromRuntime(this._system.cpu.PC);
+      } else if (args.name === "S") {
+        this._system.cpu.S.setWord(parseInt(args.value, 16));
+        response.body = this.convertFromRuntime(this._system.cpu.S);
+      } else if (args.name === "DP") {
+        this._system.cpu.DP.setWord(parseInt(args.value, 16));
+        response.body = this.convertFromRuntime(this._system.cpu.DP);
+      } else if (args.name === "PBR") {
+        this._system.cpu.PBR.setWord(parseInt(args.value, 16));
+        response.body = this.convertFromRuntime(this._system.cpu.PBR);
+      } else if (args.name === "DBR") {
+        this._system.cpu.DBR.setWord(parseInt(args.value, 16));
+        response.body = this.convertFromRuntime(this._system.cpu.DBR);
+      }
     } else {
       // Not supported yet
       /**
@@ -630,7 +654,6 @@ export class MockDebugSession extends LoggingDebugSession {
     response: DebugProtocol.StepOutResponse,
     args: DebugProtocol.StepOutArguments
   ): void {
-    // TODO: Support step out
     this._system.stepOut();
     this.sendResponse(response);
   }
