@@ -75,25 +75,25 @@
   resolved "https://registry.yarnpkg.com/@types/minimatch/-/minimatch-3.0.3.tgz#3dca0e3f33b200fc7d1139c0cd96c1268cadfd9d"
   integrity sha512-tHq6qdbT9U1IRSGf14CL0pUlULksvY9OZ+5eEgl1N7t+OA3tGvNpxJCzuKQlsNgCVwbAs670L1vcVQi8j9HjnA==
 
-"@types/mocha@^9.1.0":
-  version "9.1.0"
-  resolved "https://registry.yarnpkg.com/@types/mocha/-/mocha-9.1.0.tgz#baf17ab2cca3fcce2d322ebc30454bff487efad5"
-  integrity sha512-QCWHkbMv4Y5U9oW10Uxbr45qMMSzl4OzijsozynUAgx3kEHUdXB00udx2dWDQ7f2TU2a2uuiFaRZjCe3unPpeg==
+"@types/mocha@^9.1.1":
+  version "9.1.1"
+  resolved "https://registry.yarnpkg.com/@types/mocha/-/mocha-9.1.1.tgz#e7c4f1001eefa4b8afbd1eee27a237fee3bf29c4"
+  integrity sha512-Z61JK7DKDtdKTWwLeElSEBcWGRLY8g95ic5FoQqI9CMx0ns/Ghep3B4DfcEimiKMvtamNVULVNKEsiwV3aQmXw==
 
 "@types/node@*":
   version "14.0.27"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-14.0.27.tgz#a151873af5a5e851b51b3b065c9e63390a9e0eb1"
   integrity sha512-kVrqXhbclHNHGu9ztnAwSncIgJv/FaxmzXJvGXNdcCpV1b8u1/Mi6z6m0vwy0LzKeXFTPLH0NzwmoJ3fNCIq0g==
 
-"@types/node@^14.14.37":
-  version "14.14.37"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-14.14.37.tgz#a3dd8da4eb84a996c36e331df98d82abd76b516e"
-  integrity sha512-XYmBiy+ohOR4Lh5jE379fV2IU+6Jn4g5qASinhitfyO71b/sCo6MKsMLF5tc7Zf2CE8hViVQyYSobJNke8OvUw==
+"@types/node@^14.18.26":
+  version "14.18.26"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-14.18.26.tgz#239e19f8b4ea1a9eb710528061c1d733dc561996"
+  integrity sha512-0b+utRBSYj8L7XAp0d+DX7lI4cSmowNaaTkk6/1SKzbKkG+doLuPusB9EOvzLJ8ahJSk03bTLIL6cWaEd4dBKA==
 
-"@types/vscode@^1.66.0":
-  version "1.66.0"
-  resolved "https://registry.yarnpkg.com/@types/vscode/-/vscode-1.66.0.tgz#e90e1308ad103f2bd31b72c17b8031b4cec0713d"
-  integrity sha512-ZfJck4M7nrGasfs4A4YbUoxis3Vu24cETw3DERsNYtDZmYSYtk6ljKexKFKhImO/ZmY6ZMsmegu2FPkXoUFImA==
+"@types/vscode@^1.70.0":
+  version "1.70.0"
+  resolved "https://registry.yarnpkg.com/@types/vscode/-/vscode-1.70.0.tgz#9cb14cdaac9f450a7005ae2db49ecee4a084c983"
+  integrity sha512-3/9Fz0F2eBgwciazc94Ien+9u1elnjFg9YAhvAb3qDy/WeFWD9VrOPU7CIytryOVUdbxus8uzL4VZYONA0gDtA==
 
 "@typescript-eslint/eslint-plugin@^5.17.0":
   version "5.17.0"
@@ -180,24 +180,24 @@
   resolved "https://registry.yarnpkg.com/@ungap/promise-all-settled/-/promise-all-settled-1.1.2.tgz#aa58042711d6e3275dd37dc597e5d31e8c290a44"
   integrity sha512-sL/cEvJWAnClXw0wHk85/2L0G6Sj8UB0Ctc1TEMbKSsmpRosqhwj9gWgFRZSrBr2f9tiXISwNhCPmlfqUqyb9Q==
 
-"@vscode/debugadapter-testsupport@^1.56.0":
-  version "1.56.0"
-  resolved "https://registry.yarnpkg.com/@vscode/debugadapter-testsupport/-/debugadapter-testsupport-1.56.0.tgz#f0bd47a9e4ea5f231904284976f45e4d80fc9534"
-  integrity sha512-epCgaAQN2VvHS7zg9gKdqXF86tpAxEiFZ2Nvajz6hO2CXPqID9LZdld06Ss1dcqDoV/Pca/OeF7hQvcEEHBMvg==
+"@vscode/debugadapter-testsupport@^1.57.0":
+  version "1.57.0"
+  resolved "https://registry.yarnpkg.com/@vscode/debugadapter-testsupport/-/debugadapter-testsupport-1.57.0.tgz#ab96ec0d134a3f45f986eeb822e0272e3ce88cd8"
+  integrity sha512-Gr4DvTL5YQYlsJf7ZnjBe1PABNvwvkRuBUMUbNmSSyG7T5OWmSDQ6XVovQ3osfbiHDDsi6guVf3yMBuEc8YCpw==
   dependencies:
-    "@vscode/debugprotocol" "1.56.0"
+    "@vscode/debugprotocol" "1.57.0"
 
-"@vscode/debugadapter@^1.56.0":
-  version "1.56.0"
-  resolved "https://registry.yarnpkg.com/@vscode/debugadapter/-/debugadapter-1.56.0.tgz#bba27d8ae17e74afef134322f63ce75532c9fc7c"
-  integrity sha512-ObPrhQsqwJmIhObK3z6Wwaz/4JoZkS4D8f6uofkLqW+Bi/Atn6oCdgQC9PuFboQtsXXGMnFHibq0wPBKZvjW6w==
+"@vscode/debugadapter@^1.57.0":
+  version "1.57.0"
+  resolved "https://registry.yarnpkg.com/@vscode/debugadapter/-/debugadapter-1.57.0.tgz#6328d91141fe99cbaf53c1a9ed085b8f1cf930e5"
+  integrity sha512-M5318gA6QBuQERFuAFwv3CCrH/2N2g+RLwDDIj9xIMZUfjr5r9JPu4iv70WBL7n8NT4K8Er8xpxmgGcl3oW8gw==
   dependencies:
-    "@vscode/debugprotocol" "1.56.0"
+    "@vscode/debugprotocol" "1.57.0"
 
-"@vscode/debugprotocol@1.56.0":
-  version "1.56.0"
-  resolved "https://registry.yarnpkg.com/@vscode/debugprotocol/-/debugprotocol-1.56.0.tgz#1fe42845dd5e279a213057a8643f134619a955c4"
-  integrity sha512-hM+LlYNimM5HxoWG5lvNYIStjsKJdKE/4nwOIYaAjr/M7Cb5bFaJcHfkcdTJZAZejao/ueakuZ0Iq3JkC1avcQ==
+"@vscode/debugprotocol@1.57.0":
+  version "1.57.0"
+  resolved "https://registry.yarnpkg.com/@vscode/debugprotocol/-/debugprotocol-1.57.0.tgz#f055c0422b1f77358a12b1415623099ba0541647"
+  integrity sha512-eww0WhAtj3lPX7+7tGkxQ3P7IRC3hS7+SVL7fmM8CAat2DMM+PVjg1FQbTCtMw6EwNSmT/qMx1iZCyzQguJJKA==
 
 acorn-jsx@^5.3.1:
   version "5.3.1"
@@ -2061,10 +2061,10 @@ typed-rest-client@^1.8.4:
     tunnel "0.0.6"
     underscore "^1.12.1"
 
-typescript@^4.6.3:
-  version "4.6.3"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.6.3.tgz#eefeafa6afdd31d725584c67a0eaba80f6fc6c6c"
-  integrity sha512-yNIatDa5iaofVozS/uQJEl3JRWLKKGJKh6Yaiv0GLGSuhpFJe7P3SbHZ8/yjAHRQwKRoA6YZqlfjXWmVzoVSMw==
+typescript@^4.7.4:
+  version "4.7.4"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.7.4.tgz#1a88596d1cf47d59507a1bcdfb5b9dfe4d488235"
+  integrity sha512-C0WQT0gezHuw6AdY1M2jxUO83Rjf0HP7Sk1DtXj6j1EwkQNZrHAg2XPWlq62oqEhYvONq5pkC2Y9oPljWToLmQ==
 
 uc.micro@^1.0.1, uc.micro@^1.0.5:
   version "1.0.6"

@@ -26,4 +26,13 @@ export class ROM implements AddressBus {
   writeWord(_addr: Address, _data: Word) {
     throw new Error("ROM write not possible.");
   }
+  readSlice(addr: Address, length: number): Uint8Array {
+    return this.data.slice(
+      addr - ROM_START + this.startDataOffset,
+      addr - ROM_START + this.startDataOffset + length
+    );
+  }
+  public writeSlice(addr: Sesqui, data: Uint8Array): void {
+    throw new Error("ROM write not possible.");
+  }
 }

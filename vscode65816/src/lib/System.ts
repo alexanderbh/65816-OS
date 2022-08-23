@@ -145,11 +145,25 @@ export class System extends EventEmitter implements AddressBus {
   public readWord(addr: Address): Word {
     return this.resolveAddress(addr).readWord(addr);
   }
+  public readSlice(addr: Address, length: number): Uint8Array {
+    const entry = this.memoryMap.find((p) => addr >= p.start && addr <= p.end);
+    if (entry) {
+      const possibleEnd = entry.end < addr + length ? entry.end - addr : length;
+      return entry.device.readSlice(addr, possibleEnd);
+    }
+    return new Uint8Array();
+  }
   public write(addr: Address, data: Byte): void {
     this.resolveAddress(addr).write(addr, data);
+    this.sendEvent("memoryChanged");
   }
   public writeWord(addr: Address, data: Word): void {
     this.resolveAddress(addr).writeWord(addr, data);
+    this.sendEvent("memoryChanged");
+  }
+  public writeSlice(addr: Address, data: Uint8Array) {
+    this.resolveAddress(addr).writeSlice(addr, data);
+    this.sendEvent("memoryChanged");
   }
 
   private resolveAddress(addr: Address): AddressBus {

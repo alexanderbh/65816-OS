@@ -36,6 +36,15 @@ export class RAM implements AddressBus {
     this.mem[addr + 1] = high(data);
   }
 
+  public readSlice(addr: Address, length: number): Uint8Array {
+    return this.mem.slice(addr, addr + length);
+  }
+  public writeSlice(addr: Address, data: Uint8Array) {
+    const newMem = Array.from(this.mem);
+    newMem.splice(addr, data.length, ...data);
+    this.mem = new Uint8Array(newMem);
+  }
+
   public clearAccess() {
     this.lastAccess = undefined;
   }

@@ -38,6 +38,7 @@ import * as base64 from "base64-js";
 import { Register } from "./lib/CPU";
 import { ROM } from "./lib/ROM";
 import { basename } from "path";
+import { addr } from "./lib/Utils";
 
 /**
  * This interface describes the mock-debug specific launch attributes
@@ -72,13 +73,12 @@ export class MockDebugSession extends LoggingDebugSession {
   private _system: System;
 
   private _variableHandles = new Handles<
-    "locals" | "registers" | "emulator" | "p" | RuntimeVariable
+    "locals" | "registers" | "emulator" | "p" | "stack" | RuntimeVariable
   >();
   private _pVariableHandle = this._variableHandles.create("p");
+  private _stackVarReference = this._variableHandles.create("stack");
 
   private _configurationDone = new Subject();
-
-  private _cancellationTokens = new Map<number, boolean>();
 
   private _valuesInHex = false;
   private _useInvalidatedEvent = false;
@@ -118,6 +118,11 @@ export class MockDebugSession extends LoggingDebugSession {
     this._system.on("stopOnInstructionBreakpoint", () => {
       this.sendEvent(
         new StoppedEvent("instruction breakpoint", MockDebugSession.threadID)
+      );
+    });
+    this._system.on("memoryChanged", () => {
+      this.sendEvent(
+        new InvalidatedEvent(["variables"], MockDebugSession.threadID)
       );
     });
     this._system.on("stopOnException", (exception) => {
@@ -427,6 +432,7 @@ export class MockDebugSession extends LoggingDebugSession {
         ),
         new Scope("Emulator", this._variableHandles.create("emulator"), false),
         new Scope("Locals", this._variableHandles.create("locals"), false),
+        new Scope("Stack", this._stackVarReference, false),
       ],
     };
     this.sendResponse(response);
@@ -436,40 +442,27 @@ export class MockDebugSession extends LoggingDebugSession {
     response: DebugProtocol.WriteMemoryResponse,
     { data, memoryReference, offset = 0 }: DebugProtocol.WriteMemoryArguments
   ) {
-    const variable = this._variableHandles.get(Number(memoryReference));
-    if (typeof variable === "object") {
+    if (memoryReference === "stack") {
       const decoded = base64.toByteArray(data);
-      variable.setMemory(decoded, offset);
+      this._system.writeSlice(offset, decoded);
       response.body = { bytesWritten: decoded.length };
     } else {
       response.body = { bytesWritten: 0 };
     }
 
     this.sendResponse(response);
-    this.sendEvent(new InvalidatedEvent(["variables"]));
   }
 
   protected async readMemoryRequest(
     response: DebugProtocol.ReadMemoryResponse,
     { offset = 0, count, memoryReference }: DebugProtocol.ReadMemoryArguments
   ) {
-    const variable = this._variableHandles.get(Number(memoryReference));
-    if (typeof variable === "object" && variable.memory) {
-      const memory = variable.memory.subarray(
-        Math.min(offset, variable.memory.length),
-        Math.min(offset + count, variable.memory.length)
-      );
-
+    if (memoryReference === "stack") {
+      const data = this._system.readSlice(offset, count);
       response.body = {
-        address: offset.toString(),
-        data: base64.fromByteArray(memory),
-        unreadableBytes: count - memory.length,
-      };
-    } else {
-      response.body = {
-        address: offset.toString(),
-        data: "",
-        unreadableBytes: count,
+        data: base64.fromByteArray(data),
+        address: "" + offset,
+        unreadableBytes: count - data.length,
       };
     }
 
@@ -531,6 +524,23 @@ export class MockDebugSession extends LoggingDebugSession {
             name: "Cycles",
             value: this._system.cpu.cycles.toString(),
             type: "integer",
+            variablesReference: 0,
+          },
+        ],
+      };
+    } else if (v === "stack") {
+      const last8 = this._system.readSlice(
+        addr(0, this._system.cpu.S.word) + 1,
+        16
+      );
+      response.body = {
+        variables: [
+          {
+            name: "Stack",
+            value: Array.from(last8)
+              .map((p) => p.toString(16).padStart(2, "0"))
+              .join(","),
+            memoryReference: "stack",
             variablesReference: 0,
           },
         ],

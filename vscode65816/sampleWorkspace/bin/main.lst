@@ -13,38 +13,39 @@ Current file: src/main.asm
 000003r 1               
 000003r 1               ResetVector:
 000003r 1  A9 01            LDA #$01
-000005r 1  20 rr rr         JSR Add41
-000008r 1  A9 02            LDA #$02
-00000Ar 1  A9 03            LDA #$03
-00000Cr 1  A9 04            LDA #$04
-00000Er 1  A9 05            LDA #$05
-000010r 1  A9 06            LDA #$06
-000012r 1  A9 07            LDA #$07
-000014r 1  20 rr rr         JSR PostIncl
-000017r 1  A9 08            LDA #$08
-000019r 1  4C rr rr         jmp ResetVector
-00001Cr 1               
-00001Cr 1               .SEGMENT "RAM"
+000005r 1  85 08            STA $08
+000007r 1  20 rr rr         JSR Add41
+00000Ar 1  A5 02            LDA $02
+00000Cr 1  A5 08            LDA $08
+00000Er 1  A9 04            LDA #$04
+000010r 1  A9 05            LDA #$05
+000012r 1  A9 06            LDA #$06
+000014r 1  A9 07            LDA #$07
+000016r 1  20 rr rr         JSR PostIncl
+000019r 1  A9 08            LDA #$08
+00001Br 1  4C rr rr         jmp ResetVector
+00001Er 1               
+00001Er 1               .SEGMENT "RAM"
 000000r 1  00               .byte 0
 000001r 1               
 000001r 1               .code
-00001Cr 1               
-00001Cr 1               .include "postincl.asm"
-00001Cr 2               
-00001Cr 2               
-00001Cr 2               
-00001Cr 2               PostIncl:
-00001Cr 2  69 01            ADC #$01
-00001Er 2  69 02            ADC #$02
-000020r 2               
-000020r 2  20 rr rr         JSR Add41
-000023r 2               
-000023r 2  20 rr rr         JSR Add41
-000026r 2               ; comment
-000026r 2  20 rr rr         JSR Add41
-000029r 2  60               RTS
-00002Ar 2               
-00002Ar 1               
-00002Ar 1               .SEGMENT "VECTORS"
+00001Er 1               
+00001Er 1               .include "postincl.asm"
+00001Er 2               
+00001Er 2               
+00001Er 2               
+00001Er 2               PostIncl:
+00001Er 2  69 01            ADC #$01
+000020r 2  69 02            ADC #$02
+000022r 2               
+000022r 2  20 rr rr         JSR Add41
+000025r 2               
+000025r 2  20 rr rr         JSR Add41
+000028r 2               ; comment
+000028r 2  20 rr rr         JSR Add41
+00002Br 2  60               RTS
+00002Cr 2               
+00002Cr 1               
+00002Cr 1               .SEGMENT "VECTORS"
 000000r 1  rr rr            .word ResetVector
 000000r 1               

@@ -14,4 +14,6 @@ interface AddressBus {
   readWord(addr: Address): Word;
   write(addr: Address, data: Byte): void;
   writeWord(addr: Address, data: Word): void;
+  readSlice(addr: Address, length: number): Uint8Array;
+  writeSlice(addr: Address, data: Uint8Array): void;
 }

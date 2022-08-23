@@ -5,9 +5,10 @@
 
 ResetVector:
     LDA #$01
+    STA $08
     JSR Add41
-    LDA #$02
-    LDA #$03
+    LDA $02
+    LDA $08
     LDA #$04
     LDA #$05
     LDA #$06
