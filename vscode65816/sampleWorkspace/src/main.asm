@@ -7,8 +7,9 @@ ResetVector:
     LDA #$01
     STA $08
     JSR Add41
-    LDA $02
-    LDA $08
+    LDA Counter
+    ADC #$01
+    STA Counter
     LDA #$04
     LDA #$05
     LDA #$06
@@ -18,7 +19,7 @@ ResetVector:
     jmp ResetVector
 
 .SEGMENT "RAM"
-    .byte 0
+    Counter: .res 2
     
 .code
 

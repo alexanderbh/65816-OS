@@ -86,6 +86,8 @@ export class MockDebugSession extends LoggingDebugSession {
 
   private _pcToFileLine: Map<number, { file: string; line: number }> =
     new Map();
+  private _symbolToAddress: Map<string, { addr: Address; size: number }> =
+    new Map();
 
   /**
    * Creates a new debug adapter that is used for one debug session.
@@ -421,7 +423,7 @@ export class MockDebugSession extends LoggingDebugSession {
 
   protected scopesRequest(
     response: DebugProtocol.ScopesResponse,
-    args: DebugProtocol.ScopesArguments
+    _args: DebugProtocol.ScopesArguments
   ): void {
     response.body = {
       scopes: [
@@ -474,8 +476,6 @@ export class MockDebugSession extends LoggingDebugSession {
     args: DebugProtocol.VariablesArguments,
     request?: DebugProtocol.Request
   ): Promise<void> {
-    let vs: Register[] = [];
-
     const v = this._variableHandles.get(args.variablesReference);
     if (v === "locals") {
       // TODO: Support "local" variables
@@ -633,6 +633,29 @@ export class MockDebugSession extends LoggingDebugSession {
     request?: DebugProtocol.Request | undefined
   ): void {
     this._system.pause();
+    this.sendResponse(response);
+  }
+
+  protected sourceRequest(
+    response: DebugProtocol.SourceResponse,
+    args: DebugProtocol.SourceArguments,
+    request?: DebugProtocol.Request | undefined
+  ): void {
+    this.sendResponse(response);
+  }
+  protected evaluateRequest(
+    response: DebugProtocol.EvaluateResponse,
+    args: DebugProtocol.EvaluateArguments,
+    request?: DebugProtocol.Request | undefined
+  ): void {
+    if (this._symbolToAddress.has(args.expression)) {
+      const symbolData = this._symbolToAddress.get(args.expression)!;
+      const value = this._system.readSlice(symbolData.addr, symbolData.size);
+      response.body = {
+        result: Buffer.from(value.reverse()).toString("hex"),
+        variablesReference: 0,
+      };
+    }
     this.sendResponse(response);
   }
 
@@ -869,6 +892,10 @@ export class MockDebugSession extends LoggingDebugSession {
       }
       if (entry[0] === "sym") {
         this._symbolNameTable.set(parseInt(argObj.val, 16), argObj.name);
+        this._symbolToAddress.set(argObj.name.replaceAll('"', ""), {
+          addr: parseInt(argObj.val, 16),
+          size: parseInt(argObj.size),
+        });
       }
     });
 
