@@ -87,7 +87,7 @@ export class MockDebugSession extends LoggingDebugSession {
   private _pcToFileLine: Map<number, { file: string; line: number }> =
     new Map();
 
-  private _fileLineToPc: Map<string, Map<number, number>> = new Map();
+  private _fileLineToPc: Map<string, Map<number, number[]>> = new Map();
   private _symbolToAddress: Map<string, { addr: Address; size: number }> =
     new Map();
 
@@ -854,8 +854,7 @@ export class MockDebugSession extends LoggingDebugSession {
   private preparePCMapping(dbgFile: string): void {
     const files: Map<number, { file: string }> = new Map();
     const segments: Map<number, { name: string; start: number }> = new Map();
-    const lines: Map<number, { file: number; line: number; span?: number }> =
-      new Map();
+    const lines: { file: number; line: number; span?: number }[] = [];
     const spans: Map<number, { segment: number; start: number; size: number }> =
       new Map();
 
@@ -883,11 +882,16 @@ export class MockDebugSession extends LoggingDebugSession {
         });
       }
       if (entry[0] === "line") {
-        lines.set(parseInt(argObj.id), {
-          file: parseInt(argObj.file),
-          line: parseInt(argObj.line),
-          span: argObj.span ? parseInt(argObj.span) : undefined,
-        });
+        if (argObj.span) {
+          const spans = argObj.span.replace("'", "").split("+");
+          spans.forEach((span) => {
+            lines.push({
+              file: parseInt(argObj.file),
+              line: parseInt(argObj.line),
+              span: span ? parseInt(span) : undefined,
+            });
+          });
+        }
       }
       if (entry[0] === "span") {
         spans.set(parseInt(argObj.id), {
@@ -930,9 +934,23 @@ export class MockDebugSession extends LoggingDebugSession {
       }
 
       const pc = segment.start + span.start;
+      if (
+        this._fileLineToPc
+          .get(this._workspacePath + "/" + file.file)
+          ?.has(line.line)
+      ) {
+        this._fileLineToPc
+          .get(this._workspacePath + "/" + file.file)
+          ?.set(line.line, [
+            pc,
+            ...this._fileLineToPc
+              .get(this._workspacePath + "/" + file.file)!
+              .get(line.line)!,
+          ]);
+      }
       this._fileLineToPc
         .get(this._workspacePath + "/" + file.file)
-        ?.set(line.line, pc);
+        ?.set(line.line, [pc]);
 
       this._pcToFileLine.set(pc, {
         file: this._workspacePath + "/" + file.file,
@@ -953,7 +971,9 @@ export class MockDebugSession extends LoggingDebugSession {
         if (!pc) {
           console.log("Not found pc", args.source.path, b.line);
         } else {
-          this._system.breakpoints.add(pc);
+          pc.forEach((p) => {
+            this._system.breakpoints.add(p);
+          });
           //this.sendEvent(
           //  new BreakpointEvent("changed", { verified: true, id: index })
           //);

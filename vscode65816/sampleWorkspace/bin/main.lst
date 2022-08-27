@@ -10,6 +10,17 @@ Current file: src/main.asm
 000000r 2  69 41            ADC #$41
 000002r 2  60               RTS
 000003r 2               
+000003r 1               .include "macros.inc"
+000003r 2               .macro inc16 variable
+000003r 2                   LDA variable
+000003r 2                   CLC
+000003r 2                   ADC #$01
+000003r 2                   STA variable
+000003r 2                   LDA variable+1
+000003r 2                   ADC #$00
+000003r 2                   STA variable+1
+000003r 2               .endmacro
+000003r 2               
 000003r 1               
 000003r 1               ResetVector:
 000003r 1  A9 01            LDA #$01
@@ -23,33 +34,40 @@ Current file: src/main.asm
 000016r 1  20 rr rr         JSR Add41
 000019r 1  A9 04            LDA #$04
 00001Br 1  A9 05            LDA #$05
-00001Dr 1  A9 06            LDA #$06
-00001Fr 1  A9 07            LDA #$07
-000021r 1  20 rr rr         JSR PostIncl
-000024r 1  A9 08            LDA #$08
-000026r 1  4C rr rr         jmp ResetVector
-000029r 1               
-000029r 1               .SEGMENT "RAM"
+00001Dr 1  AD rr rr 18      inc16 Counter
+000021r 1  69 01 8D rr  
+000025r 1  rr AD rr rr  
+00002Er 1  A9 06            LDA #$06
+000030r 1  A9 07            LDA #$07
+000032r 1  AD rr rr 18      inc16 CounterB
+000036r 1  69 01 8D rr  
+00003Ar 1  rr AD rr rr  
+000043r 1  20 rr rr         JSR PostIncl
+000046r 1  A9 08            LDA #$08
+000048r 1  4C rr rr         jmp ResetVector
+00004Br 1               
+00004Br 1               .SEGMENT "RAM"
 000000r 1  xx xx            Counter: .res 2
-000002r 1               
-000002r 1               .code
-000029r 1               
-000029r 1               .include "postincl.asm"
-000029r 2               
-000029r 2               
-000029r 2               
-000029r 2               PostIncl:
-000029r 2  69 01            ADC #$01
-00002Br 2  69 02            ADC #$02
-00002Dr 2               
-00002Dr 2  20 rr rr         JSR Add41
-000030r 2               
-000030r 2  20 rr rr         JSR Add41
-000033r 2               ; comment
-000033r 2  20 rr rr         JSR Add41
-000036r 2  60               RTS
-000037r 2               
-000037r 1               
-000037r 1               .SEGMENT "VECTORS"
+000002r 1  xx xx            CounterB: .res 2
+000004r 1               
+000004r 1               .code
+00004Br 1               
+00004Br 1               .include "postincl.asm"
+00004Br 2               
+00004Br 2               
+00004Br 2               
+00004Br 2               PostIncl:
+00004Br 2  69 01            ADC #$01
+00004Dr 2  69 02            ADC #$02
+00004Fr 2               
+00004Fr 2  20 rr rr         JSR Add41
+000052r 2               
+000052r 2  20 rr rr         JSR Add41
+000055r 2               ; comment
+000055r 2  20 rr rr         JSR Add41
+000058r 2  60               RTS
+000059r 2               
+000059r 1               
+000059r 1               .SEGMENT "VECTORS"
 000000r 1  rr rr            .word ResetVector
 000000r 1               

@@ -2,6 +2,7 @@
 .code
 
 .include "included.asm"
+.include "macros.inc"
 
 ResetVector:
     LDA #$01
@@ -15,14 +16,17 @@ ResetVector:
     JSR Add41
     LDA #$04
     LDA #$05
+    inc16 Counter
     LDA #$06
     LDA #$07
+    inc16 CounterB
     JSR PostIncl
     LDA #$08
     jmp ResetVector
 
 .SEGMENT "RAM"
     Counter: .res 2
+    CounterB: .res 2
     
 .code
 
