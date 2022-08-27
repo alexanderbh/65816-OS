@@ -8,19 +8,23 @@ const EMPTY_STATUS_REGISTER: CPUPRegister = {
   C: false,
   Z: true,
   M: true,
+  D: false,
   X: true,
   I: true,
   V: false,
+  B: false,
 };
 
 export type CPUPRegister = {
   N: boolean; // Negative
   V: boolean; // Overflow
   C: boolean; // Carry
+  D: boolean; // Decimal Mode
   Z: boolean; // Zero
   M: boolean; // A register size: false=16bit true=8bit
   X: boolean; // index register size: false=16bit true=8bit
   I: boolean; // Interrupt disable
+  B: boolean; // Break
 };
 
 export class CPU {
@@ -40,6 +44,34 @@ export class CPU {
 
   // Processor register
   P: CPUPRegister = EMPTY_STATUS_REGISTER;
+  private StatusRegister(): Byte {
+    let result = 0;
+    if (this.P.C) {
+      result |= 1 << 0;
+    }
+    if (this.P.Z) {
+      result |= 1 << 1;
+    }
+    if (this.P.I) {
+      result |= 1 << 2;
+    }
+    if (this.P.D) {
+      result |= 1 << 3;
+    }
+    if (this.P.X) {
+      result |= 1 << 4;
+    }
+    if (this.P.M) {
+      result |= 1 << 5;
+    }
+    if (this.P.V) {
+      result |= 1 << 6;
+    }
+    if (this.P.N) {
+      result |= 1 << 7;
+    }
+    return result;
+  }
 
   // Emulation mode
   E: boolean = false;
@@ -84,11 +116,11 @@ export class CPU {
       {
         switch (opcode) {
           case 0x18: this.Op_clc(); break;
-          case 0x20: this.Op_jsr(this.Am_absl()); break;
+          case 0x20: this.Op_jsr(this.Am_absl2()); break;
           case 0x38: this.Op_sec(); break;
           case 0x60: this.Op_rts(); break;
           case 0x69: this.Op_adc(this.Am_immm()); break;
-          case 0x4c: this.Op_jmp(this.Am_absl()); break;
+          case 0x4c: this.Op_jmp(this.Am_absl2()); break;
           case 0x85: this.Op_sta(this.Am_dpag()); break;
           case 0x8d: this.Op_sta(this.Am_absl()); break;
 
@@ -111,16 +143,6 @@ export class CPU {
     }
     this.changed();
     return opcode;
-  }
-
-  public setNZ(b: Byte) {
-    this.P.Z = b === 0;
-    this.SetN(b & 0x80);
-  }
-
-  public setNZWord(w: Word) {
-    this.P.Z = w === 0;
-    this.SetN(w & 0x8000);
   }
 
   // Stack
@@ -164,11 +186,422 @@ export class CPU {
     this.PC.setWord(this.PC.word + num);
   }
 
-  private Op_rts() {
-    this.callTrace.pop();
-    this.callTrace[this.callTrace.length - 1].exit = undefined;
-    this.PC.setWord(this.pullWord() + 1);
-    this.cycles += 6;
+  private Op_adc(addr: Address) {
+    if (this.E || this.P.M) {
+      const n = this.system.read(addr);
+      const result = this.A.byte + n + (this.P.C ? 1 : 0);
+      this.SetC(result & 0x100);
+      this.SetV((~(this.A.byte ^ n) & (this.A.byte ^ result) & 0x80) !== 0);
+      this.A.setByte(result);
+      this.cycles += 2;
+    } else {
+      const n = this.system.read(addr);
+      const result = this.A.byte + n + (this.P.C ? 1 : 0);
+      this.SetC(result & 0x10000);
+      this.SetV((~(this.A.byte ^ n) & (this.A.byte ^ result) & 0x8000) !== 0);
+      this.A.setWord(result);
+      this.cycles += 2;
+    }
+  }
+  private Op_and(addr: Address) {
+    if (this.E) {
+      const n = this.system.read(addr);
+      this.A.setByte(this.A.byte & n);
+      this.cycles += 2;
+    } else {
+      const n = this.system.readWord(addr);
+      this.A.setWord(this.A.word & n);
+      this.cycles += 3;
+    }
+  }
+
+  private Op_asl(addr: Address) {
+    if (this.E || this.P.M) {
+      const n = this.system.read(addr);
+      this.SetC(n & 0x80);
+      this.setNZ(n << 1);
+      this.system.write(addr, n << 1);
+      this.cycles += 4;
+    } else {
+      const n = this.system.readWord(addr);
+      this.SetC(n & 0x8000);
+      this.setNZWord(n << 1);
+      this.system.writeWord(addr, n << 1);
+      this.cycles += 5;
+    }
+  }
+
+  private Op_asla(addr: Address) {
+    if (this.E || this.P.M) {
+      this.SetC(this.A.byte & 0x80);
+      this.A.setByte(this.A.byte << 1);
+    } else {
+      this.SetC(this.A.word & 0x8000);
+      this.A.setWord(this.A.word << 1);
+    }
+    this.cycles += 2;
+  }
+
+  private Op_bcc(addr: Address) {
+    if (!this.P.C) {
+      if (this.E && ((this.PC.word ^ addr) & 0xff00) !== 0) {
+        this.cycles += 1;
+      }
+      this.PC.setWord(word(addr));
+      this.cycles += 3;
+    } else {
+      this.cycles += 2;
+    }
+  }
+
+  private Op_bcs(addr: Address) {
+    if (this.P.C) {
+      if (this.E && ((this.PC.word ^ addr) & 0xff00) !== 0) {
+        this.cycles += 1;
+      }
+      this.PC.setWord(word(addr));
+      this.cycles += 3;
+    } else {
+      this.cycles += 2;
+    }
+  }
+
+  private Op_beq(addr: Address) {
+    if (this.P.Z) {
+      if (this.E && ((this.PC.word ^ addr) & 0xff00) !== 0) {
+        this.cycles += 1;
+      }
+      this.PC.setWord(word(addr));
+      this.cycles += 3;
+    } else {
+      this.cycles += 2;
+    }
+  }
+
+  private Op_bit(addr: Address) {
+    if (this.E || this.P.M) {
+      const n = this.system.read(addr);
+      this.SetZ(this.A.byte & n);
+      this.SetN(n & 0x80);
+      this.SetV((n & 0x40) !== 0);
+      this.cycles += 2;
+    } else {
+      const n = this.system.readWord(addr);
+      this.SetZ(this.A.word & n);
+      this.SetN(n & 0x8000);
+      this.SetV((n & 0x4000) !== 0);
+      this.cycles += 3;
+    }
+  }
+
+  private Op_biti(addr: Address) {
+    if (this.E || this.P.M) {
+      const n = this.system.read(addr);
+      this.SetZ(this.A.byte & n);
+    } else {
+      const n = this.system.readWord(addr);
+      this.SetZ(this.A.word & n);
+    }
+    this.cycles += 2;
+  }
+
+  private Op_bmi(addr: Address) {
+    if (this.P.N) {
+      if (this.E && ((this.PC.word ^ addr) & 0xff00) !== 0) {
+        this.cycles += 1;
+      }
+      this.PC.setWord(word(addr));
+      this.cycles += 3;
+    } else {
+      this.cycles += 2;
+    }
+  }
+
+  private Op_bne(addr: Address) {
+    if (!this.P.Z) {
+      if (this.E && ((this.PC.word ^ addr) & 0xff00) !== 0) {
+        this.cycles += 1;
+      }
+      this.PC.setWord(word(addr));
+      this.cycles += 3;
+    } else {
+      this.cycles += 2;
+    }
+  }
+
+  private Op_bpl(addr: Address) {
+    if (!this.P.N) {
+      if (this.E && ((this.PC.word ^ addr) & 0xff00) !== 0) {
+        this.cycles += 1;
+      }
+      this.PC.setWord(word(addr));
+      this.cycles += 3;
+    } else {
+      this.cycles += 2;
+    }
+  }
+
+  private Op_bra(addr: Address) {
+    if (this.E && ((this.PC.word ^ addr) & 0xff00) !== 0) {
+      this.cycles += 1;
+    }
+    this.PC.setWord(word(addr));
+    this.cycles += 3;
+  }
+
+  private Op_brk(addr: Address) {
+    if (this.E) {
+      this.pushWord(this.PC.word);
+      this.pushByte(this.StatusRegister() | 0x10);
+      this.P.I = true;
+      this.P.D = false;
+      this.PBR.setByte(0);
+      this.PC.setWord(0xfffe);
+      this.cycles += 7;
+    } else {
+      this.pushByte(this.PBR.byte);
+      this.pushWord(this.PC.word);
+      this.pushByte(this.StatusRegister());
+      this.P.I = true;
+      this.P.D = false;
+      this.PBR.setByte(0);
+      this.PC.setWord(0xffe6);
+      this.cycles += 8;
+    }
+  }
+
+  private Op_brl(addr: Address) {
+    this.PC.setWord(word(addr));
+    this.cycles += 3;
+  }
+
+  private Op_bvc(addr: Address) {
+    if (!this.P.V) {
+      if (this.E && ((this.PC.word ^ addr) & 0xff00) !== 0) {
+        this.cycles += 1;
+      }
+      this.PC.setWord(word(addr));
+      this.cycles += 3;
+    } else {
+      this.cycles += 2;
+    }
+  }
+
+  private Op_bvs(addr: Address) {
+    if (this.P.V) {
+      if (this.E && ((this.PC.word ^ addr) & 0xff00) !== 0) {
+        this.cycles += 1;
+      }
+      this.PC.setWord(word(addr));
+      this.cycles += 3;
+    } else {
+      this.cycles += 2;
+    }
+  }
+
+  private Op_clc() {
+    this.SetC(0);
+    this.cycles += 2;
+  }
+  private Op_cld() {
+    this.SetD(false);
+    this.cycles += 2;
+  }
+  private Op_cli() {
+    this.SetI(false);
+    this.cycles += 2;
+  }
+  private Op_clv() {
+    this.SetV(false);
+    this.cycles += 2;
+  }
+
+  private Op_cmp(addr: Address) {
+    if (this.E || this.P.M) {
+      const data = this.system.read(addr);
+      const temp = this.A.byte - data;
+
+      this.SetC(this.A.byte > data ? 1 : 0);
+      this.setNZ(low(temp));
+      this.cycles += 2;
+    } else {
+      const data = this.system.readWord(addr);
+      const temp = this.A.word - data;
+
+      this.SetC(this.A.word > data ? 1 : 0);
+      this.setNZWord(word(temp));
+      this.cycles += 3;
+    }
+  }
+
+  private Op_cop(addr: Address) {
+    if (this.E) {
+      this.pushWord(this.PC.word);
+      this.pushByte(this.StatusRegister());
+      this.P.I = true;
+      this.P.D = false;
+      this.PBR.setByte(0);
+      this.PC.setWord(0xfff4);
+      this.cycles += 7;
+    } else {
+      this.pushByte(this.PBR.byte);
+      this.pushWord(this.PC.word);
+      this.pushByte(this.StatusRegister());
+      this.P.I = true;
+      this.P.D = false;
+      this.PBR.setByte(0);
+      this.PC.setWord(0xffe4);
+      this.cycles += 8;
+    }
+  }
+
+  private Op_cpx(addr: Address) {
+    if (this.E || this.P.X) {
+      const data = this.system.read(addr);
+      const temp = this.X.byte - data;
+
+      this.SetC(this.A.byte > data ? 1 : 0);
+      this.setNZ(low(temp));
+      this.cycles += 2;
+    } else {
+      const data = this.system.readWord(addr);
+      const temp = this.X.word - data;
+
+      this.SetC(this.A.word > data ? 1 : 0);
+      this.setNZWord(word(temp));
+      this.cycles += 3;
+    }
+  }
+
+  private Op_cpy(addr: Address) {
+    if (this.E || this.P.X) {
+      const data = this.system.read(addr);
+      const temp = this.Y.byte - data;
+
+      this.SetC(this.A.byte > data ? 1 : 0);
+      this.setNZ(low(temp));
+      this.cycles += 2;
+    } else {
+      const data = this.system.readWord(addr);
+      const temp = this.Y.word - data;
+
+      this.SetC(this.A.word > data ? 1 : 0);
+      this.setNZWord(word(temp));
+      this.cycles += 3;
+    }
+  }
+
+  private Op_dec(addr: Address) {
+    if (this.E || this.P.M) {
+      const data = this.system.read(addr) - 1;
+
+      this.system.write(addr, data);
+      this.setNZ(data);
+      this.cycles += 4;
+    } else {
+      const data = this.system.readWord(addr) - 1;
+
+      this.system.writeWord(addr, data);
+      this.setNZWord(data);
+      this.cycles += 5;
+    }
+  }
+
+  private Op_deca(addr: Address) {
+    if (this.E || this.P.M) {
+      this.A.setByte(this.A.byte - 1);
+    } else {
+      this.A.setWord(this.A.word - 1);
+    }
+    this.cycles += 2;
+  }
+
+  private Op_dex(addr: Address) {
+    if (this.E || this.P.X) {
+      this.X.setByte(this.X.byte - 1);
+    } else {
+      this.X.setWord(this.X.word - 1);
+    }
+    this.cycles += 2;
+  }
+
+  private Op_dey(addr: Address) {
+    if (this.E || this.P.X) {
+      this.Y.setByte(this.X.byte - 1);
+    } else {
+      this.Y.setWord(this.X.word - 1);
+    }
+    this.cycles += 2;
+  }
+
+  private Op_eor(addr: Address) {
+    if (this.E || this.P.M) {
+      const data = this.system.read(addr);
+      this.A.setByte(this.A.byte ^ data);
+      this.cycles += 2;
+    } else {
+      const data = this.system.readWord(addr);
+      this.A.setWord(this.A.word ^ data);
+      this.cycles += 3;
+    }
+  }
+
+  private Op_inc(addr: Address) {
+    if (this.E || this.P.M) {
+      const data = this.system.read(addr) + 1;
+
+      this.system.write(addr, data);
+      this.setNZ(data);
+      this.cycles += 4;
+    } else {
+      const data = this.system.readWord(addr) + 1;
+
+      this.system.writeWord(addr, data);
+      this.setNZWord(data);
+      this.cycles += 5;
+    }
+  }
+
+  private Op_inca(addr: Address) {
+    if (this.E || this.P.M) {
+      this.A.setByte(this.A.byte + 1);
+    } else {
+      this.A.setWord(this.A.word + 1);
+    }
+    this.cycles += 2;
+  }
+
+  private Op_inx(addr: Address) {
+    if (this.E || this.P.X) {
+      this.X.setByte(this.X.byte + 1);
+    } else {
+      this.X.setWord(this.X.word + 1);
+    }
+    this.cycles += 2;
+  }
+
+  private Op_iny(addr: Address) {
+    if (this.E || this.P.X) {
+      this.Y.setByte(this.X.byte + 1);
+    } else {
+      this.Y.setWord(this.X.word + 1);
+    }
+    this.cycles += 2;
+  }
+
+  private Op_jmp(ea: Address) {
+    this.PC.setWord(word(ea));
+    this.cycles += 3;
+  }
+
+  private Op_jsl(addr: Address) {
+    this.callTrace[this.callTrace.length - 1].exit = this.PC.word - 3;
+    this.callTrace.push({ entry: addr });
+    this.pushByte(this.PBR.byte);
+    this.pushWord(this.PC.word - 1);
+    this.PBR.setByte(low(addr >> 16));
+    this.PC.setWord(word(addr));
+    this.cycles += 4;
   }
 
   private Op_jsr(addr: Address) {
@@ -179,47 +612,12 @@ export class CPU {
     this.cycles += 4;
   }
 
-  private Op_adc(addr: Address) {
-    if (this.E || this.P.M) {
-      const n = this.system.read(addr);
-      const result = this.A.byte + n + (this.P.C ? 1 : 0);
-      this.SetC(result & 0x100);
-      this.SetV((~(this.A.byte ^ n) & (this.A.byte ^ result) & 0x80) > 0);
-      this.A.setByte(result);
-    } else {
-      const n = this.system.read(addr);
-      const result = this.A.byte + n + (this.P.C ? 1 : 0);
-      this.SetC(result & 0x10000);
-      this.SetV((~(this.A.byte ^ n) & (this.A.byte ^ result) & 0x8000) > 0);
-      this.A.setWord(result);
-    }
-  }
-
   private Op_lda(addr: Address) {
     if (this.E || this.P.M) {
       this.A.setByte(this.system.read(addr));
       this.cycles += 2;
     } else {
       this.A.setWord(this.system.readWord(addr));
-      this.cycles += 3;
-    }
-  }
-  private Op_sta(addr: Address) {
-    if (this.E || this.P.M) {
-      this.system.write(addr, this.A.byte);
-      this.cycles += 2;
-    } else {
-      this.system.writeWord(addr, this.A.word);
-      this.cycles += 3;
-    }
-  }
-
-  private Op_ldy(addr: Address) {
-    if (this.E || this.P.I) {
-      this.Y.setByte(this.system.read(addr));
-      this.cycles += 2;
-    } else {
-      this.Y.setWord(this.system.readWord(addr));
       this.cycles += 3;
     }
   }
@@ -234,20 +632,229 @@ export class CPU {
     }
   }
 
-  private Op_xce() {
-    const tmpC = this.P.C;
-    this.P.C = this.E;
-    this.E = tmpC;
-    this.DP.setByte(0);
-    // TODO: What happens to registers when switching off emulation?
+  private Op_ldy(addr: Address) {
+    if (this.E || this.P.I) {
+      this.Y.setByte(this.system.read(addr));
+      this.cycles += 2;
+    } else {
+      this.Y.setWord(this.system.readWord(addr));
+      this.cycles += 3;
+    }
+  }
+
+  private Op_lsr(addr: Address) {
+    if (this.E || this.P.M) {
+      const n = this.system.read(addr);
+      this.SetC(n & 0x01);
+      this.setNZ(n >> 1);
+      this.system.write(addr, n >> 1);
+      this.cycles += 4;
+    } else {
+      const n = this.system.readWord(addr);
+      this.SetC(n & 0x0001);
+      this.setNZWord(n >> 1);
+      this.system.writeWord(addr, n >> 1);
+      this.cycles += 5;
+    }
+  }
+
+  private Op_lsra(addr: Address) {
+    if (this.E || this.P.M) {
+      this.SetC(this.A.byte & 0x01);
+      this.A.setByte(this.A.byte >> 1);
+    } else {
+      this.SetC(this.A.word & 0x0001);
+      this.A.setWord(this.A.word >> 1);
+    }
     this.cycles += 2;
   }
-  private Op_clc() {
-    this.SetC(0);
+
+  private Op_mvn(addr: Address) {
+    throw new Error("Not implemented: MVN"); // TODO
+  }
+  private Op_mvp(addr: Address) {
+    throw new Error("Not implemented: MVP"); // TODO
+  }
+
+  private Op_nop(addr: Address) {
     this.cycles += 2;
   }
+
+  private Op_ora(addr: Address) {
+    throw new Error("Not implemented: ORA"); // TODO
+  }
+
+  private Op_pea(addr: Address) {
+    this.pushWord(this.system.readWord(addr));
+    this.cycles += 5;
+  }
+  private Op_pei(addr: Address) {
+    this.pushWord(this.system.readWord(addr));
+    this.cycles += 6;
+  }
+  private Op_per(addr: Address) {
+    this.pushWord(word(addr));
+    this.cycles += 6;
+  }
+
+  private Op_pha(addr: Address) {
+    if (this.E || this.P.M) {
+      this.pushByte(this.A.byte);
+      this.cycles += 3;
+    } else {
+      this.pushWord(this.A.word);
+      this.cycles += 4;
+    }
+  }
+
+  private Op_phb(addr: Address) {
+    this.pushByte(this.DBR.byte);
+    this.cycles += 3;
+  }
+
+  private Op_phd(addr: Address) {
+    this.pushWord(this.DP.word);
+    this.cycles += 3;
+  }
+  private Op_phk(addr: Address) {
+    this.pushByte(this.PBR.byte);
+    this.cycles += 3;
+  }
+  private Op_php(addr: Address) {
+    this.pushByte(this.StatusRegister());
+    this.cycles += 3;
+  }
+  private Op_phx(addr: Address) {
+    if (this.E || this.P.X) {
+      this.pushByte(this.X.byte);
+      this.cycles += 3;
+    } else {
+      this.pushWord(this.X.word);
+      this.cycles += 4;
+    }
+  }
+  private Op_phy(addr: Address) {
+    if (this.E || this.P.X) {
+      this.pushByte(this.Y.byte);
+      this.cycles += 3;
+    } else {
+      this.pushWord(this.Y.word);
+      this.cycles += 4;
+    }
+  }
+  private Op_pla(addr: Address) {
+    if (this.E || this.P.M) {
+      this.A.setByte(this.pullByte());
+      this.cycles += 4;
+    } else {
+      this.A.setWord(this.pullWord());
+      this.cycles += 5;
+    }
+  }
+  private Op_plb(addr: Address) {
+    const b = this.pullByte();
+    this.DBR.setByte(b);
+    this.setNZ(b);
+    this.cycles += 4;
+  }
+  private Op_pld(addr: Address) {
+    const b = this.pullWord();
+    this.DP.setWord(b);
+    this.setNZWord(b);
+    this.cycles += 5;
+  }
+  private Op_plk(addr: Address) {
+    const b = this.pullByte();
+    this.PBR.setByte(b);
+    this.setNZ(b);
+    this.cycles += 4;
+  }
+  private Op_plp(addr: Address) {
+    throw new Error("Not implemented: PLP"); // TODO
+  }
+  private Op_plx(addr: Address) {
+    if (this.E || this.P.X) {
+      this.X.setByte(this.pullByte());
+      this.cycles += 4;
+    } else {
+      this.X.setWord(this.pullWord());
+      this.cycles += 5;
+    }
+  }
+  private Op_ply(addr: Address) {
+    if (this.E || this.P.X) {
+      this.Y.setByte(this.pullByte());
+      this.cycles += 4;
+    } else {
+      this.Y.setWord(this.pullWord());
+      this.cycles += 5;
+    }
+  }
+  private Op_rep(addr: Address) {
+    const b = this.system.read(addr);
+    // TODO: Set b register as byte
+    if (this.E) {
+      this.P.M = true;
+      this.P.X = true;
+    } else {
+      if (b & 0x20) {
+        this.P.M = false;
+      }
+      if (b & 0x30) {
+        this.P.X = false;
+      }
+    }
+    this.cycles += 3;
+  }
+
+  private Op_rol(addr: Address) {
+    throw new Error("Not implemented: ROL"); // TODO
+  }
+
+  private Op_rola(addr: Address) {
+    throw new Error("Not implemented: ROLA"); // TODO
+  }
+  private Op_ror(addr: Address) {
+    throw new Error("Not implemented: ROR"); // TODO
+  }
+  private Op_rora(addr: Address) {
+    throw new Error("Not implemented: RORA"); // TODO
+  }
+
+  private Op_rti() {
+    throw new Error("Not implemented: RTI"); // TODO
+  }
+  private Op_rtl() {
+    this.callTrace.pop();
+    this.callTrace[this.callTrace.length - 1].exit = undefined;
+    this.PC.setWord(this.pullWord() + 1);
+    this.PBR.setByte(this.pullByte());
+    this.cycles += 6;
+  }
+
+  private Op_rts() {
+    this.callTrace.pop();
+    this.callTrace[this.callTrace.length - 1].exit = undefined;
+    this.PC.setWord(this.pullWord() + 1);
+    this.cycles += 6;
+  }
+
+  private Op_sbc() {
+    throw new Error("Not implemented: SBC"); // TODO
+  }
+
   private Op_sec() {
     this.SetC(1);
+    this.cycles += 2;
+  }
+
+  private Op_sed() {
+    this.SetD(true);
+    this.cycles += 2;
+  }
+
+  private Op_sei() {
+    this.SetI(true);
     this.cycles += 2;
   }
 
@@ -271,30 +878,39 @@ export class CPU {
     }
     this.cycles += 3;
   }
-  private Op_rep(addr: Address) {
-    const b = this.system.read(addr);
-    // TODO: Set b register as byte
-    if (this.E) {
-      this.P.M = true;
-      this.P.X = true;
+
+  private Op_sta(addr: Address) {
+    if (this.E || this.P.M) {
+      this.system.write(addr, this.A.byte);
+      this.cycles += 2;
     } else {
-      if (b & 0x20) {
-        this.P.M = false;
-      }
-      if (b & 0x30) {
-        this.P.X = false;
-      }
+      this.system.writeWord(addr, this.A.word);
+      this.cycles += 3;
     }
-    this.cycles += 3;
   }
 
-  private Op_jmp(ea: Address) {
-    this.PC.setWord(word(ea));
-    this.cycles += 3;
+  private Op_xce() {
+    const tmpC = this.P.C;
+    this.P.C = this.E;
+    this.E = tmpC;
+    this.DP.setByte(0);
+    // TODO: What happens to registers when switching off emulation?
+    this.cycles += 2;
   }
 
   // Absolute
   private Am_absl(): Address {
+    const ea = addr(
+      this.DBR.byte,
+      this.system.readWord(addr(this.DBR.byte, this.PC.word))
+    );
+    this.incProgramCounter(2);
+    this.cycles += 2;
+    return ea;
+  }
+
+  // Absolute
+  private Am_absl2(): Address {
     const ea = addr(
       this.DBR.byte,
       this.system.readWord(addr(this.PBR.byte, this.PC.word))
@@ -330,7 +946,10 @@ export class CPU {
 
   // Absolute Indirect - (a)
   private Am_absi(): Address {
-    const ea = addr(0, this.system.readWord(addr(this.PBR.byte, this.PC.word)));
+    const ea = addr(
+      this.PBR.byte,
+      this.system.readWord(addr(this.PBR.byte, this.PC.word))
+    );
     this.incProgramCounter(2);
     this.cycles += 4;
     return addr(0, this.system.readWord(ea));
@@ -530,11 +1149,30 @@ export class CPU {
   private SetC(n: number) {
     this.P.C = n !== 0;
   }
+  private SetD(d: boolean) {
+    this.P.D = d;
+  }
   private SetV(v: boolean) {
     this.P.V = v;
   }
   private SetN(n: number) {
     this.P.N = n !== 0;
+  }
+  private SetZ(n: number) {
+    this.P.Z = n === 0;
+  }
+  private SetI(i: boolean) {
+    this.P.I = i;
+  }
+
+  public setNZ(b: Byte) {
+    this.P.Z = b === 0;
+    this.SetN(b & 0x80);
+  }
+
+  public setNZWord(w: Word) {
+    this.P.Z = w === 0;
+    this.SetN(w & 0x8000);
   }
 }
 
