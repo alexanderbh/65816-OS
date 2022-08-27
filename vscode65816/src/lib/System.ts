@@ -8,17 +8,20 @@ export const ROM_START = 0xc000;
 export const RAM_START = 0;
 export const RAM_END = 0xafff;
 
+type MemoryDevice = {
+  start: Address;
+  end: Address;
+  device: AddressBus;
+  type: "ram" | "rom";
+};
+
 export class System extends EventEmitter implements AddressBus {
   private observer: (cpu: System) => void;
   public ram: RAM;
   private rom?: ROM;
   cpu: CPU;
-  private memoryMap: {
-    start: Address;
-    end: Address;
-    device: AddressBus;
-    type: "ram" | "rom";
-  }[];
+  private memoryMap: MemoryDevice[];
+  private memMap: Map<Address, MemoryDevice> = new Map();
   private interval?: NodeJS.Timeout;
 
   public constructor(rom?: ROM) {
@@ -42,6 +45,17 @@ export class System extends EventEmitter implements AddressBus {
         type: "rom",
       });
     }
+    this.prepareMemoryMap();
+  }
+
+  private prepareMemoryMap() {
+    this.memMap.clear();
+    for (let i = 0; i < Math.pow(2, 16); i++) {
+      const entry = this.memoryMap.find((p) => p.start <= i && p.end >= i);
+      if (entry) {
+        this.memMap.set(i, entry);
+      }
+    }
   }
 
   public observe(cb: (sys: System) => void) {
@@ -63,6 +77,7 @@ export class System extends EventEmitter implements AddressBus {
       device: this.rom,
       type: "rom",
     });
+    this.prepareMemoryMap();
   }
 
   public reset() {
@@ -126,9 +141,8 @@ export class System extends EventEmitter implements AddressBus {
       for (let i = 0; i < 10000; i++) {
         this.cpu.step();
       }
-      this.interval = setTimeout(oneRun, 0);
     };
-    this.interval = setTimeout(oneRun, 0);
+    this.interval = setInterval(oneRun, 0);
   }
 
   public pause() {
@@ -146,7 +160,7 @@ export class System extends EventEmitter implements AddressBus {
     return this.resolveAddress(addr).readWord(addr);
   }
   public readSlice(addr: Address, length: number): Uint8Array {
-    const entry = this.memoryMap.find((p) => addr >= p.start && addr <= p.end);
+    const entry = this.memMap.get(addr);
     if (entry) {
       const possibleEnd = entry.end < addr + length ? entry.end - addr : length;
       return entry.device.readSlice(addr, possibleEnd);
@@ -155,23 +169,20 @@ export class System extends EventEmitter implements AddressBus {
   }
   public write(addr: Address, data: Byte): void {
     this.resolveAddress(addr).write(addr, data);
-    this.sendEvent("memoryChanged");
   }
   public writeWord(addr: Address, data: Word): void {
     this.resolveAddress(addr).writeWord(addr, data);
-    this.sendEvent("memoryChanged");
   }
   public writeSlice(addr: Address, data: Uint8Array) {
     this.resolveAddress(addr).writeSlice(addr, data);
-    this.sendEvent("memoryChanged");
   }
 
   private resolveAddress(addr: Address): AddressBus {
-    const entry = this.memoryMap.find((p) => addr >= p.start && addr <= p.end);
+    const entry = this.memMap.get(addr);
     if (entry) {
       return entry.device;
     }
-    throw new Error("No device found");
+    throw new Error("No device found for: " + addr);
   }
 
   private sendEvent(event: string, ...args: any[]): void {

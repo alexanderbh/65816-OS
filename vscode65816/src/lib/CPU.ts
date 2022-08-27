@@ -78,6 +78,7 @@ export class CPU {
       opcode = this.system.read(bank(this.PBR.byte) | this.PC.word);
 
       this.incProgramCounter(1);
+
       // prettier-ignore
       // eslint-disable-next-line no-lone-blocks
       {

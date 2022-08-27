@@ -652,7 +652,7 @@ export class MockDebugSession extends LoggingDebugSession {
       const symbolData = this._symbolToAddress.get(args.expression)!;
       const value = this._system.readSlice(symbolData.addr, symbolData.size);
       response.body = {
-        result: Buffer.from(value.reverse()).toString("hex"),
+        result: "0x" + Buffer.from(value.reverse()).toString("hex"),
         variablesReference: 0,
       };
     }
