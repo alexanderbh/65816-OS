@@ -439,7 +439,7 @@ export class MockDebugSession extends LoggingDebugSession {
           false
         ),
         new Scope("Emulator", this._variableHandles.create("emulator"), false),
-        new Scope("Locals", this._variableHandles.create("locals"), false),
+        // new Scope("Locals", this._variableHandles.create("locals"), false),
         new Scope("Stack", this._stackVarReference, false),
       ],
     };

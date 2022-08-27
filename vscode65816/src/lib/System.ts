@@ -167,6 +167,9 @@ export class System extends EventEmitter implements AddressBus {
   public readWord(addr: Address): Word {
     return this.resolveAddress(addr).readWord(addr);
   }
+  public readSesqui(addr: Address): Sesqui {
+    return this.resolveAddress(addr).readSesqui(addr);
+  }
   public readSlice(addr: Address, length: number): Uint8Array {
     const entry = this.memMap.get(addr);
     if (entry) {

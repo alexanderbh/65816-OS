@@ -9,7 +9,7 @@ export const addr = (h: Byte, m: Word): Address => {
   return bank(h) | m;
 };
 
-export const word = (addr: Address): Word => {
+export const word = (addr: number): Word => {
   return addr & 0x00ffff;
 };
 
@@ -24,6 +24,8 @@ export const high = (w: Word): Byte => {
 export const bank = (bank: Byte): number => {
   return bank << 16;
 };
+
+export const toSigned = (number) => (number < 128 ? number : -(256 - number));
 
 export const generateRom = (data: Byte[]): ROM => {
   const data4k = new Uint8Array(0x4000);

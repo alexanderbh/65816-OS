@@ -1,10 +1,10 @@
 import { RAM_END, RAM_START } from "./System";
-import { join, low, high } from "./Utils";
+import { join, low, high, addr } from "./Utils";
 
 export class RAM implements AddressBus {
   mem: Uint8Array;
   lastAccess: Address | undefined;
-  lastAccessSize: 2 | 4 = 2;
+  lastAccessSize: 2 | 4 | 6 = 2;
   lastAccessType: "read" | "write" = "read";
 
   public constructor() {
@@ -21,6 +21,12 @@ export class RAM implements AddressBus {
     this.lastAccessSize = 4;
     this.lastAccessType = "read";
     return join(this.mem[addr], this.mem[addr + 1]);
+  }
+  public readSesqui(add: Address): Sesqui {
+    this.lastAccess = add;
+    this.lastAccessSize = 6;
+    this.lastAccessType = "read";
+    return addr(this.mem[add + 2], join(this.mem[add], this.mem[add + 1]));
   }
   public write(addr: Address, data: Byte): void {
     this.lastAccess = addr;

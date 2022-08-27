@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { randomInt } from "crypto";
 import { System } from "./System";
-import { join, low, bank, high, addr, word } from "./Utils";
+import { join, low, bank, high, addr, word, toSigned } from "./Utils";
 
 const EMPTY_STATUS_REGISTER: CPUPRegister = {
   N: false,
@@ -293,23 +293,6 @@ export class CPU {
     this.cycles += 3;
   }
 
-  // Immidiate based on size of A
-  private Am_immm(): Address {
-    const ea = addr(this.PBR.byte, this.PC.word);
-    const size = this.E || this.P.M ? 1 : 2;
-    this.incProgramCounter(size);
-    this.cycles += size - 1;
-    return ea;
-  }
-
-  // Immidiate byte
-  private Am_immb(): Address {
-    const addr = bank(this.PBR.byte) | this.PC.word;
-    this.incProgramCounter(1);
-    this.cycles += 0;
-    return addr;
-  }
-
   // Absolute
   private Am_absl(): Address {
     const ea = addr(
@@ -321,12 +304,227 @@ export class CPU {
     return ea;
   }
 
+  // Absolute Indexed X - a,X
+  private Am_absx(): Address {
+    const ea =
+      addr(
+        this.DBR.byte,
+        this.system.readWord(addr(this.PBR.byte, this.PC.word))
+      ) + this.X.word;
+    this.incProgramCounter(2);
+    this.cycles += 2;
+    return ea;
+  }
+
+  // Absolute Indexed Y - a,Y
+  private Am_absy(): Address {
+    const ea =
+      addr(
+        this.DBR.byte,
+        this.system.readWord(addr(this.PBR.byte, this.PC.word))
+      ) + this.Y.word;
+    this.incProgramCounter(2);
+    this.cycles += 2;
+    return ea;
+  }
+
+  // Absolute Indirect - (a)
+  private Am_absi(): Address {
+    const ea = addr(0, this.system.readWord(addr(this.PBR.byte, this.PC.word)));
+    this.incProgramCounter(2);
+    this.cycles += 4;
+    return addr(0, this.system.readWord(ea));
+  }
+
+  // Absolute Indexed Indirect - (a,X)
+  private Am_abxi(): Address {
+    const ea =
+      addr(0, this.system.readWord(addr(this.PBR.byte, this.PC.word))) +
+      this.X.word;
+    this.incProgramCounter(2);
+    this.cycles += 4;
+    return addr(0, this.system.readWord(ea));
+  }
+
+  // Absolute Long - >a
+  private Am_alng(): Address {
+    const ea = this.system.readSesqui(addr(this.PBR.byte, this.PC.word));
+
+    this.incProgramCounter(3);
+    this.cycles += 3;
+    return ea;
+  }
+  // Absolute Long Indexed - >a,X
+  private Am_alnx(): Address {
+    const ea =
+      this.system.readSesqui(addr(this.PBR.byte, this.PC.word)) + this.X.word;
+
+    this.incProgramCounter(3);
+    this.cycles += 3;
+    return ea;
+  }
+
+  // Absolute Indirect Long - [a]
+  private Am_abil(): Address {
+    const ea = addr(0, this.system.readWord(addr(this.PBR.byte, this.PC.word)));
+    this.incProgramCounter(2);
+    this.cycles += 5;
+    return this.system.readSesqui(ea);
+  }
+
   // Direct Page
   private Am_dpag(): Address {
     const offset = this.system.read(bank(this.PBR.byte) | this.PC.word);
     this.incProgramCounter(1);
     this.cycles += 1;
-    return this.DP.byte + offset;
+    return addr(0, word(this.DP.word + offset));
+  }
+
+  // Direct Page Indexed X - d,X
+  private Am_dpgx(): Address {
+    const offset =
+      this.system.read(bank(this.PBR.byte) | this.PC.word) + this.X.word;
+    this.incProgramCounter(1);
+    this.cycles += 1;
+    return addr(0, word(this.DP.word + offset));
+  }
+  // Direct Page Indexed Y - d,Y
+  private Am_dpgy(): Address {
+    const offset =
+      this.system.read(bank(this.PBR.byte) | this.PC.word) + this.Y.word;
+    this.incProgramCounter(1);
+    this.cycles += 1;
+    return addr(0, word(this.DP.word + offset));
+  }
+
+  // Direct Page Indirect - (d)
+  private Am_dpgi(): Address {
+    const offset = this.system.read(addr(this.PBR.byte, this.PC.word));
+    this.incProgramCounter(1);
+    this.cycles += 3;
+    return addr(
+      this.DBR.byte,
+      this.system.readWord(addr(0, word(this.DP.word + offset)))
+    );
+  }
+
+  // Direct Page Indexed Indirect X - (d,X)
+  private Am_dpix(): Address {
+    const offset = this.system.read(addr(this.PBR.byte, this.PC.word));
+    this.incProgramCounter(1);
+    this.cycles += 3;
+    return addr(
+      this.DBR.byte,
+      this.system.readWord(addr(0, word(this.DP.word + offset + this.X.word)))
+    );
+  }
+
+  // Direct Page Indexed Indirect Y - (d),Y
+  private Am_dpiy(): Address {
+    const offset = this.system.read(addr(this.PBR.byte, this.PC.word));
+    this.incProgramCounter(1);
+    this.cycles += 3;
+    return addr(
+      this.DBR.byte,
+      this.system.readWord(addr(0, word(this.DP.word + offset))) + this.Y.word
+    );
+  }
+
+  // Direct Page Indirect Long - [d]
+  private Am_dpil(): Address {
+    const offset = this.system.read(addr(this.PBR.byte, this.PC.word));
+    this.incProgramCounter(1);
+    this.cycles += 4;
+    return this.system.readSesqui(addr(0, word(this.DP.word + offset)));
+  }
+
+  // Direct Page Indirect Long Indexed - [d],Y
+  private Am_dily(): Address {
+    const offset = this.system.read(addr(this.PBR.byte, this.PC.word));
+    this.incProgramCounter(1);
+    this.cycles += 4;
+    return this.system.readSesqui(addr(0, this.DP.word + offset) + this.Y.word);
+  }
+
+  // Immidiate byte
+  private Am_immb(): Address {
+    const addr = bank(this.PBR.byte) | this.PC.word;
+    this.incProgramCounter(1);
+    this.cycles += 0;
+    return addr;
+  }
+
+  // Immidiate word
+  private Am_immw(): Address {
+    const ea = addr(this.PBR.byte, this.PC.word);
+    this.incProgramCounter(2);
+    this.cycles += 1;
+    return ea;
+  }
+
+  // Immidiate based on size of A
+  private Am_immm(): Address {
+    const ea = addr(this.PBR.byte, this.PC.word);
+    const size = this.E || this.P.M ? 1 : 2;
+    this.incProgramCounter(size);
+    this.cycles += size - 1;
+    return ea;
+  }
+
+  // Immidiate based on size of X/Y
+  private Am_immx(): Address {
+    const ea = addr(this.PBR.byte, this.PC.word);
+    const size = this.E || this.P.X ? 1 : 2;
+    this.incProgramCounter(size);
+    this.cycles += size - 1;
+    return ea;
+  }
+
+  // Long Relative - d
+  private Am_lrel(): Address {
+    const disp = this.system.readWord(addr(this.PBR.byte, this.PC.word));
+
+    this.incProgramCounter(2);
+    this.cycles += 2;
+    return addr(this.PBR.byte, word(this.PC.word + toSigned(disp)));
+  }
+
+  // Relative - d
+  private Am_rela(): Address {
+    const disp = this.system.read(addr(this.PBR.byte, this.PC.word));
+
+    this.incProgramCounter(1);
+    this.cycles += 1;
+    return addr(this.PBR.byte, word(this.PC.word + toSigned(disp)));
+  }
+
+  // Stack Relative - d,S
+  private Am_srel(): Address {
+    const disp = this.system.read(addr(this.PBR.byte, this.PC.word));
+
+    this.incProgramCounter(1);
+    this.cycles += 1;
+    if (this.E) {
+      return addr(0, join(this.S.byte + disp, high(this.S.word)));
+    }
+    return addr(0, word(this.S.word + disp));
+  }
+
+  // Stack Relative Idirect Indexed Y - (d,S),Y
+  private Am_sriy(): Address {
+    const disp = this.system.read(addr(this.PBR.byte, this.PC.word));
+    let ia: Word;
+    this.incProgramCounter(1);
+    this.cycles += 3;
+    if (this.E) {
+      ia = this.system.readWord(
+        addr(0, join(this.S.byte + disp, high(this.S.word)))
+      );
+    } else {
+      ia = this.system.readWord(addr(0, word(this.S.word + disp)));
+    }
+
+    return addr(this.DBR.byte, word(ia + this.Y.word));
   }
 
   private SetC(n: number) {

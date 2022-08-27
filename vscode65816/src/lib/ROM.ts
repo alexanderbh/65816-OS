@@ -1,5 +1,5 @@
 import { ROM_START } from "./System";
-import { join } from "./Utils";
+import { addr, join } from "./Utils";
 
 export class ROM implements AddressBus {
   private startDataOffset: number;
@@ -17,6 +17,15 @@ export class ROM implements AddressBus {
     return join(
       this.data[addr - ROM_START + this.startDataOffset],
       this.data[addr - ROM_START + this.startDataOffset + 1]
+    );
+  }
+  readSesqui(add: Address): Sesqui {
+    return addr(
+      this.data[add - ROM_START + this.startDataOffset + 2],
+      join(
+        this.data[add - ROM_START + this.startDataOffset],
+        this.data[add - ROM_START + this.startDataOffset + 1]
+      )
     );
   }
 
