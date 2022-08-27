@@ -86,9 +86,13 @@ export class MockDebugSession extends LoggingDebugSession {
 
   private _pcToFileLine: Map<number, { file: string; line: number }> =
     new Map();
+
+  private _fileLineToPc: Map<string, Map<number, number>> = new Map();
   private _symbolToAddress: Map<string, { addr: Address; size: number }> =
     new Map();
 
+  private _breakpointRequests: DebugProtocol.SetBreakpointsArguments[] = [];
+  private breakpointId = 0;
   /**
    * Creates a new debug adapter that is used for one debug session.
    * We configure the default implementation of a debug adapter here.
@@ -236,7 +240,7 @@ export class MockDebugSession extends LoggingDebugSession {
     // make VS Code send disassemble request
     response.body.supportsDisassembleRequest = false;
     response.body.supportsSteppingGranularity = true;
-    response.body.supportsInstructionBreakpoints = true;
+    response.body.supportsInstructionBreakpoints = false;
 
     // make VS Code able to read and write variable memory
     response.body.supportsReadMemoryRequest = true;
@@ -244,7 +248,7 @@ export class MockDebugSession extends LoggingDebugSession {
 
     response.body.supportSuspendDebuggee = true;
     response.body.supportTerminateDebuggee = true;
-    response.body.supportsFunctionBreakpoints = true;
+    response.body.supportsFunctionBreakpoints = false;
 
     this.sendResponse(response);
 
@@ -296,8 +300,6 @@ export class MockDebugSession extends LoggingDebugSession {
     );
 
     this._workspacePath = args.workspacePath;
-    // wait 1 second until configuration has finished (and configurationDoneRequest has been called)
-    await this._configurationDone.wait(1000);
 
     // prepare PC map
     const dgbFileContent = await this.fileAccessor.readFile(
@@ -305,6 +307,11 @@ export class MockDebugSession extends LoggingDebugSession {
     );
     const dgbFile = dgbFileContent.toString();
     this.preparePCMapping(dgbFile);
+
+    this.setBreakpoints();
+
+    // wait 1 second until configuration has finished (and configurationDoneRequest has been called)
+    await this._configurationDone.wait(1000);
 
     // Load binary
     this._sourceFile = this.normalizePathAndCasing(args.program);
@@ -330,30 +337,25 @@ export class MockDebugSession extends LoggingDebugSession {
     response: DebugProtocol.SetBreakpointsResponse,
     args: DebugProtocol.SetBreakpointsArguments
   ): Promise<void> {
-    // const path = args.source.path as string;
-    // const clientLines = args.lines || [];
-    // // clear all breakpoints for this file
-    // this._system.clearBreakpoints(path);
-    // // set and verify breakpoint locations
-    // const actualBreakpoints0 = clientLines.map(async (l) => {
-    //   const { verified, line, id } = await this._system.setBreakPoint(
-    //     path,
-    //     this.convertClientLineToDebugger(l)
-    //   );
-    //   const bp = new Breakpoint(
-    //     verified,
-    //     this.convertDebuggerLineToClient(line)
-    //   ) as DebugProtocol.Breakpoint;
-    //   bp.id = id;
-    //   return bp;
-    // });
-    // const actualBreakpoints = await Promise.all<DebugProtocol.Breakpoint>(
-    //   actualBreakpoints0
-    // );
-    // // send back the actual breakpoint positions
-    // response.body = {
-    //   breakpoints: actualBreakpoints,
-    // };
+    if (args.source.path && args.breakpoints) {
+      this._breakpointRequests.push(args);
+      response.body = {
+        breakpoints: args.breakpoints.map((b) => ({
+          verified: true,
+          line: b.line,
+          id: this.breakpointId++,
+        })),
+      };
+    } else {
+      response.body = {
+        breakpoints: [],
+      };
+    }
+
+    if (this._fileLineToPc.size > 0) {
+      this.setBreakpoints();
+    }
+
     this.sendResponse(response);
   }
 
@@ -362,24 +364,28 @@ export class MockDebugSession extends LoggingDebugSession {
     args: DebugProtocol.BreakpointLocationsArguments,
     request?: DebugProtocol.Request
   ): void {
-    // if (args.source.path) {
-    //   const bps = this._system.getBreakpoints(
-    //     args.source.path,
-    //     this.convertClientLineToDebugger(args.line)
-    //   );
-    //   response.body = {
-    //     breakpoints: bps.map((col) => {
-    //       return {
-    //         line: args.line,
-    //         column: this.convertDebuggerColumnToClient(col),
-    //       };
-    //     }),
-    //   };
-    // } else {
-    //   response.body = {
-    //     breakpoints: [],
-    //   };
-    // }
+    if (args.source.path) {
+      response.body = {
+        breakpoints: Array.from(this._system.breakpoints)
+          .filter((p) => this._pcToFileLine.get(p)?.file === args.source.path)
+          .map((pc) => {
+            const fileLine = this._pcToFileLine.get(pc);
+            if (!fileLine) {
+              return undefined;
+            }
+            return {
+              line: fileLine.line,
+              column: 0,
+            };
+          })
+          .filter((p) => p) as DebugProtocol.BreakpointLocation[],
+      };
+    } else {
+      response.body = {
+        breakpoints: [],
+      };
+    }
+
     this.sendResponse(response);
   }
 
@@ -899,6 +905,10 @@ export class MockDebugSession extends LoggingDebugSession {
       }
     });
 
+    files.forEach((file) => {
+      this._fileLineToPc.set(this._workspacePath + "/" + file.file, new Map());
+    });
+
     lines.forEach((line, id) => {
       if (line.span === undefined) {
         return;
@@ -919,10 +929,37 @@ export class MockDebugSession extends LoggingDebugSession {
         return;
       }
 
-      this._pcToFileLine.set(segment.start + span.start, {
+      const pc = segment.start + span.start;
+      this._fileLineToPc
+        .get(this._workspacePath + "/" + file.file)
+        ?.set(line.line, pc);
+
+      this._pcToFileLine.set(pc, {
         file: this._workspacePath + "/" + file.file,
         line: line.line,
       });
     });
+  }
+
+  private setBreakpoints() {
+    this._breakpointRequests.forEach((args) => {
+      const existing = Array.from(this._system.breakpoints).filter(
+        (b) => this._pcToFileLine.get(b)?.file === args.source.path
+      );
+      existing.forEach((e) => this._system.breakpoints.delete(e));
+
+      args.breakpoints?.forEach((b, index) => {
+        const pc = this._fileLineToPc.get(args.source.path!)?.get(b.line);
+        if (!pc) {
+          console.log("Not found pc", args.source.path, b.line);
+        } else {
+          this._system.breakpoints.add(pc);
+          //this.sendEvent(
+          //  new BreakpointEvent("changed", { verified: true, id: index })
+          //);
+        }
+      });
+    });
+    this._breakpointRequests = [];
   }
 }

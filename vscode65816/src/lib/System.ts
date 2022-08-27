@@ -3,6 +3,7 @@ import { clearInterval } from "timers";
 import { CPU } from "./CPU";
 import { RAM } from "./RAM";
 import { ROM } from "./ROM";
+import { addr, bank } from "./Utils";
 
 export const ROM_START = 0xc000;
 export const RAM_START = 0;
@@ -19,9 +20,10 @@ export class System extends EventEmitter implements AddressBus {
   private observer: (cpu: System) => void;
   public ram: RAM;
   private rom?: ROM;
-  cpu: CPU;
-  private memoryMap: MemoryDevice[];
+  public cpu: CPU;
+  private memoryDevices: MemoryDevice[];
   private memMap: Map<Address, MemoryDevice> = new Map();
+  public breakpoints: Set<Address> = new Set();
   private interval?: NodeJS.Timeout;
 
   public constructor(rom?: ROM) {
@@ -30,15 +32,15 @@ export class System extends EventEmitter implements AddressBus {
     this.ram = new RAM();
     this.rom = rom;
     this.cpu = new CPU(this);
-    this.memoryMap = [];
-    this.memoryMap.push({
+    this.memoryDevices = [];
+    this.memoryDevices.push({
       start: RAM_START,
       end: RAM_END,
       device: this.ram,
       type: "ram",
     });
     if (this.rom) {
-      this.memoryMap.push({
+      this.memoryDevices.push({
         start: ROM_START,
         end: 0xffff,
         device: this.rom,
@@ -51,7 +53,7 @@ export class System extends EventEmitter implements AddressBus {
   private prepareMemoryMap() {
     this.memMap.clear();
     for (let i = 0; i < Math.pow(2, 16); i++) {
-      const entry = this.memoryMap.find((p) => p.start <= i && p.end >= i);
+      const entry = this.memoryDevices.find((p) => p.start <= i && p.end >= i);
       if (entry) {
         this.memMap.set(i, entry);
       }
@@ -70,8 +72,8 @@ export class System extends EventEmitter implements AddressBus {
 
   public loadRom(rom: ROM) {
     this.rom = rom;
-    this.memoryMap = this.memoryMap.filter((p) => p.type !== "rom");
-    this.memoryMap.push({
+    this.memoryDevices = this.memoryDevices.filter((p) => p.type !== "rom");
+    this.memoryDevices.push({
       start: ROM_START,
       end: 0xffff,
       device: this.rom,
@@ -140,6 +142,12 @@ export class System extends EventEmitter implements AddressBus {
     const oneRun = () => {
       for (let i = 0; i < 10000; i++) {
         this.cpu.step();
+        if (this.breakpoints.has(addr(this.cpu.PBR.byte, this.cpu.PC.word))) {
+          clearInterval(this.interval);
+          this.interval = undefined;
+          this.sendEvent("stopOnBreakpoint");
+          return;
+        }
       }
     };
     this.interval = setInterval(oneRun, 0);
