@@ -1,0 +1,81 @@
+ca65 V2.18 - Ubuntu 2.19-1
+Main file   : src/main.asm
+Current file: src/main.asm
+
+000000r 1               .setcpu "65816"
+000000r 1               .P816
+000000r 1               
+000000r 1               .code
+000000r 1               
+000000r 1               .include "included.asm"
+000000r 2               Add41:
+000000r 2  69 41            ADC #$41
+000002r 2  60               RTS
+000003r 2               
+000003r 1               .include "macros.inc"
+000003r 2               .macro inc16 variable
+000003r 2                   LDA variable
+000003r 2                   CLC
+000003r 2                   ADC #$01
+000003r 2                   STA variable
+000003r 2                   LDA variable+1
+000003r 2                   ADC #$00
+000003r 2                   STA variable+1
+000003r 2               .endmacro
+000003r 2               
+000003r 1               
+000003r 1               ResetVector:
+000003r 1  18               clc
+000004r 1  FB               xce
+000005r 1  A9 01            LDA #$01
+000007r 1  C2 20            rep #$20
+000009r 1                   .A16
+000009r 1  A9 CD AB         LDA #$ABCD
+00000Cr 1  E2 20            sep #$20
+00000Er 1  AD rr rr         LDA Counter
+000011r 1  18               CLC
+000012r 1  69 01 00         ADC #$01
+000015r 1  8D rr rr         STA Counter
+000018r 1  AD rr rr         LDA Counter+1
+00001Br 1  69 00 00         ADC #$00
+00001Er 1  8D rr rr         STA Counter+1
+000021r 1  20 rr rr         JSR Add41
+000024r 1  A9 04 00         LDA #$04
+000027r 1  A9 05 00         LDA #$05
+00002Ar 1  AD rr rr 18      inc16 Counter
+00002Er 1  69 01 00 8D  
+000032r 1  rr rr AD rr  
+00003Dr 1  A9 06 00         LDA #$06
+000040r 1  A9 07 00         LDA #$07
+000043r 1  AD rr rr 18      inc16 CounterB
+000047r 1  69 01 00 8D  
+00004Br 1  rr rr AD rr  
+000056r 1  20 rr rr         JSR PostIncl
+000059r 1  A9 08 00         LDA #$08
+00005Cr 1  4C rr rr         jmp ResetVector
+00005Fr 1               
+00005Fr 1               .SEGMENT "RAM"
+000000r 1  xx xx            Counter: .res 2
+000002r 1  xx xx            CounterB: .res 2
+000004r 1               
+000004r 1               .code
+00005Fr 1               
+00005Fr 1               .include "postincl.asm"
+00005Fr 2               
+00005Fr 2               
+00005Fr 2               
+00005Fr 2               PostIncl:
+00005Fr 2  69 01 00         ADC #$01
+000062r 2  69 02 00         ADC #$02
+000065r 2               
+000065r 2  20 rr rr         JSR Add41
+000068r 2               
+000068r 2  20 rr rr         JSR Add41
+00006Br 2               ; comment
+00006Br 2  20 rr rr         JSR Add41
+00006Er 2  60               RTS
+00006Fr 2               
+00006Fr 1               
+00006Fr 1               .SEGMENT "VECTORS"
+000000r 1  rr rr            .word ResetVector
+000000r 1               
