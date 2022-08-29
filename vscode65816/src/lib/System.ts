@@ -179,30 +179,30 @@ export class System extends EventEmitter implements AddressBus {
   public readSesqui(addr: Address): Sesqui {
     return this.resolveAddress(addr).readSesqui(addr);
   }
-  public readSlice(addr: Address, length: number): Uint8Array {
-    const entry = this.memMap.get(addr);
+  public readSlice(ad: Address, length: number): Uint8Array {
+    const entry = this.memMap.get(ad);
     if (entry) {
-      const possibleEnd = entry.end < addr + length ? entry.end - addr : length;
-      return entry.device.readSlice(addr, possibleEnd);
+      const possibleEnd = entry.end < ad + length ? entry.end - ad : length;
+      return entry.device.readSlice(ad, possibleEnd);
     }
     return new Uint8Array();
   }
-  public write(addr: Address, data: Byte): void {
-    this.resolveAddress(addr).write(addr, data);
+  public write(ad: Address, data: Byte): void {
+    this.resolveAddress(ad).write(ad, data);
   }
-  public writeWord(addr: Address, data: Word): void {
-    this.resolveAddress(addr).writeWord(addr, data);
+  public writeWord(ad: Address, data: Word): void {
+    this.resolveAddress(ad).writeWord(ad, data);
   }
-  public writeSlice(addr: Address, data: Uint8Array) {
-    this.resolveAddress(addr).writeSlice(addr, data);
+  public writeSlice(ad: Address, data: Uint8Array) {
+    this.resolveAddress(ad).writeSlice(ad, data);
   }
 
-  private resolveAddress(addr: Address): AddressBus {
-    const entry = this.memMap.get(addr);
+  private resolveAddress(ad: Address): AddressBus {
+    const entry = this.memMap.get(ad);
     if (entry) {
       return entry.device;
     }
-    throw new Error("No device found for: " + addr);
+    throw new Error("No device found for: " + ad);
   }
 
   private sendEvent(event: string, ...args: any[]): void {
