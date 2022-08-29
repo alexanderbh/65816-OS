@@ -3,7 +3,7 @@ import { clearInterval } from "timers";
 import { CPU } from "./CPU";
 import { RAM } from "./RAM";
 import { ROM } from "./ROM";
-import { addr, bank } from "./Utils";
+import { addr } from "./Utils";
 
 export const ROM_START = 0xc000;
 export const RAM_START = 0;
@@ -25,10 +25,12 @@ export class System extends EventEmitter implements AddressBus {
   private memMap: Map<Address, MemoryDevice> = new Map();
   public breakpoints: Set<Address> = new Set();
   private interval?: NodeJS.Timeout;
+  public pcToInstructionMap: Map<Address, { size: number }> = new Map();
 
   public constructor(rom?: ROM) {
     super();
     this.observer = () => {};
+    this.pcToInstructionMap = new Map();
     this.ram = new RAM();
     this.rom = rom;
     this.cpu = new CPU(this);
@@ -72,6 +74,7 @@ export class System extends EventEmitter implements AddressBus {
 
   public loadRom(rom: ROM) {
     this.rom = rom;
+    this.pcToInstructionMap = new Map();
     this.memoryDevices = this.memoryDevices.filter((p) => p.type !== "rom");
     this.memoryDevices.push({
       start: ROM_START,
@@ -92,8 +95,14 @@ export class System extends EventEmitter implements AddressBus {
     this.sendEvent("stopOnStep");
   }
 
-  public start(rom: ROM, debug: boolean, stopOnEntry: boolean) {
+  public start(
+    rom: ROM,
+    debug: boolean,
+    stopOnEntry: boolean,
+    pcToInstructionMap: Map<Address, { size: number }>
+  ) {
     this.loadRom(rom);
+    this.pcToInstructionMap = pcToInstructionMap;
     this.reset();
 
     if (debug) {

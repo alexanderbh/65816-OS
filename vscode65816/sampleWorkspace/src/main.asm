@@ -1,3 +1,5 @@
+.setcpu "65816"
+.P816
 
 .code
 
@@ -5,7 +7,12 @@
 .include "macros.inc"
 
 ResetVector:
+    clc
+    xce
     LDA #$01
+    rep #$20
+    .A16
+    LDA #$ABCD
     LDA Counter
     CLC
     ADC #$01

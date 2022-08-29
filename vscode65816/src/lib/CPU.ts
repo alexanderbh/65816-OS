@@ -30,7 +30,7 @@ export type CPUPRegister = {
 export class CPU {
   private system: System;
   cycles: number = 0;
-  PC: Register = new Register("PC", this, false, { size: 4, value: 0xfffc });
+  PC: Register = new Register("PC", this, false, { size: 16, value: 0xfffc });
   PBR: Register = new Register("PBR", this, false);
   DBR: Register = new Register("DBR", this, false);
   DP: Register = new Register("DP", this, false);
@@ -38,7 +38,7 @@ export class CPU {
   X: Register = new Register("X", this, true);
   Y: Register = new Register("Y", this, true);
   S: Register = new Register("S", this, false, {
-    size: 4,
+    size: 16,
     value: 0x0100 + randomInt(0, 255),
   });
 
@@ -1069,11 +1069,14 @@ export class CPU {
       this.P.M = true;
       this.P.X = true;
     } else {
-      if (b & 0x20) {
+      if ((b & 0x20) !== 0) {
         this.P.M = false;
+        this.A.size = 16;
       }
-      if (b & 0x30) {
+      if ((b & 0x10) !== 0) {
         this.P.X = false;
+        this.X.size = 16;
+        this.Y.size = 16;
       }
     }
     this.cycles += 3;
@@ -1137,11 +1140,14 @@ export class CPU {
       this.P.M = true;
       this.P.X = true;
     } else {
-      if (b & 0x20) {
+      if ((b & 0x20) !== 0) {
         this.P.M = true;
+        this.A.size = 8;
       }
-      if (b & 0x30) {
+      if ((b & 0x30) !== 0) {
         this.P.X = true;
+        this.X.size = 8;
+        this.Y.size = 8;
       }
     }
     if (this.P.X) {
@@ -1620,31 +1626,31 @@ export class CPU {
 export class Register {
   public byte: Byte;
   public word: Word;
-  public size: 2 | 4 = 2;
+  public size: 8 | 16 = 8;
 
   public constructor(
     public name: string,
     private cpu: CPU,
     private updatesPRegister: boolean,
-    private initialValue?: { size: 2; value: Byte } | { size: 4; value: Word }
+    private initialValue?: { size: 8; value: Byte } | { size: 16; value: Word }
   ) {
     this.byte = 0;
     this.word = 0;
-    this.size = initialValue?.size || 2;
+    this.size = initialValue?.size || 8;
     this.reset();
   }
 
   public reset() {
     this.byte =
-      this.initialValue?.size === 2
+      this.initialValue?.size === 8
         ? this.initialValue.value
-        : this.initialValue?.size === 4
+        : this.initialValue?.size === 16
         ? low(this.initialValue.value)
         : 0;
     this.word =
-      this.initialValue?.size === 2
+      this.initialValue?.size === 8
         ? join(this.initialValue.value, 0)
-        : this.initialValue?.size === 4
+        : this.initialValue?.size === 16
         ? this.initialValue.value
         : 0;
   }
@@ -1667,7 +1673,7 @@ export class Register {
   }
 
   public toString() {
-    return this.size === 4
+    return this.size === 16
       ? this.word.toString(16).padStart(4, "0")
       : this.byte.toString(16).padStart(2, "0");
   }

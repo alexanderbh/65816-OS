@@ -80,12 +80,14 @@ export class MockDebugSession extends LoggingDebugSession {
 
   private _configurationDone = new Subject();
 
-  private _valuesInHex = false;
   private _useInvalidatedEvent = false;
   private _sourceFile?: string;
 
-  private _pcToFileLine: Map<number, { file: string; line: number }> =
-    new Map();
+  private _pcToFileLine: Map<
+    number,
+    { file: string; line: number; type?: number }
+  > = new Map();
+  private _pcToSpan: Map<number, { size: number }> = new Map();
 
   private _fileLineToPc: Map<string, Map<number, number[]>> = new Map();
   private _symbolToAddress: Map<string, { addr: Address; size: number }> =
@@ -320,7 +322,7 @@ export class MockDebugSession extends LoggingDebugSession {
       await this.fileAccessor.readFile(this._sourceFile),
       0x4000
     );
-    this._system.start(rom, !args.noDebug, !!args.stopOnEntry);
+    this._system.start(rom, !args.noDebug, !!args.stopOnEntry, this._pcToSpan);
 
     this.sendResponse(response);
   }
@@ -751,7 +753,7 @@ export class MockDebugSession extends LoggingDebugSession {
   private convertFromRuntime(v: Register): DebugProtocol.Variable {
     let dapVariable: DebugProtocol.Variable = {
       name: v.name,
-      value: "0x" + v.toString(),
+      value: "0x" + v.toString().toUpperCase(),
       type: "string",
       variablesReference: 0,
       evaluateName: "$" + v.name,
@@ -780,7 +782,12 @@ export class MockDebugSession extends LoggingDebugSession {
   private preparePCMapping(dbgFile: string): void {
     const files: Map<number, { file: string }> = new Map();
     const segments: Map<number, { name: string; start: number }> = new Map();
-    const lines: { file: number; line: number; span?: number }[] = [];
+    const lines: {
+      file: number;
+      line: number;
+      span?: number;
+      type?: number;
+    }[] = [];
     const spans: Map<number, { segment: number; start: number; size: number }> =
       new Map();
 
@@ -815,6 +822,7 @@ export class MockDebugSession extends LoggingDebugSession {
               file: parseInt(argObj.file),
               line: parseInt(argObj.line),
               span: span ? parseInt(span) : undefined,
+              type: argObj.type ? parseInt(argObj.type) : undefined,
             });
           });
         }
@@ -878,10 +886,15 @@ export class MockDebugSession extends LoggingDebugSession {
         .get(this._workspacePath + "/" + file.file)
         ?.set(line.line, [pc]);
 
-      this._pcToFileLine.set(pc, {
-        file: this._workspacePath + "/" + file.file,
-        line: line.line,
-      });
+      if (!this._pcToFileLine.has(pc) || line.type === 2) {
+        this._pcToFileLine.set(pc, {
+          file: this._workspacePath + "/" + file.file,
+          line: line.line,
+          type: line.type,
+        });
+      }
+
+      this._pcToSpan.set(pc, { size: span.size });
     });
   }
 

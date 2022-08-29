@@ -18,7 +18,7 @@ al 000000 .__ZP_FILEOFFS__
 al 000000 .__ZP_LAST__
 al 000100 .__ZP_SIZE__
 al 000000 .__ZP_START__
-al 00C04B .PostIncl
+al 00C05D .PostIncl
 al 000202 .CounterB
 al 000200 .Counter
 al 00C003 .ResetVector

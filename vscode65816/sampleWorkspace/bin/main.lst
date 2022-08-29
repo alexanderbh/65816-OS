@@ -2,6 +2,8 @@ ca65 V2.18 - Ubuntu 2.19-1
 Main file   : src/main.asm
 Current file: src/main.asm
 
+000000r 1               .setcpu "65816"
+000000r 1               .P816
 000000r 1               
 000000r 1               .code
 000000r 1               
@@ -23,51 +25,56 @@ Current file: src/main.asm
 000003r 2               
 000003r 1               
 000003r 1               ResetVector:
-000003r 1  A9 01            LDA #$01
-000005r 1  AD rr rr         LDA Counter
-000008r 1  18               CLC
-000009r 1  69 01            ADC #$01
-00000Br 1  8D rr rr         STA Counter
-00000Er 1  AD rr rr         LDA Counter+1
-000011r 1  69 00            ADC #$00
-000013r 1  8D rr rr         STA Counter+1
-000016r 1  20 rr rr         JSR Add41
-000019r 1  A9 04            LDA #$04
-00001Br 1  A9 05            LDA #$05
-00001Dr 1  AD rr rr 18      inc16 Counter
-000021r 1  69 01 8D rr  
-000025r 1  rr AD rr rr  
-00002Er 1  A9 06            LDA #$06
-000030r 1  A9 07            LDA #$07
-000032r 1  AD rr rr 18      inc16 CounterB
-000036r 1  69 01 8D rr  
-00003Ar 1  rr AD rr rr  
-000043r 1  20 rr rr         JSR PostIncl
-000046r 1  A9 08            LDA #$08
-000048r 1  4C rr rr         jmp ResetVector
-00004Br 1               
-00004Br 1               .SEGMENT "RAM"
+000003r 1  18               clc
+000004r 1  FB               xce
+000005r 1  A9 01            LDA #$01
+000007r 1  C2 20            rep #$20
+000009r 1                   .A16
+000009r 1  A9 CD AB         LDA #$ABCD
+00000Cr 1  AD rr rr         LDA Counter
+00000Fr 1  18               CLC
+000010r 1  69 01 00         ADC #$01
+000013r 1  8D rr rr         STA Counter
+000016r 1  AD rr rr         LDA Counter+1
+000019r 1  69 00 00         ADC #$00
+00001Cr 1  8D rr rr         STA Counter+1
+00001Fr 1  20 rr rr         JSR Add41
+000022r 1  A9 04 00         LDA #$04
+000025r 1  A9 05 00         LDA #$05
+000028r 1  AD rr rr 18      inc16 Counter
+00002Cr 1  69 01 00 8D  
+000030r 1  rr rr AD rr  
+00003Br 1  A9 06 00         LDA #$06
+00003Er 1  A9 07 00         LDA #$07
+000041r 1  AD rr rr 18      inc16 CounterB
+000045r 1  69 01 00 8D  
+000049r 1  rr rr AD rr  
+000054r 1  20 rr rr         JSR PostIncl
+000057r 1  A9 08 00         LDA #$08
+00005Ar 1  4C rr rr         jmp ResetVector
+00005Dr 1               
+00005Dr 1               .SEGMENT "RAM"
 000000r 1  xx xx            Counter: .res 2
 000002r 1  xx xx            CounterB: .res 2
 000004r 1               
 000004r 1               .code
-00004Br 1               
-00004Br 1               .include "postincl.asm"
-00004Br 2               
-00004Br 2               
-00004Br 2               
-00004Br 2               PostIncl:
-00004Br 2  69 01            ADC #$01
-00004Dr 2  69 02            ADC #$02
-00004Fr 2               
-00004Fr 2  20 rr rr         JSR Add41
-000052r 2               
-000052r 2  20 rr rr         JSR Add41
-000055r 2               ; comment
-000055r 2  20 rr rr         JSR Add41
-000058r 2  60               RTS
-000059r 2               
-000059r 1               
-000059r 1               .SEGMENT "VECTORS"
+00005Dr 1               
+00005Dr 1               .include "postincl.asm"
+00005Dr 2               
+00005Dr 2               
+00005Dr 2               
+00005Dr 2               PostIncl:
+00005Dr 2  69 01 00         ADC #$01
+000060r 2  69 02 00         ADC #$02
+000063r 2               
+000063r 2  20 rr rr         JSR Add41
+000066r 2               
+000066r 2  20 rr rr         JSR Add41
+000069r 2               ; comment
+000069r 2  20 rr rr         JSR Add41
+00006Cr 2  60               RTS
+00006Dr 2               
+00006Dr 1               
+00006Dr 1               .SEGMENT "VECTORS"
 000000r 1  rr rr            .word ResetVector
 000000r 1               
