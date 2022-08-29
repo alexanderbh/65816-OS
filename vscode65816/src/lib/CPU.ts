@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { randomInt } from "crypto";
+import { Register } from "./Register";
 import { System } from "./System";
 import { join, low, bank, high, addr, word, toSigned } from "./Utils";
 
@@ -30,17 +31,14 @@ export type CPUPRegister = {
 export class CPU {
   private system: System;
   cycles: number = 0;
-  PC: Register = new Register("PC", this, false, { size: 16, value: 0xfffc });
-  PBR: Register = new Register("PBR", this, false);
-  DBR: Register = new Register("DBR", this, false);
-  DP: Register = new Register("DP", this, false);
-  A: Register = new Register("A", this, true);
-  X: Register = new Register("X", this, true);
-  Y: Register = new Register("Y", this, true);
-  S: Register = new Register("S", this, false, {
-    size: 16,
-    value: 0x0100 + randomInt(0, 255),
-  });
+  PC: Register;
+  PBR: Register;
+  DBR: Register;
+  DP: Register;
+  A: Register;
+  X: Register;
+  Y: Register;
+  S: Register;
 
   // Processor register
   P: CPUPRegister = EMPTY_STATUS_REGISTER;
@@ -80,6 +78,18 @@ export class CPU {
 
   public constructor(system: System) {
     this.system = system;
+
+    this.PC = new Register("PC", system, false, { size: 16, value: 0xfffc });
+    this.PBR = new Register("PBR", system, false);
+    this.DBR = new Register("DBR", system, false);
+    this.DP = new Register("DP", system, false);
+    this.A = new Register("A", system, true);
+    this.X = new Register("X", system, true);
+    this.Y = new Register("Y", system, true);
+    this.S = new Register("S", system, false, {
+      size: 16,
+      value: 0x0100 + randomInt(0, 255),
+    });
   }
 
   public changed() {
@@ -799,9 +809,9 @@ export class CPU {
 
   private Op_dey() {
     if (this.E || this.P.X) {
-      this.Y.setByte(this.X.byte - 1);
+      this.Y.setByte(this.Y.byte - 1);
     } else {
-      this.Y.setWord(this.X.word - 1);
+      this.Y.setWord(this.Y.word - 1);
     }
     this.cycles += 2;
   }
@@ -854,9 +864,9 @@ export class CPU {
 
   private Op_iny() {
     if (this.E || this.P.X) {
-      this.Y.setByte(this.X.byte + 1);
+      this.Y.setByte(this.Y.byte + 1);
     } else {
-      this.Y.setWord(this.X.word + 1);
+      this.Y.setWord(this.Y.word + 1);
     }
     this.cycles += 2;
   }
@@ -953,7 +963,15 @@ export class CPU {
   }
 
   private Op_ora(addr: Address) {
-    throw new Error("Not implemented: ORA"); // TODO
+    if (this.E || this.P.M) {
+      const data = this.system.read(addr);
+      this.A.setByte(this.A.byte | data);
+      this.cycles += 2;
+    } else {
+      const data = this.system.readWord(addr);
+      this.A.setWord(this.A.word | data);
+      this.cycles += 3;
+    }
   }
 
   private Op_pea(addr: Address) {
@@ -1083,17 +1101,63 @@ export class CPU {
   }
 
   private Op_rol(addr: Address) {
-    throw new Error("Not implemented: ROL"); // TODO
+    if (this.E || this.P.M) {
+      const n = this.system.read(addr);
+      const c = this.P.C ? 0x01 : 0x00;
+      this.SetC(n & 0x80);
+      this.setNZ((n << 1) | c);
+      this.system.write(addr, (n << 1) | c);
+      this.cycles += 4;
+    } else {
+      const n = this.system.readWord(addr);
+      const c = this.P.C ? 0x01 : 0x00;
+      this.SetC(n & 0x8000);
+      this.setNZWord((n << 1) | c);
+      this.system.writeWord(addr, (n << 1) | c);
+      this.cycles += 5;
+    }
   }
 
   private Op_rola() {
-    throw new Error("Not implemented: ROLA"); // TODO
+    if (this.E || this.P.M) {
+      const c = this.P.C ? 0x01 : 0x00;
+      this.SetC(this.A.byte & 0x80);
+      this.A.setByte((this.A.byte << 1) | c);
+    } else {
+      const c = this.P.C ? 0x01 : 0x00;
+      this.SetC(this.A.word & 0x8000);
+      this.A.setWord((this.A.word << 1) | c);
+    }
+    this.cycles += 2;
   }
   private Op_ror(addr: Address) {
-    throw new Error("Not implemented: ROR"); // TODO
+    if (this.E || this.P.M) {
+      const n = this.system.read(addr);
+      const c = this.P.C ? 0x01 : 0x00;
+      this.SetC(n & 0x80);
+      this.setNZ((n >> 1) | c);
+      this.system.write(addr, (n >> 1) | c);
+      this.cycles += 4;
+    } else {
+      const n = this.system.readWord(addr);
+      const c = this.P.C ? 0x01 : 0x00;
+      this.SetC(n & 0x8000);
+      this.setNZWord((n >> 1) | c);
+      this.system.writeWord(addr, (n >> 1) | c);
+      this.cycles += 5;
+    }
   }
   private Op_rora() {
-    throw new Error("Not implemented: RORA"); // TODO
+    if (this.E || this.P.M) {
+      const c = this.P.C ? 0x01 : 0x00;
+      this.SetC(this.A.byte & 0x80);
+      this.A.setByte((this.A.byte >> 1) | c);
+    } else {
+      const c = this.P.C ? 0x01 : 0x00;
+      this.SetC(this.A.word & 0x8000);
+      this.A.setWord((this.A.word >> 1) | c);
+    }
+    this.cycles += 2;
   }
 
   private Op_rti() {
@@ -1620,61 +1684,5 @@ export class CPU {
   public setNZWord(w: Word) {
     this.P.Z = w === 0;
     this.SetN(w & 0x8000);
-  }
-}
-
-export class Register {
-  public byte: Byte;
-  public word: Word;
-  public size: 8 | 16 = 8;
-
-  public constructor(
-    public name: string,
-    private cpu: CPU,
-    private updatesPRegister: boolean,
-    private initialValue?: { size: 8; value: Byte } | { size: 16; value: Word }
-  ) {
-    this.byte = 0;
-    this.word = 0;
-    this.size = initialValue?.size || 8;
-    this.reset();
-  }
-
-  public reset() {
-    this.byte =
-      this.initialValue?.size === 8
-        ? this.initialValue.value
-        : this.initialValue?.size === 16
-        ? low(this.initialValue.value)
-        : 0;
-    this.word =
-      this.initialValue?.size === 8
-        ? join(this.initialValue.value, 0)
-        : this.initialValue?.size === 16
-        ? this.initialValue.value
-        : 0;
-  }
-  public setByte(b: Byte) {
-    // TODO: Over/underflow handled here? or on every use?
-    b = b & 0xff;
-    this.byte = b;
-    this.word = join(b, 0);
-    if (this.updatesPRegister) {
-      this.cpu.setNZ(b);
-    }
-  }
-  public setWord(w: Word) {
-    w = w & 0x00ffff;
-    this.word = w;
-    this.byte = low(w);
-    if (this.updatesPRegister) {
-      this.cpu.setNZWord(w);
-    }
-  }
-
-  public toString() {
-    return this.size === 16
-      ? this.word.toString(16).padStart(4, "0")
-      : this.byte.toString(16).padStart(2, "0");
   }
 }

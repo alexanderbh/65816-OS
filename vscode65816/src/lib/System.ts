@@ -1,5 +1,6 @@
 import { EventEmitter } from "events";
 import { clearInterval } from "timers";
+import { VIA6522 } from "./6522VIA";
 import { CPU } from "./CPU";
 import { RAM } from "./RAM";
 import { ROM } from "./ROM";
@@ -8,12 +9,14 @@ import { addr } from "./Utils";
 export const ROM_START = 0xc000;
 export const RAM_START = 0;
 export const RAM_END = 0xafff;
+export const VIA1_START = 0xb000;
+export const VIA1_END = 0xb0ff;
 
 type MemoryDevice = {
   start: Address;
   end: Address;
   device: AddressBus;
-  type: "ram" | "rom";
+  type: "ram" | "rom" | "via";
 };
 
 export class System extends EventEmitter implements AddressBus {
@@ -21,6 +24,7 @@ export class System extends EventEmitter implements AddressBus {
   public ram: RAM;
   private rom?: ROM;
   public cpu: CPU;
+  public via1: VIA6522;
   private memoryDevices: MemoryDevice[];
   private memMap: Map<Address, MemoryDevice> = new Map();
   public breakpoints: Set<Address> = new Set();
@@ -34,6 +38,7 @@ export class System extends EventEmitter implements AddressBus {
     this.ram = new RAM();
     this.rom = rom;
     this.cpu = new CPU(this);
+    this.via1 = new VIA6522(this, VIA1_START);
     this.memoryDevices = [];
     this.memoryDevices.push({
       start: RAM_START,
@@ -49,6 +54,12 @@ export class System extends EventEmitter implements AddressBus {
         type: "rom",
       });
     }
+    this.memoryDevices.push({
+      device: this.via1,
+      start: VIA1_START,
+      end: VIA1_END,
+      type: "via",
+    });
     this.prepareMemoryMap();
   }
 

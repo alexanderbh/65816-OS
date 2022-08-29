@@ -1584,82 +1584,82 @@ Current file: src/main.asm
 000555r 2               
 000555r 2               
 000555r 2               
-000555r 2  20 rr rr         jsr RamTestWideRegistersRun
-000558r 2  20 rr rr         jsr RamTestWideRun
-00055Br 2               
-00055Br 2                   ;shortr
-00055Br 2                   ;LDA #%00011100
-00055Br 2                   ;jsr RA8875_SetForegroundColor
-00055Br 2  C2 30            longr
-00055Dr 2               
-00055Dr 2  F4 rr rr 22      write bios_init
-000561r 2  rr rr rr 68  
-000565r 2  F4 rr rr 22      write ok_string
-000569r 2  rr rr rr 68  
-00056Dr 2               
-00056Dr 2                   ;shortr
-00056Dr 2                   ;LDA #%11111111
-00056Dr 2                   ;jsr RA8875_SetForegroundColor
-00056Dr 2                   ;longr
-00056Dr 2               
-00056Dr 2  F4 rr rr 22      write ansi_string
-000571r 2  rr rr rr 68  
-000575r 2               
-000575r 2  E2 30            shortr
-000577r 2  60               RTS
-000578r 2               
-000578r 1               .include "kernel/kernel.asm"
-000578r 2               
-000578r 2               .include "tasks.asm"
-000578r 3               NUMBER_OF_TASKS = 16
-000578r 3               
-000578r 3               TASK_STATUS_NONE = 0
-000578r 3               TASK_STATUS_RUNNING = 1
-000578r 3               TASK_STATUS_RUNNABLE = 2
-000578r 3               TASK_STATUS_EXITED = 6          ; everything above this can be taken by a new task
-000578r 3               TASK_STATUS_KILLED = 7
-000578r 3               
-000578r 3               TASK_EXIT_CODE_KILLED = 7
-000578r 3               
-000578r 3               .include "scheduler.asm"
-000578r 4               ; IRQ steps
-000578r 4               ; Push to the stack:
-000578r 4               ;
-000578r 4               ;   PB  - Program Bank           - 1 byte
-000578r 4               ;   PCH - Program Counter High   - 1 byte
-000578r 4               ;   PCL - Program Counter Low    - 1 byte
-000578r 4               ;   SR  - Status Register        - 1 byte
-000578r 4               ;
-000578r 4               ; PB set to $00
-000578r 4               
-000578r 4               
-000578r 4               ; Stacks and direct page
-000578r 4               ; 0000-00FF : kernel direct page
-000578r 4               ; 0100-01FF : kernel stack
-000578r 4               
-000578r 4               ; 9000-90FF : task 0  - direct
-000578r 4               ; A000-A0FF : task 0  - stack
-000578r 4               ; 9F00-9FFF : task 16 - direct
-000578r 4               ; AF00-AFFF : task 16 - stack
-000578r 4               
-000578r 4               
-000578r 4               ; NOT USED! THIS IS A TEST:
-000578r 4               ; 0000-00FF : kernel direct page
-000578r 4               ; 0100-01FF : kernel stack
-000578r 4               ; 0200-02FF : task 1 DP
-000578r 4               ; 0300-03FF : task 1 stack
-000578r 4               
-000578r 4               ; B000-C000 : I/O
-000578r 4               InterruptStackY = 3+1
-000578r 4               InterruptStackX = InterruptStackY+2
-000578r 4               InterruptStackA = InterruptStackX+2
-000578r 4               InterruptDP = InterruptStackA+2
-000578r 4               InterruptDB = InterruptDP+2
-000578r 4               InterruptStatusRegister = InterruptDB+1
-000578r 4               InterruptPC = InterruptStatusRegister+1
-000578r 4               InterruptPB = InterruptPC+2
-000578r 4               
-000578r 4               .SEGMENT "RAM"
+000555r 2                   ; jsr RamTestWideRegistersRun
+000555r 2                   ; jsr RamTestWideRun
+000555r 2               
+000555r 2                   ;shortr
+000555r 2                   ;LDA #%00011100
+000555r 2                   ;jsr RA8875_SetForegroundColor
+000555r 2  C2 30            longr
+000557r 2               
+000557r 2  F4 rr rr 22      write bios_init
+00055Br 2  rr rr rr 68  
+00055Fr 2  F4 rr rr 22      write ok_string
+000563r 2  rr rr rr 68  
+000567r 2               
+000567r 2                   ;shortr
+000567r 2                   ;LDA #%11111111
+000567r 2                   ;jsr RA8875_SetForegroundColor
+000567r 2                   ;longr
+000567r 2               
+000567r 2  F4 rr rr 22      write ansi_string
+00056Br 2  rr rr rr 68  
+00056Fr 2               
+00056Fr 2  E2 30            shortr
+000571r 2  60               RTS
+000572r 2               
+000572r 1               .include "kernel/kernel.asm"
+000572r 2               
+000572r 2               .include "tasks.asm"
+000572r 3               NUMBER_OF_TASKS = 16
+000572r 3               
+000572r 3               TASK_STATUS_NONE = 0
+000572r 3               TASK_STATUS_RUNNING = 1
+000572r 3               TASK_STATUS_RUNNABLE = 2
+000572r 3               TASK_STATUS_EXITED = 6          ; everything above this can be taken by a new task
+000572r 3               TASK_STATUS_KILLED = 7
+000572r 3               
+000572r 3               TASK_EXIT_CODE_KILLED = 7
+000572r 3               
+000572r 3               .include "scheduler.asm"
+000572r 4               ; IRQ steps
+000572r 4               ; Push to the stack:
+000572r 4               ;
+000572r 4               ;   PB  - Program Bank           - 1 byte
+000572r 4               ;   PCH - Program Counter High   - 1 byte
+000572r 4               ;   PCL - Program Counter Low    - 1 byte
+000572r 4               ;   SR  - Status Register        - 1 byte
+000572r 4               ;
+000572r 4               ; PB set to $00
+000572r 4               
+000572r 4               
+000572r 4               ; Stacks and direct page
+000572r 4               ; 0000-00FF : kernel direct page
+000572r 4               ; 0100-01FF : kernel stack
+000572r 4               
+000572r 4               ; 9000-90FF : task 0  - direct
+000572r 4               ; A000-A0FF : task 0  - stack
+000572r 4               ; 9F00-9FFF : task 16 - direct
+000572r 4               ; AF00-AFFF : task 16 - stack
+000572r 4               
+000572r 4               
+000572r 4               ; NOT USED! THIS IS A TEST:
+000572r 4               ; 0000-00FF : kernel direct page
+000572r 4               ; 0100-01FF : kernel stack
+000572r 4               ; 0200-02FF : task 1 DP
+000572r 4               ; 0300-03FF : task 1 stack
+000572r 4               
+000572r 4               ; B000-C000 : I/O
+000572r 4               InterruptStackY = 3+1
+000572r 4               InterruptStackX = InterruptStackY+2
+000572r 4               InterruptStackA = InterruptStackX+2
+000572r 4               InterruptDP = InterruptStackA+2
+000572r 4               InterruptDB = InterruptDP+2
+000572r 4               InterruptStatusRegister = InterruptDB+1
+000572r 4               InterruptPC = InterruptStatusRegister+1
+000572r 4               InterruptPB = InterruptPC+2
+000572r 4               
+000572r 4               .SEGMENT "RAM"
 000002r 4               
 000002r 4  xx           SchedulerCount: .res 1
 000003r 4               
@@ -1670,278 +1670,278 @@ Current file: src/main.asm
 000008r 4  xx xx        TempStackReturnPC: .res 2
 00000Ar 4               
 00000Ar 4               .code
-000578r 4               
-000578r 4               
-000578r 4               
-000578r 4               .A8
-000578r 4               .I8
-000578r 4               Scheduler_NextTask:
-000578r 4  78               sei
-000579r 4               
-000579r 4  AE rr rr         ldx ActiveTask
-00057Cr 4               
-00057Cr 4  BD rr rr         lda TaskStatus,x
-00057Fr 4  C9 01            cmp #TASK_STATUS_RUNNING
-000581r 4  D0 4E            bne @loop
-000583r 4               
-000583r 4  A9 02            lda #TASK_STATUS_RUNNABLE               ; if running then set to runnable
-000585r 4  9D rr rr         sta TaskStatus,x
-000588r 4               
-000588r 4               ; save current task stage
-000588r 4                   ;longr
-000588r 4                   ;write task_save_old
-000588r 4                   ;write test_string
-000588r 4                   ;shortr
-000588r 4               
-000588r 4                   ;ldx ActiveTask
-000588r 4                   ;txa
-000588r 4                   ;jsl RA8875_WriteHex
-000588r 4                   ;lda #' '
-000588r 4                   ;jsl RA8875_WriteChar
-000588r 4                   ;lda #$A
-000588r 4                   ;jsl RA8875_WriteChar
-000588r 4                   ;lda #'o'
-000588r 4                   ;jsl RA8875_WriteChar
-000588r 4                   ;longr
-000588r 4                   ;jsl DumpStack
-000588r 4                   ;shortr
-000588r 4                   ;ldx ActiveTask
-000588r 4               
-000588r 4  A3 0C            lda InterruptDB,s
-00058Ar 4  9D rr rr         sta TaskDataBank,x
-00058Dr 4               
-00058Dr 4  A3 10            lda InterruptPB,s
-00058Fr 4  9D rr rr         sta TaskProgramBank,x
-000592r 4               
-000592r 4  A3 0D            lda InterruptStatusRegister,s
-000594r 4  9D rr rr         sta TaskStatusRegister,x
-000597r 4               
-000597r 4               
-000597r 4               
-000597r 4                   ;ldx ActiveTask
-000597r 4  8A               txa
-000598r 4  0A               asl
-000599r 4  AA               tax
-00059Ar 4               
-00059Ar 4               ; SAVE STACK POINTER
-00059Ar 4  C2 20            longa
-00059Cr 4  3B               tsc                                 ; A = stack pointer
-00059Dr 4  18               clc
-00059Er 4  69 10 00         adc #InterruptPB                 ; A = stack pointer - ...
-0005A1r 4  9D rr rr         sta TaskStackPointer,x
-0005A4r 4  E2 20            shorta
-0005A6r 4               
-0005A6r 4                   ; lda TaskStackPointer+1,x
-0005A6r 4                   ; jsl RA8875_WriteHex
-0005A6r 4                   ; lda #' '
-0005A6r 4                   ; jsl RA8875_WriteChar
-0005A6r 4                   ; lda TaskStackPointer,x
-0005A6r 4                   ; jsl RA8875_WriteHex
-0005A6r 4                   ; lda #' '
-0005A6r 4                   ; jsl RA8875_WriteChar
-0005A6r 4               
-0005A6r 4  A3 08            lda InterruptStackA,s
-0005A8r 4  9D rr rr         sta TaskA,x
-0005ABr 4  A3 09            lda InterruptStackA+1,s
-0005ADr 4  9D rr rr         sta TaskA+1,x
-0005B0r 4  A3 06            lda InterruptStackX,s
-0005B2r 4  9D rr rr         sta TaskX,x
-0005B5r 4  A3 07            lda InterruptStackX+1,s
-0005B7r 4  9D rr rr         sta TaskX+1,x
-0005BAr 4  A3 04            lda InterruptStackY,s
-0005BCr 4  9D rr rr         sta TaskY,x
-0005BFr 4  A3 05            lda InterruptStackY+1,s
-0005C1r 4  9D rr rr         sta TaskY+1,x
-0005C4r 4               
-0005C4r 4               
-0005C4r 4  A3 0E            lda InterruptPC,s
-0005C6r 4  9D rr rr         sta TaskProgramPointer,x
-0005C9r 4               
-0005C9r 4                   ;jsl RA8875_WriteHex
-0005C9r 4                   ;lda #' '
-0005C9r 4                   ;jsl RA8875_WriteChar
-0005C9r 4               
-0005C9r 4  A3 0F            lda InterruptPC+1,s
-0005CBr 4  9D rr rr         sta TaskProgramPointer+1,x
-0005CEr 4               
-0005CEr 4                   ;jsl RA8875_WriteHex
-0005CEr 4                   ;lda #$A
-0005CEr 4                   ;jsl RA8875_WriteChar
-0005CEr 4               
-0005CEr 4  AE rr rr         ldx ActiveTask
-0005D1r 4               @loop:
-0005D1r 4  E8               inx
-0005D2r 4  E0 10            cpx #NUMBER_OF_TASKS
-0005D4r 4  D0 05            bne @fine
-0005D6r 4  A2 FF            ldx #$FF     ; will roll to 0 on inx
-0005D8r 4  4C rr rr         jmp @loop
-0005DBr 4               @fine:
-0005DBr 4               
-0005DBr 4  BD rr rr         lda TaskStatus,x
-0005DEr 4               
-0005DEr 4  F0 F1            beq @loop
-0005E0r 4               
-0005E0r 4  C9 02            cmp #TASK_STATUS_RUNNABLE
-0005E2r 4  F0 1C            beq @task_switch
-0005E4r 4  C9 01            cmp #TASK_STATUS_RUNNING
-0005E6r 4  F0 15            beq @goreturn
-0005E8r 4               
-0005E8r 4  22 rr rr rr      jsl RA8875_WriteHex
-0005ECr 4  8A               txa
-0005EDr 4  22 rr rr rr      jsl RA8875_WriteHex
-0005F1r 4  C2 30            longr
-0005F3r 4  F4 rr rr 22      write task_unknown_status
-0005F7r 4  rr rr rr 68  
-0005FBr 4  E2 30            shortr
-0005FDr 4               @goreturn:
-0005FDr 4  4C rr rr         jmp @return
-000600r 4               
-000600r 4               @task_switch:
-000600r 4               
-000600r 4               
-000600r 4               ; SWITCH TO NEW TASK
-000600r 4               
-000600r 4  8E rr rr         stx ActiveTask
-000603r 4               
-000603r 4                ;   lda #$A
-000603r 4                ;   jsl RA8875_WriteChar
-000603r 4                ;   lda #'s'
-000603r 4               ;    jsl RA8875_WriteChar
-000603r 4               ;    longr
-000603r 4               ;    jsl DumpStack
-000603r 4               ;    shortr
-000603r 4               
-000603r 4               
-000603r 4                   ;longr
-000603r 4                   ;write task_switching_task
-000603r 4                   ;shortr
-000603r 4               
-000603r 4                   ;ldx ActiveTask
-000603r 4                   ;txa
-000603r 4                   ;jsl RA8875_WriteHex
-000603r 4                   ;lda #' '
-000603r 4                   ;jsl RA8875_WriteChar
-000603r 4               
-000603r 4                   ;ldx ActiveTask
-000603r 4               
-000603r 4  A9 01            lda #TASK_STATUS_RUNNING               ; if running then set to runnable
-000605r 4  9D rr rr         sta TaskStatus,x
-000608r 4               
-000608r 4  A3 01            lda 1,s
-00060Ar 4  8D rr rr         sta TempStackReturnPC+1
-00060Dr 4  A3 02            lda 2,s
-00060Fr 4  8D rr rr         sta TempStackReturnPC
-000612r 4  A3 03            lda 3,s
-000614r 4  8D rr rr         sta TempStackReturnBank
-000617r 4               ; Set up stack
-000617r 4  8A               txa
-000618r 4  0A               asl
-000619r 4  AA               tax
-00061Ar 4  C2 30            longr
-00061Cr 4  BD rr rr         lda TaskStackPointer,x
-00061Fr 4  18               clc
-000620r 4  E9 0F 00         sbc #InterruptPB-1
-000623r 4  1B               tcs
-000624r 4  E2 30            shortr
-000626r 4               
-000626r 4  AD rr rr         lda TempStackReturnPC+1
-000629r 4  83 01            sta 1,s
-00062Br 4  AD rr rr         lda TempStackReturnPC
-00062Er 4  83 02            sta 2,s
-000630r 4  AD rr rr         lda TempStackReturnBank
-000633r 4  83 03            sta 3,s
-000635r 4               
-000635r 4  AE rr rr         ldx ActiveTask
-000638r 4               
-000638r 4  BD rr rr         lda TaskProgramBank,x
-00063Br 4  83 10            sta InterruptPB,s
-00063Dr 4               
-00063Dr 4  BD rr rr         lda TaskDataBank,x
-000640r 4  83 0C            sta InterruptDB,s
-000642r 4               
-000642r 4  BD rr rr         lda TaskStatusRegister,x
-000645r 4  83 0D            sta InterruptStatusRegister,s
-000647r 4               
-000647r 4  8A               txa
-000648r 4  0A               asl
-000649r 4  AA               tax
-00064Ar 4               ; Set Direct Page to $9x00
-00064Ar 4  AD rr rr         lda ActiveTask
-00064Dr 4  18               clc
-00064Er 4  69 90            adc #$90                                ; A = $9x
-000650r 4               
-000650r 4  95 0A            sta InterruptDP,x
-000652r 4                   ;jsl RA8875_WriteHex
-000652r 4               
-000652r 4               ; Set registers
-000652r 4  BD rr rr         lda TaskA,x
-000655r 4  83 08            sta InterruptStackA,s
-000657r 4  BD rr rr         lda TaskA+1,x
-00065Ar 4  83 09            sta InterruptStackA+1,s
-00065Cr 4  BD rr rr         lda TaskY,x
-00065Fr 4  83 04            sta InterruptStackY,s
-000661r 4  BD rr rr         lda TaskY+1,x
-000664r 4  83 05            sta InterruptStackY+1,s
-000666r 4  BD rr rr         lda TaskX,x
-000669r 4  83 06            sta InterruptStackX,s
-00066Br 4  BD rr rr         lda TaskX+1,x
-00066Er 4  83 07            sta InterruptStackX+1,s
-000670r 4               
-000670r 4               
-000670r 4  BD rr rr         lda TaskProgramPointer+1,x
-000673r 4  83 0F            sta InterruptPC+1,s
-000675r 4                   ;jsl RA8875_WriteHex
-000675r 4               
-000675r 4  BD rr rr         lda TaskProgramPointer,x
-000678r 4  83 0E            sta InterruptPC,s
-00067Ar 4                   ;jsl RA8875_WriteHex
-00067Ar 4               
-00067Ar 4                   ;lda #$A
-00067Ar 4                   ;jsl RA8875_WriteChar
-00067Ar 4               
-00067Ar 4                   ;lda #'n'
-00067Ar 4                   ;jsl RA8875_WriteChar
-00067Ar 4                   ;longr
-00067Ar 4                   ;jsl DumpStack
-00067Ar 4                   ;shortr
-00067Ar 4                   ;lda #$A
-00067Ar 4                   ;jsl RA8875_WriteChar
-00067Ar 4  4C rr rr         jmp @return
-00067Dr 4               
-00067Dr 4               
-00067Dr 4               @return:
-00067Dr 4               
-00067Dr 4               
-00067Dr 4  58               cli
-00067Er 4  6B               rtl
+000572r 4               
+000572r 4               
+000572r 4               
+000572r 4               .A8
+000572r 4               .I8
+000572r 4               Scheduler_NextTask:
+000572r 4  78               sei
+000573r 4               
+000573r 4  AE rr rr         ldx ActiveTask
+000576r 4               
+000576r 4  BD rr rr         lda TaskStatus,x
+000579r 4  C9 01            cmp #TASK_STATUS_RUNNING
+00057Br 4  D0 4E            bne @loop
+00057Dr 4               
+00057Dr 4  A9 02            lda #TASK_STATUS_RUNNABLE               ; if running then set to runnable
+00057Fr 4  9D rr rr         sta TaskStatus,x
+000582r 4               
+000582r 4               ; save current task stage
+000582r 4                   ;longr
+000582r 4                   ;write task_save_old
+000582r 4                   ;write test_string
+000582r 4                   ;shortr
+000582r 4               
+000582r 4                   ;ldx ActiveTask
+000582r 4                   ;txa
+000582r 4                   ;jsl RA8875_WriteHex
+000582r 4                   ;lda #' '
+000582r 4                   ;jsl RA8875_WriteChar
+000582r 4                   ;lda #$A
+000582r 4                   ;jsl RA8875_WriteChar
+000582r 4                   ;lda #'o'
+000582r 4                   ;jsl RA8875_WriteChar
+000582r 4                   ;longr
+000582r 4                   ;jsl DumpStack
+000582r 4                   ;shortr
+000582r 4                   ;ldx ActiveTask
+000582r 4               
+000582r 4  A3 0C            lda InterruptDB,s
+000584r 4  9D rr rr         sta TaskDataBank,x
+000587r 4               
+000587r 4  A3 10            lda InterruptPB,s
+000589r 4  9D rr rr         sta TaskProgramBank,x
+00058Cr 4               
+00058Cr 4  A3 0D            lda InterruptStatusRegister,s
+00058Er 4  9D rr rr         sta TaskStatusRegister,x
+000591r 4               
+000591r 4               
+000591r 4               
+000591r 4                   ;ldx ActiveTask
+000591r 4  8A               txa
+000592r 4  0A               asl
+000593r 4  AA               tax
+000594r 4               
+000594r 4               ; SAVE STACK POINTER
+000594r 4  C2 20            longa
+000596r 4  3B               tsc                                 ; A = stack pointer
+000597r 4  18               clc
+000598r 4  69 10 00         adc #InterruptPB                 ; A = stack pointer - ...
+00059Br 4  9D rr rr         sta TaskStackPointer,x
+00059Er 4  E2 20            shorta
+0005A0r 4               
+0005A0r 4                   ; lda TaskStackPointer+1,x
+0005A0r 4                   ; jsl RA8875_WriteHex
+0005A0r 4                   ; lda #' '
+0005A0r 4                   ; jsl RA8875_WriteChar
+0005A0r 4                   ; lda TaskStackPointer,x
+0005A0r 4                   ; jsl RA8875_WriteHex
+0005A0r 4                   ; lda #' '
+0005A0r 4                   ; jsl RA8875_WriteChar
+0005A0r 4               
+0005A0r 4  A3 08            lda InterruptStackA,s
+0005A2r 4  9D rr rr         sta TaskA,x
+0005A5r 4  A3 09            lda InterruptStackA+1,s
+0005A7r 4  9D rr rr         sta TaskA+1,x
+0005AAr 4  A3 06            lda InterruptStackX,s
+0005ACr 4  9D rr rr         sta TaskX,x
+0005AFr 4  A3 07            lda InterruptStackX+1,s
+0005B1r 4  9D rr rr         sta TaskX+1,x
+0005B4r 4  A3 04            lda InterruptStackY,s
+0005B6r 4  9D rr rr         sta TaskY,x
+0005B9r 4  A3 05            lda InterruptStackY+1,s
+0005BBr 4  9D rr rr         sta TaskY+1,x
+0005BEr 4               
+0005BEr 4               
+0005BEr 4  A3 0E            lda InterruptPC,s
+0005C0r 4  9D rr rr         sta TaskProgramPointer,x
+0005C3r 4               
+0005C3r 4                   ;jsl RA8875_WriteHex
+0005C3r 4                   ;lda #' '
+0005C3r 4                   ;jsl RA8875_WriteChar
+0005C3r 4               
+0005C3r 4  A3 0F            lda InterruptPC+1,s
+0005C5r 4  9D rr rr         sta TaskProgramPointer+1,x
+0005C8r 4               
+0005C8r 4                   ;jsl RA8875_WriteHex
+0005C8r 4                   ;lda #$A
+0005C8r 4                   ;jsl RA8875_WriteChar
+0005C8r 4               
+0005C8r 4  AE rr rr         ldx ActiveTask
+0005CBr 4               @loop:
+0005CBr 4  E8               inx
+0005CCr 4  E0 10            cpx #NUMBER_OF_TASKS
+0005CEr 4  D0 05            bne @fine
+0005D0r 4  A2 FF            ldx #$FF     ; will roll to 0 on inx
+0005D2r 4  4C rr rr         jmp @loop
+0005D5r 4               @fine:
+0005D5r 4               
+0005D5r 4  BD rr rr         lda TaskStatus,x
+0005D8r 4               
+0005D8r 4  F0 F1            beq @loop
+0005DAr 4               
+0005DAr 4  C9 02            cmp #TASK_STATUS_RUNNABLE
+0005DCr 4  F0 1C            beq @task_switch
+0005DEr 4  C9 01            cmp #TASK_STATUS_RUNNING
+0005E0r 4  F0 15            beq @goreturn
+0005E2r 4               
+0005E2r 4  22 rr rr rr      jsl RA8875_WriteHex
+0005E6r 4  8A               txa
+0005E7r 4  22 rr rr rr      jsl RA8875_WriteHex
+0005EBr 4  C2 30            longr
+0005EDr 4  F4 rr rr 22      write task_unknown_status
+0005F1r 4  rr rr rr 68  
+0005F5r 4  E2 30            shortr
+0005F7r 4               @goreturn:
+0005F7r 4  4C rr rr         jmp @return
+0005FAr 4               
+0005FAr 4               @task_switch:
+0005FAr 4               
+0005FAr 4               
+0005FAr 4               ; SWITCH TO NEW TASK
+0005FAr 4               
+0005FAr 4  8E rr rr         stx ActiveTask
+0005FDr 4               
+0005FDr 4                ;   lda #$A
+0005FDr 4                ;   jsl RA8875_WriteChar
+0005FDr 4                ;   lda #'s'
+0005FDr 4               ;    jsl RA8875_WriteChar
+0005FDr 4               ;    longr
+0005FDr 4               ;    jsl DumpStack
+0005FDr 4               ;    shortr
+0005FDr 4               
+0005FDr 4               
+0005FDr 4                   ;longr
+0005FDr 4                   ;write task_switching_task
+0005FDr 4                   ;shortr
+0005FDr 4               
+0005FDr 4                   ;ldx ActiveTask
+0005FDr 4                   ;txa
+0005FDr 4                   ;jsl RA8875_WriteHex
+0005FDr 4                   ;lda #' '
+0005FDr 4                   ;jsl RA8875_WriteChar
+0005FDr 4               
+0005FDr 4                   ;ldx ActiveTask
+0005FDr 4               
+0005FDr 4  A9 01            lda #TASK_STATUS_RUNNING               ; if running then set to runnable
+0005FFr 4  9D rr rr         sta TaskStatus,x
+000602r 4               
+000602r 4  A3 01            lda 1,s
+000604r 4  8D rr rr         sta TempStackReturnPC+1
+000607r 4  A3 02            lda 2,s
+000609r 4  8D rr rr         sta TempStackReturnPC
+00060Cr 4  A3 03            lda 3,s
+00060Er 4  8D rr rr         sta TempStackReturnBank
+000611r 4               ; Set up stack
+000611r 4  8A               txa
+000612r 4  0A               asl
+000613r 4  AA               tax
+000614r 4  C2 30            longr
+000616r 4  BD rr rr         lda TaskStackPointer,x
+000619r 4  18               clc
+00061Ar 4  E9 0F 00         sbc #InterruptPB-1
+00061Dr 4  1B               tcs
+00061Er 4  E2 30            shortr
+000620r 4               
+000620r 4  AD rr rr         lda TempStackReturnPC+1
+000623r 4  83 01            sta 1,s
+000625r 4  AD rr rr         lda TempStackReturnPC
+000628r 4  83 02            sta 2,s
+00062Ar 4  AD rr rr         lda TempStackReturnBank
+00062Dr 4  83 03            sta 3,s
+00062Fr 4               
+00062Fr 4  AE rr rr         ldx ActiveTask
+000632r 4               
+000632r 4  BD rr rr         lda TaskProgramBank,x
+000635r 4  83 10            sta InterruptPB,s
+000637r 4               
+000637r 4  BD rr rr         lda TaskDataBank,x
+00063Ar 4  83 0C            sta InterruptDB,s
+00063Cr 4               
+00063Cr 4  BD rr rr         lda TaskStatusRegister,x
+00063Fr 4  83 0D            sta InterruptStatusRegister,s
+000641r 4               
+000641r 4  8A               txa
+000642r 4  0A               asl
+000643r 4  AA               tax
+000644r 4               ; Set Direct Page to $9x00
+000644r 4  AD rr rr         lda ActiveTask
+000647r 4  18               clc
+000648r 4  69 90            adc #$90                                ; A = $9x
+00064Ar 4               
+00064Ar 4  95 0A            sta InterruptDP,x
+00064Cr 4                   ;jsl RA8875_WriteHex
+00064Cr 4               
+00064Cr 4               ; Set registers
+00064Cr 4  BD rr rr         lda TaskA,x
+00064Fr 4  83 08            sta InterruptStackA,s
+000651r 4  BD rr rr         lda TaskA+1,x
+000654r 4  83 09            sta InterruptStackA+1,s
+000656r 4  BD rr rr         lda TaskY,x
+000659r 4  83 04            sta InterruptStackY,s
+00065Br 4  BD rr rr         lda TaskY+1,x
+00065Er 4  83 05            sta InterruptStackY+1,s
+000660r 4  BD rr rr         lda TaskX,x
+000663r 4  83 06            sta InterruptStackX,s
+000665r 4  BD rr rr         lda TaskX+1,x
+000668r 4  83 07            sta InterruptStackX+1,s
+00066Ar 4               
+00066Ar 4               
+00066Ar 4  BD rr rr         lda TaskProgramPointer+1,x
+00066Dr 4  83 0F            sta InterruptPC+1,s
+00066Fr 4                   ;jsl RA8875_WriteHex
+00066Fr 4               
+00066Fr 4  BD rr rr         lda TaskProgramPointer,x
+000672r 4  83 0E            sta InterruptPC,s
+000674r 4                   ;jsl RA8875_WriteHex
+000674r 4               
+000674r 4                   ;lda #$A
+000674r 4                   ;jsl RA8875_WriteChar
+000674r 4               
+000674r 4                   ;lda #'n'
+000674r 4                   ;jsl RA8875_WriteChar
+000674r 4                   ;longr
+000674r 4                   ;jsl DumpStack
+000674r 4                   ;shortr
+000674r 4                   ;lda #$A
+000674r 4                   ;jsl RA8875_WriteChar
+000674r 4  4C rr rr         jmp @return
+000677r 4               
+000677r 4               
+000677r 4               @return:
+000677r 4               
+000677r 4               
+000677r 4  58               cli
+000678r 4  6B               rtl
+000679r 4               
+000679r 4               
+000679r 4               .A16
+000679r 4               .I16
+000679r 4               InitScheduler:
+000679r 4               
+000679r 4  9C rr rr         stz TimerCounter        ; set interrupt timer counter to 0
+00067Cr 4  9C rr rr         stz TaskSwitches        ; set task switch count to 0
 00067Fr 4               
-00067Fr 4               
-00067Fr 4               .A16
-00067Fr 4               .I16
-00067Fr 4               InitScheduler:
-00067Fr 4               
-00067Fr 4  9C rr rr         stz TimerCounter        ; set interrupt timer counter to 0
-000682r 4  9C rr rr         stz TaskSwitches        ; set task switch count to 0
+00067Fr 4               ; should be approx 256 times per second
+00067Fr 4  A9 A8 26         lda #9896
+000682r 4  8D rr rr         sta VIA1_T1CL
 000685r 4               
-000685r 4               ; should be approx 256 times per second
-000685r 4  A9 A8 26         lda #9896
-000688r 4  8D rr rr         sta VIA1_T1CL
-00068Br 4               
-00068Br 4  E2 30            shortr
-00068Dr 4  AD rr rr         lda  VIA1_ACR       ; Clear the ACR's bit that
-000690r 4  29 7F            AND  #%01111111      ; tells T1 to toggle PB7 upon time-out, and
-000692r 4  09 40            ORA  #%01000000      ; set the bit that tells T1 to automatically
-000694r 4  8D rr rr         STA  VIA1_ACR       ; produce an interrupt at every time-out and
-000697r 4                                       ; just reload from the latches and keep going.
-000697r 4  A9 C0            LDA  #%11000000
-000699r 4  8D rr rr         STA  VIA1_IER       ; Enable the T1 interrupt in the VIA.
-00069Cr 4               
-00069Cr 4  C2 30            longr
-00069Er 4  60               rts
-00069Fr 4               
-00069Fr 3               .include "tasks.inc"
-00069Fr 4               
-00069Fr 4               .RODATA
+000685r 4  E2 30            shortr
+000687r 4  AD rr rr         lda  VIA1_ACR       ; Clear the ACR's bit that
+00068Ar 4  29 7F            AND  #%01111111      ; tells T1 to toggle PB7 upon time-out, and
+00068Cr 4  09 40            ORA  #%01000000      ; set the bit that tells T1 to automatically
+00068Er 4  8D rr rr         STA  VIA1_ACR       ; produce an interrupt at every time-out and
+000691r 4                                       ; just reload from the latches and keep going.
+000691r 4  A9 C0            LDA  #%11000000
+000693r 4  8D rr rr         STA  VIA1_IER       ; Enable the T1 interrupt in the VIA.
+000696r 4               
+000696r 4  C2 30            longr
+000698r 4  60               rts
+000699r 4               
+000699r 3               .include "tasks.inc"
+000699r 4               
+000699r 4               .RODATA
 0003DEr 4               
 0003DEr 4  4E 6F 20 66  task_no_free_slot:           .asciiz "No free task slot!\n"
 0003E2r 4  72 65 65 20  
@@ -1994,243 +1994,243 @@ Current file: src/main.asm
 0000FCr 3               .SEGMENT "TASK" ; marked as used
 000000r 3               
 000000r 3               .code
-00069Fr 3               
-00069Fr 3               
-00069Fr 3               ; Initialize tasks
-00069Fr 3               .A16
-00069Fr 3               .I16
-00069Fr 3               InitTasks:
-00069Fr 3  E2 30                shortr
-0006A1r 3  A2 10                ldx #NUMBER_OF_TASKS
-0006A3r 3                   @clrloop:
-0006A3r 3  CA                   dex
-0006A4r 3  9E rr rr             stz TaskStatus,x
-0006A7r 3  9E rr rr             stz TaskExitCode,x
-0006AAr 3  9E rr rr             stz TaskStatusRegister,x
-0006ADr 3  9E rr rr             stz TaskProgramBank,x
-0006B0r 3  9E rr rr             stz TaskDataBank,x
-0006B3r 3  C2 30                longr
-0006B5r 3  9E rr rr             stz TaskStackPointer, x
-0006B8r 3  9E rr rr             stz TaskProgramPointer, x
-0006BBr 3  9E rr rr             stz TaskA, x
-0006BEr 3  9E rr rr             stz TaskX, x
-0006C1r 3  9E rr rr             stz TaskY, x
-0006C4r 3  E2 30                shortr
-0006C6r 3  D0 DB            bne @clrloop
-0006C8r 3               
-0006C8r 3  A9 FF                lda #$FF
-0006CAr 3  8D rr rr             sta ActiveTask
-0006CDr 3               
-0006CDr 3  C2 30                longr
-0006CFr 3  60                   rts
-0006D0r 3               
-0006D0r 3               
-0006D0r 3               
-0006D0r 3               ; Spawn a new task
-0006D0r 3               TaskSpawnArg_Addr = 1+3+6      ; jsl 3 bytes return
-0006D0r 3               .A16
-0006D0r 3               .I16
-0006D0r 3               TaskSpawn:
-0006D0r 3  48                   pha
-0006D1r 3  DA                   phx
-0006D2r 3  5A                   phy
-0006D3r 3  E2 30                shortr
-0006D5r 3  20 rr rr             jsr TaskFindUnusedTask
-0006D8r 3  B0 3C                bcs @no_unused_tasks
-0006DAr 3               
-0006DAr 3                       ;txa
-0006DAr 3                       ;jsl RA8875_WriteHex
-0006DAr 3               
-0006DAr 3  9E rr rr             stz TaskExitCode,x
-0006DDr 3               
-0006DDr 3  A9 02                lda #TASK_STATUS_RUNNABLE
-0006DFr 3  9D rr rr             sta TaskStatus,x
-0006E2r 3               
-0006E2r 3  A3 0C                lda TaskSpawnArg_Addr+2,s
-0006E4r 3  9D rr rr             sta TaskProgramBank,x
-0006E7r 3               
-0006E7r 3  8A                   txa
-0006E8r 3  A8                   tay
-0006E9r 3  0A                   asl
-0006EAr 3  AA                   tax
-0006EBr 3  98                   tya
-0006ECr 3  18                   clc
-0006EDr 3  69 A0                adc #$A0
-0006EFr 3  9D rr rr             sta TaskStackPointer+1,x
-0006F2r 3  A9 FF                lda #$FF
-0006F4r 3  9D rr rr             sta TaskStackPointer,x            ; Stack pointer: $AxFF
-0006F7r 3               
-0006F7r 3               
-0006F7r 3  A3 0A                lda TaskSpawnArg_Addr,s
-0006F9r 3  9D rr rr             sta TaskProgramPointer,x
-0006FCr 3               
-0006FCr 3  A3 0B                lda TaskSpawnArg_Addr+1,s
-0006FEr 3  9D rr rr             sta TaskProgramPointer+1,x
-000701r 3               
-000701r 3               
-000701r 3  9E rr rr             stz TaskA,x
-000704r 3  9E rr rr             stz TaskA+1,x
-000707r 3  9E rr rr             stz TaskY,x
-00070Ar 3  9E rr rr             stz TaskY+1,x
-00070Dr 3  9E rr rr             stz TaskX,x
-000710r 3  9E rr rr             stz TaskX+1,x
-000713r 3               
-000713r 3               
-000713r 3  4C rr rr             jmp @return
-000716r 3               
-000716r 3                   @no_unused_tasks:
-000716r 3  C2 30                longr
-000718r 3  F4 rr rr 22          write task_no_free_slot
-00071Cr 3  rr rr rr 68  
-000720r 3  4C rr rr             jmp @return
-000723r 3                   @return:
-000723r 3  C2 30                longr
-000725r 3  7A                   ply
-000726r 3  FA                   plx
-000727r 3  68                   pla
-000728r 3  6B                   rtl
-000729r 3               
-000729r 3               
-000729r 3               
-000729r 3               ; Find task slot not used. First try to find a slot with status 0
-000729r 3               ; if none with status 0 is found then find a exited or killed slot
-000729r 3               ; input: n/a
-000729r 3               ; output:
-000729r 3               ;   x - slot number that's empty
-000729r 3               ;   carry set if error
-000729r 3               .A8
-000729r 3               .I8
-000729r 3               TaskFindUnusedTask:
-000729r 3  18                   clc
-00072Ar 3  48                   pha
-00072Br 3  A2 00                ldx #0
-00072Dr 3                   @loop:
-00072Dr 3  BD rr rr             lda TaskStatus,x
-000730r 3  F0 14                beq @return
-000732r 3  E8                   inx
-000733r 3  E0 10                cpx #NUMBER_OF_TASKS         ; Reach end of tasks list?
-000735r 3  D0 F6                bne @loop
-000737r 3                   ; No slot found. Try one killed or exited
-000737r 3  A2 00                ldx #$0
-000739r 3                   @loop2:
-000739r 3  BD rr rr             lda TaskStatus,x
-00073Cr 3  C9 06                cmp #TASK_STATUS_EXITED
-00073Er 3  B0 06                bcs @return
-000740r 3  E8                   inx
-000741r 3  E0 10                cpx #NUMBER_OF_TASKS
-000743r 3  D0 F4                bne @loop2
-000745r 3  38                   sec                         ; reached the end the second time.
-000746r 3                                                   ; no slots available. return with carry set
-000746r 3                   @return:
-000746r 3  68                   pla
-000747r 3  60                   rts
+000699r 3               
+000699r 3               
+000699r 3               ; Initialize tasks
+000699r 3               .A16
+000699r 3               .I16
+000699r 3               InitTasks:
+000699r 3  E2 30                shortr
+00069Br 3  A2 10                ldx #NUMBER_OF_TASKS
+00069Dr 3                   @clrloop:
+00069Dr 3  CA                   dex
+00069Er 3  9E rr rr             stz TaskStatus,x
+0006A1r 3  9E rr rr             stz TaskExitCode,x
+0006A4r 3  9E rr rr             stz TaskStatusRegister,x
+0006A7r 3  9E rr rr             stz TaskProgramBank,x
+0006AAr 3  9E rr rr             stz TaskDataBank,x
+0006ADr 3  C2 30                longr
+0006AFr 3  9E rr rr             stz TaskStackPointer, x
+0006B2r 3  9E rr rr             stz TaskProgramPointer, x
+0006B5r 3  9E rr rr             stz TaskA, x
+0006B8r 3  9E rr rr             stz TaskX, x
+0006BBr 3  9E rr rr             stz TaskY, x
+0006BEr 3  E2 30                shortr
+0006C0r 3  D0 DB            bne @clrloop
+0006C2r 3               
+0006C2r 3  A9 FF                lda #$FF
+0006C4r 3  8D rr rr             sta ActiveTask
+0006C7r 3               
+0006C7r 3  C2 30                longr
+0006C9r 3  60                   rts
+0006CAr 3               
+0006CAr 3               
+0006CAr 3               
+0006CAr 3               ; Spawn a new task
+0006CAr 3               TaskSpawnArg_Addr = 1+3+6      ; jsl 3 bytes return
+0006CAr 3               .A16
+0006CAr 3               .I16
+0006CAr 3               TaskSpawn:
+0006CAr 3  48                   pha
+0006CBr 3  DA                   phx
+0006CCr 3  5A                   phy
+0006CDr 3  E2 30                shortr
+0006CFr 3  20 rr rr             jsr TaskFindUnusedTask
+0006D2r 3  B0 3C                bcs @no_unused_tasks
+0006D4r 3               
+0006D4r 3                       ;txa
+0006D4r 3                       ;jsl RA8875_WriteHex
+0006D4r 3               
+0006D4r 3  9E rr rr             stz TaskExitCode,x
+0006D7r 3               
+0006D7r 3  A9 02                lda #TASK_STATUS_RUNNABLE
+0006D9r 3  9D rr rr             sta TaskStatus,x
+0006DCr 3               
+0006DCr 3  A3 0C                lda TaskSpawnArg_Addr+2,s
+0006DEr 3  9D rr rr             sta TaskProgramBank,x
+0006E1r 3               
+0006E1r 3  8A                   txa
+0006E2r 3  A8                   tay
+0006E3r 3  0A                   asl
+0006E4r 3  AA                   tax
+0006E5r 3  98                   tya
+0006E6r 3  18                   clc
+0006E7r 3  69 A0                adc #$A0
+0006E9r 3  9D rr rr             sta TaskStackPointer+1,x
+0006ECr 3  A9 FF                lda #$FF
+0006EEr 3  9D rr rr             sta TaskStackPointer,x            ; Stack pointer: $AxFF
+0006F1r 3               
+0006F1r 3               
+0006F1r 3  A3 0A                lda TaskSpawnArg_Addr,s
+0006F3r 3  9D rr rr             sta TaskProgramPointer,x
+0006F6r 3               
+0006F6r 3  A3 0B                lda TaskSpawnArg_Addr+1,s
+0006F8r 3  9D rr rr             sta TaskProgramPointer+1,x
+0006FBr 3               
+0006FBr 3               
+0006FBr 3  9E rr rr             stz TaskA,x
+0006FEr 3  9E rr rr             stz TaskA+1,x
+000701r 3  9E rr rr             stz TaskY,x
+000704r 3  9E rr rr             stz TaskY+1,x
+000707r 3  9E rr rr             stz TaskX,x
+00070Ar 3  9E rr rr             stz TaskX+1,x
+00070Dr 3               
+00070Dr 3               
+00070Dr 3  4C rr rr             jmp @return
+000710r 3               
+000710r 3                   @no_unused_tasks:
+000710r 3  C2 30                longr
+000712r 3  F4 rr rr 22          write task_no_free_slot
+000716r 3  rr rr rr 68  
+00071Ar 3  4C rr rr             jmp @return
+00071Dr 3                   @return:
+00071Dr 3  C2 30                longr
+00071Fr 3  7A                   ply
+000720r 3  FA                   plx
+000721r 3  68                   pla
+000722r 3  6B                   rtl
+000723r 3               
+000723r 3               
+000723r 3               
+000723r 3               ; Find task slot not used. First try to find a slot with status 0
+000723r 3               ; if none with status 0 is found then find a exited or killed slot
+000723r 3               ; input: n/a
+000723r 3               ; output:
+000723r 3               ;   x - slot number that's empty
+000723r 3               ;   carry set if error
+000723r 3               .A8
+000723r 3               .I8
+000723r 3               TaskFindUnusedTask:
+000723r 3  18                   clc
+000724r 3  48                   pha
+000725r 3  A2 00                ldx #0
+000727r 3                   @loop:
+000727r 3  BD rr rr             lda TaskStatus,x
+00072Ar 3  F0 14                beq @return
+00072Cr 3  E8                   inx
+00072Dr 3  E0 10                cpx #NUMBER_OF_TASKS         ; Reach end of tasks list?
+00072Fr 3  D0 F6                bne @loop
+000731r 3                   ; No slot found. Try one killed or exited
+000731r 3  A2 00                ldx #$0
+000733r 3                   @loop2:
+000733r 3  BD rr rr             lda TaskStatus,x
+000736r 3  C9 06                cmp #TASK_STATUS_EXITED
+000738r 3  B0 06                bcs @return
+00073Ar 3  E8                   inx
+00073Br 3  E0 10                cpx #NUMBER_OF_TASKS
+00073Dr 3  D0 F4                bne @loop2
+00073Fr 3  38                   sec                         ; reached the end the second time.
+000740r 3                                                   ; no slots available. return with carry set
+000740r 3                   @return:
+000740r 3  68                   pla
+000741r 3  60                   rts
+000742r 3               
+000742r 3               
+000742r 3               
+000742r 3               ; Mark current task as exited. Go into nop-loop until
+000742r 3               ; next task is chosen by scheduler
+000742r 3               ; input:
+000742r 3               ;   A - exit code
+000742r 3               ; output: n/a
+000742r 3               .A16
+000742r 3               .I16
+000742r 3               TaskExit:
+000742r 3  AE rr rr             ldx ActiveTask
+000745r 3               
+000745r 3  9D rr rr             sta TaskExitCode,x              ; store the exit code
 000748r 3               
-000748r 3               
-000748r 3               
-000748r 3               ; Mark current task as exited. Go into nop-loop until
-000748r 3               ; next task is chosen by scheduler
-000748r 3               ; input:
-000748r 3               ;   A - exit code
-000748r 3               ; output: n/a
-000748r 3               .A16
-000748r 3               .I16
-000748r 3               TaskExit:
-000748r 3  AE rr rr             ldx ActiveTask
-00074Br 3               
-00074Br 3  9D rr rr             sta TaskExitCode,x              ; store the exit code
+000748r 3  A9 06 00             lda #TASK_STATUS_EXITED
+00074Br 3  9D rr rr             sta TaskStatus,x                ; mark the task as exited
 00074Er 3               
-00074Er 3  A9 06 00             lda #TASK_STATUS_EXITED
-000751r 3  9D rr rr             sta TaskStatus,x                ; mark the task as exited
-000754r 3               
-000754r 3                       @loop:                          ; go into infinite loop
-000754r 3  EA                       nop                         ; until scheduler picks
-000755r 3  4C rr rr                 jmp @loop                   ; the next task
-000758r 3               
-000758r 3               
-000758r 3               
-000758r 3               ; exit task from outside the task itself
-000758r 3               ; input:
-000758r 3               ;   x - task number to kill
-000758r 3               ; output: n/a
-000758r 3               .A16
-000758r 3               .I16
-000758r 3               TaskKill:
-000758r 3  A9 07 00             lda #TASK_STATUS_KILLED
-00075Br 3  9D rr rr             sta TaskStatus,x
-00075Er 3  9D rr rr             sta TaskExitCode,x
-000761r 3               
-000761r 3  6B                   rtl
-000762r 3               
-000762r 2               .include "interrupt.asm"
-000762r 3               .code
-000762r 3               .A16
-000762r 3               .I16
-000762r 3               InterruptVector:
-000762r 3  8B               phb                   ;save DB - data bank
-000763r 3  0B               phd                   ;save DP - direct page
-000764r 3  C2 30            longr                 ;select 16 bit registers
-000766r 3  48               pha                   ;save .C
-000767r 3  DA               phx                   ;save .X
-000768r 3  5A               phy                   ;save .Y
-000769r 3               
-000769r 3  E2 30            shortr
-00076Br 3               
-00076Br 3  AD rr rr         lda VIA1_IFR
-00076Er 3  2D rr rr         and VIA1_IER            ; zero those that were not allowed to pull IRQ down.
-000771r 3  0A               asl ; timer 1
-000772r 3  30 0A            bmi  InterruptTimer1
-000774r 3  0A               asl ; timer 2
-000775r 3  0A               asl ; cb1
-000776r 3  0A               asl ; cb2
-000777r 3  0A               asl ; shift reg
-000778r 3  0A               asl ; ca1
-000779r 3               
-000779r 3  30 2A            bmi InterruptKB
-00077Br 3               
-00077Br 3               
-00077Br 3               
-00077Br 3  4C rr rr         jmp crti
-00077Er 3               
-00077Er 3               InterruptTimer1:
-00077Er 3  2C rr rr         bit VIA1_T1CL
-000781r 3  EE rr rr         inc TimerCounter
-000784r 3  D0 03            BNE @lowcnt    ; Branch to end if the low byte didn't roll over to 00.
-000786r 3  EE rr rr         inc TimerCounter+1
-000789r 3               @lowcnt:
-000789r 3  EE rr rr         inc SchedulerCount
-00078Cr 3  AD rr rr         lda SchedulerCount
-00078Fr 3  C9 06            cmp #$06
-000791r 3  D0 0F            bne @noschedule
-000793r 3  9C rr rr         stz SchedulerCount
-000796r 3  EE rr rr         inc TaskSwitches
-000799r 3  D0 03            BNE @lowcntSwitch    ; Branch to end if the low byte didn't roll over to 00.
-00079Br 3  EE rr rr         inc TaskSwitches+1
-00079Er 3               @lowcntSwitch:
-00079Er 3  22 rr rr rr      jsl Scheduler_NextTask
-0007A2r 3               @noschedule:
+00074Er 3                       @loop:                          ; go into infinite loop
+00074Er 3  EA                       nop                         ; until scheduler picks
+00074Fr 3  4C rr rr                 jmp @loop                   ; the next task
+000752r 3               
+000752r 3               
+000752r 3               
+000752r 3               ; exit task from outside the task itself
+000752r 3               ; input:
+000752r 3               ;   x - task number to kill
+000752r 3               ; output: n/a
+000752r 3               .A16
+000752r 3               .I16
+000752r 3               TaskKill:
+000752r 3  A9 07 00             lda #TASK_STATUS_KILLED
+000755r 3  9D rr rr             sta TaskStatus,x
+000758r 3  9D rr rr             sta TaskExitCode,x
+00075Br 3               
+00075Br 3  6B                   rtl
+00075Cr 3               
+00075Cr 2               .include "interrupt.asm"
+00075Cr 3               .code
+00075Cr 3               .A16
+00075Cr 3               .I16
+00075Cr 3               InterruptVector:
+00075Cr 3  8B               phb                   ;save DB - data bank
+00075Dr 3  0B               phd                   ;save DP - direct page
+00075Er 3  C2 30            longr                 ;select 16 bit registers
+000760r 3  48               pha                   ;save .C
+000761r 3  DA               phx                   ;save .X
+000762r 3  5A               phy                   ;save .Y
+000763r 3               
+000763r 3  E2 30            shortr
+000765r 3               
+000765r 3  AD rr rr         lda VIA1_IFR
+000768r 3  2D rr rr         and VIA1_IER            ; zero those that were not allowed to pull IRQ down.
+00076Br 3  0A               asl ; timer 1
+00076Cr 3  30 0A            bmi  InterruptTimer1
+00076Er 3  0A               asl ; timer 2
+00076Fr 3  0A               asl ; cb1
+000770r 3  0A               asl ; cb2
+000771r 3  0A               asl ; shift reg
+000772r 3  0A               asl ; ca1
+000773r 3               
+000773r 3  30 2A            bmi InterruptKB
+000775r 3               
+000775r 3               
+000775r 3               
+000775r 3  4C rr rr         jmp crti
+000778r 3               
+000778r 3               InterruptTimer1:
+000778r 3  2C rr rr         bit VIA1_T1CL
+00077Br 3  EE rr rr         inc TimerCounter
+00077Er 3  D0 03            BNE @lowcnt    ; Branch to end if the low byte didn't roll over to 00.
+000780r 3  EE rr rr         inc TimerCounter+1
+000783r 3               @lowcnt:
+000783r 3  EE rr rr         inc SchedulerCount
+000786r 3  AD rr rr         lda SchedulerCount
+000789r 3  C9 06            cmp #$06
+00078Br 3  D0 0F            bne @noschedule
+00078Dr 3  9C rr rr         stz SchedulerCount
+000790r 3  EE rr rr         inc TaskSwitches
+000793r 3  D0 03            BNE @lowcntSwitch    ; Branch to end if the low byte didn't roll over to 00.
+000795r 3  EE rr rr         inc TaskSwitches+1
+000798r 3               @lowcntSwitch:
+000798r 3  22 rr rr rr      jsl Scheduler_NextTask
+00079Cr 3               @noschedule:
+00079Cr 3               
+00079Cr 3  4C rr rr         jmp crti
+00079Fr 3               
+00079Fr 3               InterruptKB:
+00079Fr 3  20 rr rr         jsr InterruptKeyboard
 0007A2r 3               
-0007A2r 3  4C rr rr         jmp crti
-0007A5r 3               
-0007A5r 3               InterruptKB:
-0007A5r 3  20 rr rr         jsr InterruptKeyboard
-0007A8r 3               
-0007A8r 3               crti:
-0007A8r 3  C2 30            longr
-0007AAr 3  7A               ply                   ;restore .Y
-0007ABr 3  FA               plx                   ;restore .X
-0007ACr 3  68               pla                   ;restore .C
-0007ADr 3  2B               pld                   ;restore DP
-0007AEr 3  AB               plb                   ;restore DB
-0007AFr 3  40               rti                   ;resume foreground task
-0007B0r 3               
-0007B0r 2               .include "streams.asm"
-0007B0r 3               
-0007B0r 3               NUMBER_OF_STREAMS = 3           ; Number of streams
-0007B0r 3               SIZE_OF_STREAM = 16             ; Number of bytes per stream
-0007B0r 3               
-0007B0r 3               STREAM_STDIN = 0
-0007B0r 3               
-0007B0r 3               .SEGMENT "RAM"
+0007A2r 3               crti:
+0007A2r 3  C2 30            longr
+0007A4r 3  7A               ply                   ;restore .Y
+0007A5r 3  FA               plx                   ;restore .X
+0007A6r 3  68               pla                   ;restore .C
+0007A7r 3  2B               pld                   ;restore DP
+0007A8r 3  AB               plb                   ;restore DB
+0007A9r 3  40               rti                   ;resume foreground task
+0007AAr 3               
+0007AAr 2               .include "streams.asm"
+0007AAr 3               
+0007AAr 3               NUMBER_OF_STREAMS = 3           ; Number of streams
+0007AAr 3               SIZE_OF_STREAM = 16             ; Number of bytes per stream
+0007AAr 3               
+0007AAr 3               STREAM_STDIN = 0
+0007AAr 3               
+0007AAr 3               .SEGMENT "RAM"
 0000FCr 3               
 0000FCr 3               StreamLookupHead:
 0000FCr 3  xx xx xx         .res NUMBER_OF_STREAMS
@@ -2242,203 +2242,203 @@ Current file: src/main.asm
 00010Ar 3  xx xx xx xx  
 000132r 3               
 000132r 3               .code
-0007B0r 3               
-0007B0r 3               ; Initialize streams
-0007B0r 3               ; Zeroes out head, tail, data
-0007B0r 3               .A16
-0007B0r 3               .I16
-0007B0r 3               InitStreams:
-0007B0r 3  E2 30            shortr
-0007B2r 3  A2 03            ldx #NUMBER_OF_STREAMS
-0007B4r 3               @clrloop:
-0007B4r 3  CA               dex
-0007B5r 3  9E rr rr         stz StreamLookupHead, x
-0007B8r 3  9E rr rr         stz StreamLookupTail, x
-0007BBr 3               
-0007BBr 3  D0 F7            bne @clrloop
-0007BDr 3  A2 10            ldx #SIZE_OF_STREAM
-0007BFr 3               @clrloop2:
-0007BFr 3  CA               dex
-0007C0r 3  9E rr rr         stz StreamData, x
-0007C3r 3  9E rr rr         stz StreamData+SIZE_OF_STREAM, x
-0007C6r 3  9E rr rr         stz StreamData+SIZE_OF_STREAM+SIZE_OF_STREAM, x
-0007C9r 3               
-0007C9r 3               
-0007C9r 3  D0 F4            bne @clrloop2
-0007CBr 3               
-0007CBr 3  C2 30            longr
-0007CDr 3  60               rts
+0007AAr 3               
+0007AAr 3               ; Initialize streams
+0007AAr 3               ; Zeroes out head, tail, data
+0007AAr 3               .A16
+0007AAr 3               .I16
+0007AAr 3               InitStreams:
+0007AAr 3  E2 30            shortr
+0007ACr 3  A2 03            ldx #NUMBER_OF_STREAMS
+0007AEr 3               @clrloop:
+0007AEr 3  CA               dex
+0007AFr 3  9E rr rr         stz StreamLookupHead, x
+0007B2r 3  9E rr rr         stz StreamLookupTail, x
+0007B5r 3               
+0007B5r 3  D0 F7            bne @clrloop
+0007B7r 3  A2 10            ldx #SIZE_OF_STREAM
+0007B9r 3               @clrloop2:
+0007B9r 3  CA               dex
+0007BAr 3  9E rr rr         stz StreamData, x
+0007BDr 3  9E rr rr         stz StreamData+SIZE_OF_STREAM, x
+0007C0r 3  9E rr rr         stz StreamData+SIZE_OF_STREAM+SIZE_OF_STREAM, x
+0007C3r 3               
+0007C3r 3               
+0007C3r 3  D0 F4            bne @clrloop2
+0007C5r 3               
+0007C5r 3  C2 30            longr
+0007C7r 3  60               rts
+0007C8r 3               
+0007C8r 3               ; Put byte to stream
+0007C8r 3               ; in:
+0007C8r 3               ;   A - byte to put
+0007C8r 3               ;   X - stream id
+0007C8r 3               ; out:
+0007C8r 3               .A8
+0007C8r 3               .I8
+0007C8r 3               StreamPutC:
+0007C8r 3  48               pha
+0007C9r 3  78               sei
+0007CAr 3  BC rr rr         ldy StreamLookupTail,x      ; fetch current tail
+0007CDr 3  5A               phy                         ; stack: [tail]
 0007CEr 3               
-0007CEr 3               ; Put byte to stream
-0007CEr 3               ; in:
-0007CEr 3               ;   A - byte to put
-0007CEr 3               ;   X - stream id
-0007CEr 3               ; out:
-0007CEr 3               .A8
-0007CEr 3               .I8
-0007CEr 3               StreamPutC:
-0007CEr 3  48               pha
-0007CFr 3  78               sei
-0007D0r 3  BC rr rr         ldy StreamLookupTail,x      ; fetch current tail
-0007D3r 3  5A               phy                         ; stack: [tail]
-0007D4r 3               
-0007D4r 3  BC rr rr         ldy StreamLookupHead,x      ; fetch current head
-0007D7r 3  5A               phy                         ; stack: [tail, head]
-0007D8r 3               
-0007D8r 3  DA               phx                         ; stack: [tail, head, stream id]
-0007D9r 3  48               pha                         ; stack: [tail, head, stream id, A-byte]
-0007DAr 3  8A               txa
-0007DBr 3               
-0007DBr 3  0A               asl                         ; *  2
-0007DCr 3  0A               asl                         ; *  4
-0007DDr 3  0A               asl                         ; *  8
-0007DEr 3  0A               asl                         ; * 16
-0007DFr 3  63 03            adc 3,s                     ; + head_offset
-0007E1r 3  AA               tax                         ; X = X * 16 + head_offset
-0007E2r 3               
-0007E2r 3  68               pla                         ; stack: [tail, head, stream id], a = A-byte
-0007E3r 3               
-0007E3r 3  9D rr rr         sta StreamData,x            ; Store byte in stream
-0007E6r 3               
-0007E6r 3               ; increment head_offset
-0007E6r 3  FA               plx                         ; stack: [tail, head], x=stream id
-0007E7r 3  7A               ply                         ; stack: [tail], y = head
-0007E8r 3  C8               iny                         ; increment head
-0007E9r 3  98               tya
-0007EAr 3               
-0007EAr 3  C9 10            cmp #SIZE_OF_STREAM         ; head overflow?
-0007ECr 3  D0 02            bne @checktail
-0007EEr 3  A9 00            lda #0
-0007F0r 3               @checktail:
-0007F0r 3  9D rr rr         sta StreamLookupHead,x      ; store head
-0007F3r 3               
-0007F3r 3               ; this is untested.
-0007F3r 3               ; if the stream wraps around
-0007F3r 3  C3 01            cmp 1,s                     ; is head == stack[1]/tail?
-0007F5r 3  D0 09            bne @tailnothead
-0007F7r 3  7A               ply                         ; if yes increment tail
-0007F8r 3  C8               iny
-0007F9r 3  98               tya
-0007FAr 3  9D rr rr         sta StreamLookupTail,x
-0007FDr 3  4C rr rr         jmp @done
-000800r 3               
-000800r 3               
-000800r 3               @tailnothead:
-000800r 3  FA               plx ; clear tail from stack. not used pt
-000801r 3               @done:
-000801r 3  58               cli
-000802r 3  68               pla
-000803r 3  6B               rtl
-000804r 3               
-000804r 3               ; Get byte from stream
-000804r 3               ; in:
-000804r 3               ;   X - stream id
-000804r 3               ; out:
-000804r 3               ;   A: read byte
-000804r 3               ;       0: nothing
-000804r 3               ;       x: read byte
-000804r 3               .A8
-000804r 3               .I8
-000804r 3               StreamGetC:
-000804r 3  78               sei
-000805r 3  BD rr rr         lda StreamLookupTail,x
-000808r 3  DD rr rr         cmp StreamLookupHead,x
-00080Br 3  D0 05            bne @readc                  ; tail !== head
-00080Dr 3  A9 00            lda #0                      ; set A to 0 (nothing read)
-00080Fr 3  4C rr rr         jmp @done
-000812r 3               @readc:
-000812r 3               
-000812r 3  48               pha                         ; s:[tail]
-000813r 3  18               clc
-000814r 3  69 01            adc #1                      ; tail = tail + 1
-000816r 3  C9 10            cmp #SIZE_OF_STREAM         ; tail === 16?
-000818r 3  D0 02            bne @savetail               ; if not skip next
-00081Ar 3  A9 00            lda #0                      ; tail = 0
-00081Cr 3               @savetail:
-00081Cr 3  9D rr rr         sta StreamLookupTail,x      ; save tail
-00081Fr 3               
-00081Fr 3  8A               txa
-000820r 3               
-000820r 3  0A               asl                         ; *  2
-000821r 3  0A               asl                         ; *  4
-000822r 3  0A               asl                         ; *  8
-000823r 3  0A               asl                         ; * 16
-000824r 3  63 01            adc 1,s                     ; + tail_offset
-000826r 3  AA               tax                         ; X = X * 16 + tail_offset
-000827r 3  7A               ply                         ; s:[]
-000828r 3               
-000828r 3  BD rr rr         lda StreamData,x
-00082Br 3               
-00082Br 3               @done:
-00082Br 3  58               cli
-00082Cr 3  6B               rtl
-00082Dr 3               
-00082Dr 2               
-00082Dr 2               .A16
-00082Dr 2               .I16
-00082Dr 2               InitKernel:
-00082Dr 2  20 rr rr         jsr InitTasks
-000830r 2                   ;write init_kernel_tasks_done
-000830r 2  20 rr rr         jsr InitScheduler
-000833r 2                   ;write init_kernel_scheduler_done
-000833r 2  20 rr rr         jsr InitStreams
-000836r 2                   ;write init_kernel_streams_done
-000836r 2                   ;write init_kernel_done
-000836r 2  60               rts
-000837r 2               ;;;
-000837r 2               ; Long Delay
-000837r 2               ;;;
-000837r 2               
-000837r 2               .A8
-000837r 2               .I8
-000837r 2               LongDelay:
-000837r 2  A2 FF            ldx #$FF
-000839r 2               LongDelayLoop1:
-000839r 2  A0 FF            ldy #$FF
-00083Br 2               LongDelayLoop2:
-00083Br 2  88               dey
-00083Cr 2  D0 FD            bne LongDelayLoop2
-00083Er 2  CA               dex
-00083Fr 2  D0 F8            bne LongDelayLoop1
-000841r 2  60               rts
-000842r 2               
-000842r 2               ;;;
-000842r 2               ; Delay
-000842r 2               ;;;
-000842r 2               .A8
-000842r 2               .I8
-000842r 2               Delay:
-000842r 2  A2 FF            ldx #$FF
-000844r 2               DelayLoop1:
-000844r 2  A0 FF            ldy #$FF
-000846r 2               DelayLoop2:
-000846r 2  88               dey
-000847r 2  D0 FD            bne DelayLoop2
-000849r 2  CA               dex
-00084Ar 2  D0 F8            bne DelayLoop1
+0007CEr 3  BC rr rr         ldy StreamLookupHead,x      ; fetch current head
+0007D1r 3  5A               phy                         ; stack: [tail, head]
+0007D2r 3               
+0007D2r 3  DA               phx                         ; stack: [tail, head, stream id]
+0007D3r 3  48               pha                         ; stack: [tail, head, stream id, A-byte]
+0007D4r 3  8A               txa
+0007D5r 3               
+0007D5r 3  0A               asl                         ; *  2
+0007D6r 3  0A               asl                         ; *  4
+0007D7r 3  0A               asl                         ; *  8
+0007D8r 3  0A               asl                         ; * 16
+0007D9r 3  63 03            adc 3,s                     ; + head_offset
+0007DBr 3  AA               tax                         ; X = X * 16 + head_offset
+0007DCr 3               
+0007DCr 3  68               pla                         ; stack: [tail, head, stream id], a = A-byte
+0007DDr 3               
+0007DDr 3  9D rr rr         sta StreamData,x            ; Store byte in stream
+0007E0r 3               
+0007E0r 3               ; increment head_offset
+0007E0r 3  FA               plx                         ; stack: [tail, head], x=stream id
+0007E1r 3  7A               ply                         ; stack: [tail], y = head
+0007E2r 3  C8               iny                         ; increment head
+0007E3r 3  98               tya
+0007E4r 3               
+0007E4r 3  C9 10            cmp #SIZE_OF_STREAM         ; head overflow?
+0007E6r 3  D0 02            bne @checktail
+0007E8r 3  A9 00            lda #0
+0007EAr 3               @checktail:
+0007EAr 3  9D rr rr         sta StreamLookupHead,x      ; store head
+0007EDr 3               
+0007EDr 3               ; this is untested.
+0007EDr 3               ; if the stream wraps around
+0007EDr 3  C3 01            cmp 1,s                     ; is head == stack[1]/tail?
+0007EFr 3  D0 09            bne @tailnothead
+0007F1r 3  7A               ply                         ; if yes increment tail
+0007F2r 3  C8               iny
+0007F3r 3  98               tya
+0007F4r 3  9D rr rr         sta StreamLookupTail,x
+0007F7r 3  4C rr rr         jmp @done
+0007FAr 3               
+0007FAr 3               
+0007FAr 3               @tailnothead:
+0007FAr 3  FA               plx ; clear tail from stack. not used pt
+0007FBr 3               @done:
+0007FBr 3  58               cli
+0007FCr 3  68               pla
+0007FDr 3  6B               rtl
+0007FEr 3               
+0007FEr 3               ; Get byte from stream
+0007FEr 3               ; in:
+0007FEr 3               ;   X - stream id
+0007FEr 3               ; out:
+0007FEr 3               ;   A: read byte
+0007FEr 3               ;       0: nothing
+0007FEr 3               ;       x: read byte
+0007FEr 3               .A8
+0007FEr 3               .I8
+0007FEr 3               StreamGetC:
+0007FEr 3  78               sei
+0007FFr 3  BD rr rr         lda StreamLookupTail,x
+000802r 3  DD rr rr         cmp StreamLookupHead,x
+000805r 3  D0 05            bne @readc                  ; tail !== head
+000807r 3  A9 00            lda #0                      ; set A to 0 (nothing read)
+000809r 3  4C rr rr         jmp @done
+00080Cr 3               @readc:
+00080Cr 3               
+00080Cr 3  48               pha                         ; s:[tail]
+00080Dr 3  18               clc
+00080Er 3  69 01            adc #1                      ; tail = tail + 1
+000810r 3  C9 10            cmp #SIZE_OF_STREAM         ; tail === 16?
+000812r 3  D0 02            bne @savetail               ; if not skip next
+000814r 3  A9 00            lda #0                      ; tail = 0
+000816r 3               @savetail:
+000816r 3  9D rr rr         sta StreamLookupTail,x      ; save tail
+000819r 3               
+000819r 3  8A               txa
+00081Ar 3               
+00081Ar 3  0A               asl                         ; *  2
+00081Br 3  0A               asl                         ; *  4
+00081Cr 3  0A               asl                         ; *  8
+00081Dr 3  0A               asl                         ; * 16
+00081Er 3  63 01            adc 1,s                     ; + tail_offset
+000820r 3  AA               tax                         ; X = X * 16 + tail_offset
+000821r 3  7A               ply                         ; s:[]
+000822r 3               
+000822r 3  BD rr rr         lda StreamData,x
+000825r 3               
+000825r 3               @done:
+000825r 3  58               cli
+000826r 3  6B               rtl
+000827r 3               
+000827r 2               
+000827r 2               .A16
+000827r 2               .I16
+000827r 2               InitKernel:
+000827r 2  20 rr rr         jsr InitTasks
+00082Ar 2                   ;write init_kernel_tasks_done
+00082Ar 2  20 rr rr         jsr InitScheduler
+00082Dr 2                   ;write init_kernel_scheduler_done
+00082Dr 2  20 rr rr         jsr InitStreams
+000830r 2                   ;write init_kernel_streams_done
+000830r 2                   ;write init_kernel_done
+000830r 2  60               rts
+000831r 2               ;;;
+000831r 2               ; Long Delay
+000831r 2               ;;;
+000831r 2               
+000831r 2               .A8
+000831r 2               .I8
+000831r 2               LongDelay:
+000831r 2  A2 FF            ldx #$FF
+000833r 2               LongDelayLoop1:
+000833r 2  A0 FF            ldy #$FF
+000835r 2               LongDelayLoop2:
+000835r 2  88               dey
+000836r 2  D0 FD            bne LongDelayLoop2
+000838r 2  CA               dex
+000839r 2  D0 F8            bne LongDelayLoop1
+00083Br 2  60               rts
+00083Cr 2               
+00083Cr 2               ;;;
+00083Cr 2               ; Delay
+00083Cr 2               ;;;
+00083Cr 2               .A8
+00083Cr 2               .I8
+00083Cr 2               Delay:
+00083Cr 2  A2 FF            ldx #$FF
+00083Er 2               DelayLoop1:
+00083Er 2  A0 FF            ldy #$FF
+000840r 2               DelayLoop2:
+000840r 2  88               dey
+000841r 2  D0 FD            bne DelayLoop2
+000843r 2  CA               dex
+000844r 2  D0 F8            bne DelayLoop1
+000846r 2  60               rts
+000847r 2               
+000847r 2               ;;;
+000847r 2               ; Short Delay
+000847r 2               ;;;
+000847r 2               .A8
+000847r 2               .I8
+000847r 2  A2 AA        DelayShort:	ldx #$aa
+000849r 2               DelayShortLoop1:
+000849r 2  CA           	dex
+00084Ar 2  D0 FD            bne DelayShortLoop1
 00084Cr 2  60               rts
 00084Dr 2               
-00084Dr 2               ;;;
-00084Dr 2               ; Short Delay
-00084Dr 2               ;;;
-00084Dr 2               .A8
-00084Dr 2               .I8
-00084Dr 2  A2 AA        DelayShort:	ldx #$aa
-00084Fr 2               DelayShortLoop1:
-00084Fr 2  CA           	dex
-000850r 2  D0 FD            bne DelayShortLoop1
-000852r 2  60               rts
-000853r 2               
-000853r 1               
-000853r 1               
-000853r 1               .include "stdlib/stdlib.asm"
-000853r 2               .include "stdlib.inc"
-000853r 3               Std_StrLen = 1
-000853r 3               Std_ReadNum = 2
-000853r 3               Std_StrCompareUntilWhiteSpace = 3
-000853r 3               
-000853r 2               
-000853r 2               .SEGMENT "STDLIB"
+00084Dr 1               
+00084Dr 1               
+00084Dr 1               .include "stdlib/stdlib.asm"
+00084Dr 2               .include "stdlib.inc"
+00084Dr 3               Std_StrLen = 1
+00084Dr 3               Std_ReadNum = 2
+00084Dr 3               Std_StrCompareUntilWhiteSpace = 3
+00084Dr 3               
+00084Dr 2               
+00084Dr 2               .SEGMENT "STDLIB"
 000000r 2               
 000000r 2               StdLib:
 000000r 2  C2 30            longr
@@ -2725,26 +2725,26 @@ Current file: src/main.asm
 000132r 3  xx xx        ClockCounter: .res 2
 000134r 3               
 000134r 3               .code
-000853r 3               .A16
-000853r 3               .I16
-000853r 3               ClockExec:
-000853r 3  E2 30            shortr
-000855r 3  A9 00            lda #$0
-000857r 3  85 00            sta $0
-000859r 3               @loop:
-000859r 3  EE rr rr         inc ClockCounter
-00085Cr 3  D0 03            BNE @lowonly    ; Branch to end if the low byte didn't roll over to 00.
-00085Er 3  EE rr rr         inc ClockCounter+1
-000861r 3                   @lowonly:
+00084Dr 3               .A16
+00084Dr 3               .I16
+00084Dr 3               ClockExec:
+00084Dr 3  E2 30            shortr
+00084Fr 3  A9 00            lda #$0
+000851r 3  85 00            sta $0
+000853r 3               @loop:
+000853r 3  EE rr rr         inc ClockCounter
+000856r 3  D0 03            BNE @lowonly    ; Branch to end if the low byte didn't roll over to 00.
+000858r 3  EE rr rr         inc ClockCounter+1
+00085Br 3                   @lowonly:
+00085Br 3               
+00085Br 3               
+00085Br 3  4C rr rr         jmp @loop
+00085Er 3               
+00085Er 3  C2 30            longr
+000860r 3  60               rts
 000861r 3               
-000861r 3               
-000861r 3  4C rr rr         jmp @loop
-000864r 3               
-000864r 3  C2 30            longr
-000866r 3  60               rts
-000867r 3               
-000867r 2               .include "diodeblink.asm"
-000867r 3               .RODATA
+000861r 2               .include "diodeblink.asm"
+000861r 3               .RODATA
 000433r 3               
 000433r 3  0D 28 2A 2D  running_diode_0: .asciiz "\r(*------)"
 000437r 3  2D 2D 2D 2D  
@@ -2769,496 +2769,496 @@ Current file: src/main.asm
 00047Dr 3  2A 29 00     
 000480r 3               
 000480r 3               .code
-000867r 3               .A16
-000867r 3               .I16
-000867r 3               LoaderExec:
-000867r 3  A9 0A 00         lda #$0A
-00086Ar 3  22 rr rr rr      jsl RA8875_WriteChar16          ; write new line
-00086Er 3               
-00086Er 3               LoaderLoop:
-00086Er 3               
-00086Er 3  F4 rr rr 22      write running_diode_0
-000872r 3  rr rr rr 68  
-000876r 3  20 rr rr         jsr LongDelayLoaderExec
-000879r 3  F4 rr rr 22      write running_diode_1
-00087Dr 3  rr rr rr 68  
-000881r 3  20 rr rr         jsr LongDelayLoaderExec
-000884r 3  F4 rr rr 22      write running_diode_2
-000888r 3  rr rr rr 68  
-00088Cr 3  20 rr rr         jsr LongDelayLoaderExec
-00088Fr 3  F4 rr rr 22      write running_diode_3
-000893r 3  rr rr rr 68  
-000897r 3  20 rr rr         jsr LongDelayLoaderExec
-00089Ar 3  F4 rr rr 22      write running_diode_4
-00089Er 3  rr rr rr 68  
-0008A2r 3  20 rr rr         jsr LongDelayLoaderExec
-0008A5r 3  F4 rr rr 22      write running_diode_5
-0008A9r 3  rr rr rr 68  
-0008ADr 3  20 rr rr         jsr LongDelayLoaderExec
-0008B0r 3  F4 rr rr 22      write running_diode_6
-0008B4r 3  rr rr rr 68  
-0008B8r 3  20 rr rr         jsr LongDelayLoaderExec
-0008BBr 3  F4 rr rr 22      write running_diode_5
-0008BFr 3  rr rr rr 68  
-0008C3r 3  20 rr rr         jsr LongDelayLoaderExec
-0008C6r 3  F4 rr rr 22      write running_diode_4
-0008CAr 3  rr rr rr 68  
-0008CEr 3  20 rr rr         jsr LongDelayLoaderExec
-0008D1r 3  F4 rr rr 22      write running_diode_3
-0008D5r 3  rr rr rr 68  
-0008D9r 3  20 rr rr         jsr LongDelayLoaderExec
-0008DCr 3  F4 rr rr 22      write running_diode_2
-0008E0r 3  rr rr rr 68  
-0008E4r 3  20 rr rr         jsr LongDelayLoaderExec
-0008E7r 3  F4 rr rr 22      write running_diode_1
-0008EBr 3  rr rr rr 68  
-0008EFr 3  20 rr rr         jsr LongDelayLoaderExec
-0008F2r 3               
-0008F2r 3  5C rr rr rr      JML LoaderLoop
-0008F6r 3               
-0008F6r 3               LongDelayLoaderExec:
-0008F6r 3  E2 30            shortr
+000861r 3               .A16
+000861r 3               .I16
+000861r 3               LoaderExec:
+000861r 3  A9 0A 00         lda #$0A
+000864r 3  22 rr rr rr      jsl RA8875_WriteChar16          ; write new line
+000868r 3               
+000868r 3               LoaderLoop:
+000868r 3               
+000868r 3  F4 rr rr 22      write running_diode_0
+00086Cr 3  rr rr rr 68  
+000870r 3  20 rr rr         jsr LongDelayLoaderExec
+000873r 3  F4 rr rr 22      write running_diode_1
+000877r 3  rr rr rr 68  
+00087Br 3  20 rr rr         jsr LongDelayLoaderExec
+00087Er 3  F4 rr rr 22      write running_diode_2
+000882r 3  rr rr rr 68  
+000886r 3  20 rr rr         jsr LongDelayLoaderExec
+000889r 3  F4 rr rr 22      write running_diode_3
+00088Dr 3  rr rr rr 68  
+000891r 3  20 rr rr         jsr LongDelayLoaderExec
+000894r 3  F4 rr rr 22      write running_diode_4
+000898r 3  rr rr rr 68  
+00089Cr 3  20 rr rr         jsr LongDelayLoaderExec
+00089Fr 3  F4 rr rr 22      write running_diode_5
+0008A3r 3  rr rr rr 68  
+0008A7r 3  20 rr rr         jsr LongDelayLoaderExec
+0008AAr 3  F4 rr rr 22      write running_diode_6
+0008AEr 3  rr rr rr 68  
+0008B2r 3  20 rr rr         jsr LongDelayLoaderExec
+0008B5r 3  F4 rr rr 22      write running_diode_5
+0008B9r 3  rr rr rr 68  
+0008BDr 3  20 rr rr         jsr LongDelayLoaderExec
+0008C0r 3  F4 rr rr 22      write running_diode_4
+0008C4r 3  rr rr rr 68  
+0008C8r 3  20 rr rr         jsr LongDelayLoaderExec
+0008CBr 3  F4 rr rr 22      write running_diode_3
+0008CFr 3  rr rr rr 68  
+0008D3r 3  20 rr rr         jsr LongDelayLoaderExec
+0008D6r 3  F4 rr rr 22      write running_diode_2
+0008DAr 3  rr rr rr 68  
+0008DEr 3  20 rr rr         jsr LongDelayLoaderExec
+0008E1r 3  F4 rr rr 22      write running_diode_1
+0008E5r 3  rr rr rr 68  
+0008E9r 3  20 rr rr         jsr LongDelayLoaderExec
+0008ECr 3               
+0008ECr 3  5C rr rr rr      JML LoaderLoop
+0008F0r 3               
+0008F0r 3               LongDelayLoaderExec:
+0008F0r 3  E2 30            shortr
+0008F2r 3  20 rr rr         jsr LogDelayLoader
+0008F5r 3  20 rr rr         jsr LogDelayLoader
 0008F8r 3  20 rr rr         jsr LogDelayLoader
-0008FBr 3  20 rr rr         jsr LogDelayLoader
-0008FEr 3  20 rr rr         jsr LogDelayLoader
-000901r 3  C2 30            longr
-000903r 3  60               rts
-000904r 3               
-000904r 3               .A8
-000904r 3               .I8
-000904r 3               LogDelayLoader:
-000904r 3  A2 FF            ldx #$FF
-000906r 3               LogDelayLoaderLoop1:
-000906r 3  A0 FF            ldy #$FF
-000908r 3               LogDelayLoaderLoop2:
-000908r 3  88               dey
-000909r 3  D0 FD            bne LogDelayLoaderLoop2
-00090Br 3  CA               dex
-00090Cr 3  D0 F8            bne LogDelayLoaderLoop1
-00090Er 3  60               rts
+0008FBr 3  C2 30            longr
+0008FDr 3  60               rts
+0008FEr 3               
+0008FEr 3               .A8
+0008FEr 3               .I8
+0008FEr 3               LogDelayLoader:
+0008FEr 3  A2 FF            ldx #$FF
+000900r 3               LogDelayLoaderLoop1:
+000900r 3  A0 FF            ldy #$FF
+000902r 3               LogDelayLoaderLoop2:
+000902r 3  88               dey
+000903r 3  D0 FD            bne LogDelayLoaderLoop2
+000905r 3  CA               dex
+000906r 3  D0 F8            bne LogDelayLoaderLoop1
+000908r 3  60               rts
+000909r 3               
+000909r 2               .include "dump.asm"
+000909r 3               DumpExec:
+000909r 3  20 rr rr         jsr RA8875_WriteHex
+00090Cr 3  60               rts
+00090Dr 3               
+00090Dr 2               .include "dumpstack.asm"
+00090Dr 3               .I16
+00090Dr 3               .A16
+00090Dr 3               DumpStack:
+00090Dr 3  E2 30            shortr
+00090Fr 3                 ;  lda 1,s           ;get mode
+00090Fr 3                 ;  jsl RA8875_WriteHex
+00090Fr 3                 ;  lda 2,s           ;get mode
+00090Fr 3                 ;  jsl RA8875_WriteHex
 00090Fr 3               
-00090Fr 2               .include "dump.asm"
-00090Fr 3               DumpExec:
-00090Fr 3  20 rr rr         jsr RA8875_WriteHex
-000912r 3  60               rts
-000913r 3               
-000913r 2               .include "dumpstack.asm"
-000913r 3               .I16
-000913r 3               .A16
-000913r 3               DumpStack:
-000913r 3  E2 30            shortr
-000915r 3                 ;  lda 1,s           ;get mode
-000915r 3                 ;  jsl RA8875_WriteHex
-000915r 3                 ;  lda 2,s           ;get mode
-000915r 3                 ;  jsl RA8875_WriteHex
-000915r 3               
-000915r 3                 ;  lda #' '
-000915r 3                 ;  jsl RA8875_WriteChar
-000915r 3               
-000915r 3                   ;lda #$A
-000915r 3                   ;jsl RA8875_WriteChar
-000915r 3               
-000915r 3  C2 30            longr
-000917r 3  3B               tsc
-000918r 3  18               clc
-000919r 3  69 04 00         adc #4
-00091Cr 3  22 rr rr rr      jsl RA8875_WriteHex16
-000920r 3  E2 30            shortr
-000922r 3  A9 20            lda #' '
-000924r 3  22 rr rr rr      jsl RA8875_WriteChar
-000928r 3               
-000928r 3  C2 30            longr
-00092Ar 3  3B               tsc
-00092Br 3  18               clc
-00092Cr 3  69 06 00         adc #6
-00092Fr 3  22 rr rr rr      jsl RA8875_WriteHex16
-000933r 3  E2 30            shortr
-000935r 3  A9 20            lda #' '
-000937r 3  22 rr rr rr      jsl RA8875_WriteChar
-00093Br 3               
-00093Br 3  C2 30            longr
-00093Dr 3  3B               tsc
-00093Er 3  18               clc
-00093Fr 3  69 08 00         adc #8
-000942r 3  22 rr rr rr      jsl RA8875_WriteHex16
-000946r 3  E2 30            shortr
-000948r 3  A9 20            lda #' '
-00094Ar 3  22 rr rr rr      jsl RA8875_WriteChar
-00094Er 3               
-00094Er 3               
-00094Er 3  C2 30            longr
-000950r 3  3B               tsc
-000951r 3  18               clc
-000952r 3  69 0A 00         adc #10
-000955r 3  22 rr rr rr      jsl RA8875_WriteHex16
-000959r 3  E2 30            shortr
-00095Br 3  A9 20            lda #' '
-00095Dr 3  22 rr rr rr      jsl RA8875_WriteChar
-000961r 3               
-000961r 3               
-000961r 3               
-000961r 3  C2 30            longr
-000963r 3  3B               tsc
-000964r 3  18               clc
-000965r 3  69 0C 00         adc #12
-000968r 3  22 rr rr rr      jsl RA8875_WriteHex16
-00096Cr 3  E2 30            shortr
-00096Er 3  A9 20            lda #' '
-000970r 3  22 rr rr rr      jsl RA8875_WriteChar
-000974r 3  C2 30            longr
-000976r 3  3B               tsc
-000977r 3  18               clc
-000978r 3  69 0E 00         adc #14
-00097Br 3  22 rr rr rr      jsl RA8875_WriteHex16
-00097Fr 3  E2 30            shortr
-000981r 3  A9 20            lda #' '
-000983r 3  22 rr rr rr      jsl RA8875_WriteChar
-000987r 3               
-000987r 3  C2 30            longr
-000989r 3  3B               tsc
-00098Ar 3  18               clc
-00098Br 3  69 10 00         adc #16
-00098Er 3  22 rr rr rr      jsl RA8875_WriteHex16
-000992r 3  E2 30            shortr
-000994r 3  A9 20            lda #' '
-000996r 3  22 rr rr rr      jsl RA8875_WriteChar
-00099Ar 3               
-00099Ar 3  C2 30            longr
-00099Cr 3  3B               tsc
-00099Dr 3  18               clc
-00099Er 3  69 12 00         adc #18
-0009A1r 3  22 rr rr rr      jsl RA8875_WriteHex16
-0009A5r 3  E2 30            shortr
-0009A7r 3  A9 20            lda #' '
-0009A9r 3  22 rr rr rr      jsl RA8875_WriteChar
-0009ADr 3               
-0009ADr 3  C2 30            longr
-0009AFr 3  3B               tsc
-0009B0r 3  18               clc
-0009B1r 3  69 14 00         adc #20
-0009B4r 3  22 rr rr rr      jsl RA8875_WriteHex16
-0009B8r 3  E2 30            shortr
-0009BAr 3  A9 20            lda #' '
+00090Fr 3                 ;  lda #' '
+00090Fr 3                 ;  jsl RA8875_WriteChar
+00090Fr 3               
+00090Fr 3                   ;lda #$A
+00090Fr 3                   ;jsl RA8875_WriteChar
+00090Fr 3               
+00090Fr 3  C2 30            longr
+000911r 3  3B               tsc
+000912r 3  18               clc
+000913r 3  69 04 00         adc #4
+000916r 3  22 rr rr rr      jsl RA8875_WriteHex16
+00091Ar 3  E2 30            shortr
+00091Cr 3  A9 20            lda #' '
+00091Er 3  22 rr rr rr      jsl RA8875_WriteChar
+000922r 3               
+000922r 3  C2 30            longr
+000924r 3  3B               tsc
+000925r 3  18               clc
+000926r 3  69 06 00         adc #6
+000929r 3  22 rr rr rr      jsl RA8875_WriteHex16
+00092Dr 3  E2 30            shortr
+00092Fr 3  A9 20            lda #' '
+000931r 3  22 rr rr rr      jsl RA8875_WriteChar
+000935r 3               
+000935r 3  C2 30            longr
+000937r 3  3B               tsc
+000938r 3  18               clc
+000939r 3  69 08 00         adc #8
+00093Cr 3  22 rr rr rr      jsl RA8875_WriteHex16
+000940r 3  E2 30            shortr
+000942r 3  A9 20            lda #' '
+000944r 3  22 rr rr rr      jsl RA8875_WriteChar
+000948r 3               
+000948r 3               
+000948r 3  C2 30            longr
+00094Ar 3  3B               tsc
+00094Br 3  18               clc
+00094Cr 3  69 0A 00         adc #10
+00094Fr 3  22 rr rr rr      jsl RA8875_WriteHex16
+000953r 3  E2 30            shortr
+000955r 3  A9 20            lda #' '
+000957r 3  22 rr rr rr      jsl RA8875_WriteChar
+00095Br 3               
+00095Br 3               
+00095Br 3               
+00095Br 3  C2 30            longr
+00095Dr 3  3B               tsc
+00095Er 3  18               clc
+00095Fr 3  69 0C 00         adc #12
+000962r 3  22 rr rr rr      jsl RA8875_WriteHex16
+000966r 3  E2 30            shortr
+000968r 3  A9 20            lda #' '
+00096Ar 3  22 rr rr rr      jsl RA8875_WriteChar
+00096Er 3  C2 30            longr
+000970r 3  3B               tsc
+000971r 3  18               clc
+000972r 3  69 0E 00         adc #14
+000975r 3  22 rr rr rr      jsl RA8875_WriteHex16
+000979r 3  E2 30            shortr
+00097Br 3  A9 20            lda #' '
+00097Dr 3  22 rr rr rr      jsl RA8875_WriteChar
+000981r 3               
+000981r 3  C2 30            longr
+000983r 3  3B               tsc
+000984r 3  18               clc
+000985r 3  69 10 00         adc #16
+000988r 3  22 rr rr rr      jsl RA8875_WriteHex16
+00098Cr 3  E2 30            shortr
+00098Er 3  A9 20            lda #' '
+000990r 3  22 rr rr rr      jsl RA8875_WriteChar
+000994r 3               
+000994r 3  C2 30            longr
+000996r 3  3B               tsc
+000997r 3  18               clc
+000998r 3  69 12 00         adc #18
+00099Br 3  22 rr rr rr      jsl RA8875_WriteHex16
+00099Fr 3  E2 30            shortr
+0009A1r 3  A9 20            lda #' '
+0009A3r 3  22 rr rr rr      jsl RA8875_WriteChar
+0009A7r 3               
+0009A7r 3  C2 30            longr
+0009A9r 3  3B               tsc
+0009AAr 3  18               clc
+0009ABr 3  69 14 00         adc #20
+0009AEr 3  22 rr rr rr      jsl RA8875_WriteHex16
+0009B2r 3  E2 30            shortr
+0009B4r 3  A9 20            lda #' '
+0009B6r 3  22 rr rr rr      jsl RA8875_WriteChar
+0009BAr 3               
+0009BAr 3  A9 0A            lda #$A
 0009BCr 3  22 rr rr rr      jsl RA8875_WriteChar
 0009C0r 3               
-0009C0r 3  A9 0A            lda #$A
-0009C2r 3  22 rr rr rr      jsl RA8875_WriteChar
-0009C6r 3               
-0009C6r 3               ; Skip the first two as they are DumpStack return
-0009C6r 3  A3 04            lda 4,s           ;get mode
+0009C0r 3               ; Skip the first two as they are DumpStack return
+0009C0r 3  A3 04            lda 4,s           ;get mode
+0009C2r 3  22 rr rr rr      jsl RA8875_WriteHex
+0009C6r 3  A3 05            lda 5,s           ;get mode
 0009C8r 3  22 rr rr rr      jsl RA8875_WriteHex
-0009CCr 3  A3 05            lda 5,s           ;get mode
-0009CEr 3  22 rr rr rr      jsl RA8875_WriteHex
+0009CCr 3               
+0009CCr 3  A9 20            lda #' '
+0009CEr 3  22 rr rr rr      jsl RA8875_WriteChar
 0009D2r 3               
-0009D2r 3  A9 20            lda #' '
-0009D4r 3  22 rr rr rr      jsl RA8875_WriteChar
-0009D8r 3               
-0009D8r 3               
-0009D8r 3  A3 06            lda 6,s           ;get mode
+0009D2r 3               
+0009D2r 3  A3 06            lda 6,s           ;get mode
+0009D4r 3  22 rr rr rr      jsl RA8875_WriteHex
+0009D8r 3  A3 07            lda 7,s           ;get mode
 0009DAr 3  22 rr rr rr      jsl RA8875_WriteHex
-0009DEr 3  A3 07            lda 7,s           ;get mode
-0009E0r 3  22 rr rr rr      jsl RA8875_WriteHex
+0009DEr 3               
+0009DEr 3  A9 20            lda #' '
+0009E0r 3  22 rr rr rr      jsl RA8875_WriteChar
 0009E4r 3               
-0009E4r 3  A9 20            lda #' '
-0009E6r 3  22 rr rr rr      jsl RA8875_WriteChar
-0009EAr 3               
-0009EAr 3               
-0009EAr 3  A3 08            lda 8,s           ;get mode
+0009E4r 3               
+0009E4r 3  A3 08            lda 8,s           ;get mode
+0009E6r 3  22 rr rr rr      jsl RA8875_WriteHex
+0009EAr 3  A3 09            lda 9,s           ;get mode
 0009ECr 3  22 rr rr rr      jsl RA8875_WriteHex
-0009F0r 3  A3 09            lda 9,s           ;get mode
-0009F2r 3  22 rr rr rr      jsl RA8875_WriteHex
+0009F0r 3               
+0009F0r 3               
+0009F0r 3  A9 20            lda #' '
+0009F2r 3  22 rr rr rr      jsl RA8875_WriteChar
 0009F6r 3               
 0009F6r 3               
-0009F6r 3  A9 20            lda #' '
-0009F8r 3  22 rr rr rr      jsl RA8875_WriteChar
-0009FCr 3               
-0009FCr 3               
-0009FCr 3  A3 0A            lda 10,s           ;get mode
+0009F6r 3  A3 0A            lda 10,s           ;get mode
+0009F8r 3  22 rr rr rr      jsl RA8875_WriteHex
+0009FCr 3  A3 0B            lda 11,s           ;get mode
 0009FEr 3  22 rr rr rr      jsl RA8875_WriteHex
-000A02r 3  A3 0B            lda 11,s           ;get mode
-000A04r 3  22 rr rr rr      jsl RA8875_WriteHex
+000A02r 3               
+000A02r 3  A9 20            lda #' '
+000A04r 3  22 rr rr rr      jsl RA8875_WriteChar
 000A08r 3               
-000A08r 3  A9 20            lda #' '
-000A0Ar 3  22 rr rr rr      jsl RA8875_WriteChar
-000A0Er 3               
-000A0Er 3               
-000A0Er 3  A3 0C            lda 12,s           ;get mode
+000A08r 3               
+000A08r 3  A3 0C            lda 12,s           ;get mode
+000A0Ar 3  22 rr rr rr      jsl RA8875_WriteHex
+000A0Er 3  A3 0D            lda 13,s           ;get mode
 000A10r 3  22 rr rr rr      jsl RA8875_WriteHex
-000A14r 3  A3 0D            lda 13,s           ;get mode
-000A16r 3  22 rr rr rr      jsl RA8875_WriteHex
+000A14r 3               
+000A14r 3  A9 20            lda #' '
+000A16r 3  22 rr rr rr      jsl RA8875_WriteChar
 000A1Ar 3               
-000A1Ar 3  A9 20            lda #' '
-000A1Cr 3  22 rr rr rr      jsl RA8875_WriteChar
-000A20r 3               
-000A20r 3               
-000A20r 3  A3 0E            lda 14,s           ;get mode
+000A1Ar 3               
+000A1Ar 3  A3 0E            lda 14,s           ;get mode
+000A1Cr 3  22 rr rr rr      jsl RA8875_WriteHex
+000A20r 3  A3 0F            lda 15,s           ;get mode
 000A22r 3  22 rr rr rr      jsl RA8875_WriteHex
-000A26r 3  A3 0F            lda 15,s           ;get mode
-000A28r 3  22 rr rr rr      jsl RA8875_WriteHex
+000A26r 3               
+000A26r 3  A9 20            lda #' '
+000A28r 3  22 rr rr rr      jsl RA8875_WriteChar
 000A2Cr 3               
-000A2Cr 3  A9 20            lda #' '
-000A2Er 3  22 rr rr rr      jsl RA8875_WriteChar
-000A32r 3               
-000A32r 3               
-000A32r 3  A3 10            lda 16,s           ;get mode
+000A2Cr 3               
+000A2Cr 3  A3 10            lda 16,s           ;get mode
+000A2Er 3  22 rr rr rr      jsl RA8875_WriteHex
+000A32r 3  A3 11            lda 17,s           ;get mode
 000A34r 3  22 rr rr rr      jsl RA8875_WriteHex
-000A38r 3  A3 11            lda 17,s           ;get mode
-000A3Ar 3  22 rr rr rr      jsl RA8875_WriteHex
+000A38r 3               
+000A38r 3               
+000A38r 3  A9 20            lda #' '
+000A3Ar 3  22 rr rr rr      jsl RA8875_WriteChar
 000A3Er 3               
 000A3Er 3               
-000A3Er 3  A9 20            lda #' '
-000A40r 3  22 rr rr rr      jsl RA8875_WriteChar
-000A44r 3               
-000A44r 3               
-000A44r 3  A3 12            lda 18,s           ;get mode
+000A3Er 3  A3 12            lda 18,s           ;get mode
+000A40r 3  22 rr rr rr      jsl RA8875_WriteHex
+000A44r 3  A3 13            lda 19,s           ;get mode
 000A46r 3  22 rr rr rr      jsl RA8875_WriteHex
-000A4Ar 3  A3 13            lda 19,s           ;get mode
-000A4Cr 3  22 rr rr rr      jsl RA8875_WriteHex
+000A4Ar 3               
+000A4Ar 3  A9 20            lda #' '
+000A4Cr 3  22 rr rr rr      jsl RA8875_WriteChar
 000A50r 3               
-000A50r 3  A9 20            lda #' '
-000A52r 3  22 rr rr rr      jsl RA8875_WriteChar
-000A56r 3               
-000A56r 3               
-000A56r 3  A3 14            lda 20,s           ;get mode
+000A50r 3               
+000A50r 3  A3 14            lda 20,s           ;get mode
+000A52r 3  22 rr rr rr      jsl RA8875_WriteHex
+000A56r 3  A3 15            lda 21,s           ;get mode
 000A58r 3  22 rr rr rr      jsl RA8875_WriteHex
-000A5Cr 3  A3 15            lda 21,s           ;get mode
-000A5Er 3  22 rr rr rr      jsl RA8875_WriteHex
+000A5Cr 3               
+000A5Cr 3  A9 20            lda #' '
+000A5Er 3  22 rr rr rr      jsl RA8875_WriteChar
 000A62r 3               
-000A62r 3  A9 20            lda #' '
-000A64r 3  22 rr rr rr      jsl RA8875_WriteChar
-000A68r 3               
-000A68r 3               
-000A68r 3  A3 16            lda 22,s           ;get mode
+000A62r 3               
+000A62r 3  A3 16            lda 22,s           ;get mode
+000A64r 3  22 rr rr rr      jsl RA8875_WriteHex
+000A68r 3  A3 17            lda 23,s           ;get mode
 000A6Ar 3  22 rr rr rr      jsl RA8875_WriteHex
-000A6Er 3  A3 17            lda 23,s           ;get mode
-000A70r 3  22 rr rr rr      jsl RA8875_WriteHex
+000A6Er 3               
+000A6Er 3  A9 20            lda #' '
+000A70r 3  22 rr rr rr      jsl RA8875_WriteChar
 000A74r 3               
-000A74r 3  A9 20            lda #' '
-000A76r 3  22 rr rr rr      jsl RA8875_WriteChar
-000A7Ar 3               
-000A7Ar 3               
-000A7Ar 3  A3 18            lda 24,s           ;get mode
+000A74r 3               
+000A74r 3  A3 18            lda 24,s           ;get mode
+000A76r 3  22 rr rr rr      jsl RA8875_WriteHex
+000A7Ar 3  A3 19            lda 25,s           ;get mode
 000A7Cr 3  22 rr rr rr      jsl RA8875_WriteHex
-000A80r 3  A3 19            lda 25,s           ;get mode
-000A82r 3  22 rr rr rr      jsl RA8875_WriteHex
+000A80r 3               
+000A80r 3               
+000A80r 3  A9 20            lda #' '
+000A82r 3  22 rr rr rr      jsl RA8875_WriteChar
 000A86r 3               
 000A86r 3               
-000A86r 3  A9 20            lda #' '
-000A88r 3  22 rr rr rr      jsl RA8875_WriteChar
-000A8Cr 3               
-000A8Cr 3               
-000A8Cr 3  A3 1A            lda 26,s           ;get mode
+000A86r 3  A3 1A            lda 26,s           ;get mode
+000A88r 3  22 rr rr rr      jsl RA8875_WriteHex
+000A8Cr 3  A3 1B            lda 27,s           ;get mode
 000A8Er 3  22 rr rr rr      jsl RA8875_WriteHex
-000A92r 3  A3 1B            lda 27,s           ;get mode
-000A94r 3  22 rr rr rr      jsl RA8875_WriteHex
+000A92r 3               
+000A92r 3  A9 0A            lda #$A
+000A94r 3  22 rr rr rr      jsl RA8875_WriteChar
 000A98r 3               
-000A98r 3  A9 0A            lda #$A
-000A9Ar 3  22 rr rr rr      jsl RA8875_WriteChar
-000A9Er 3               
-000A9Er 3  C2 30            longr
-000AA0r 3  6B               rtl
-000AA1r 3               
-000AA1r 2               .include "dumpregs.asm"
-000AA1r 3               .A8
-000AA1r 3               .I8
-000AA1r 3               DumpRegs:
-000AA1r 3  C2 30            longr
-000AA3r 3  48               pha
-000AA4r 3  DA               phx
-000AA5r 3  5A               phy
-000AA6r 3               
-000AA6r 3  E2 30            shortr
-000AA8r 3               
-000AA8r 3  A9 41            lda #'A'
+000A98r 3  C2 30            longr
+000A9Ar 3  6B               rtl
+000A9Br 3               
+000A9Br 2               .include "dumpregs.asm"
+000A9Br 3               .A8
+000A9Br 3               .I8
+000A9Br 3               DumpRegs:
+000A9Br 3  C2 30            longr
+000A9Dr 3  48               pha
+000A9Er 3  DA               phx
+000A9Fr 3  5A               phy
+000AA0r 3               
+000AA0r 3  E2 30            shortr
+000AA2r 3               
+000AA2r 3  A9 41            lda #'A'
+000AA4r 3  22 rr rr rr      jsl RA8875_WriteChar
+000AA8r 3  A9 3A            lda #':'
 000AAAr 3  22 rr rr rr      jsl RA8875_WriteChar
-000AAEr 3  A9 3A            lda #':'
+000AAEr 3  A9 20            lda #' '
 000AB0r 3  22 rr rr rr      jsl RA8875_WriteChar
-000AB4r 3  A9 20            lda #' '
-000AB6r 3  22 rr rr rr      jsl RA8875_WriteChar
-000ABAr 3  A3 06            lda 6,s           ;get mode
+000AB4r 3  A3 06            lda 6,s           ;get mode
+000AB6r 3  22 rr rr rr      jsl RA8875_WriteHex
+000ABAr 3  A3 05            lda 5,s           ;get mode
 000ABCr 3  22 rr rr rr      jsl RA8875_WriteHex
-000AC0r 3  A3 05            lda 5,s           ;get mode
-000AC2r 3  22 rr rr rr      jsl RA8875_WriteHex
-000AC6r 3  A9 0A            lda #$0A
+000AC0r 3  A9 0A            lda #$0A
+000AC2r 3  22 rr rr rr      jsl RA8875_WriteChar
+000AC6r 3               
+000AC6r 3               
+000AC6r 3  A9 59            lda #'Y'
 000AC8r 3  22 rr rr rr      jsl RA8875_WriteChar
-000ACCr 3               
-000ACCr 3               
-000ACCr 3  A9 59            lda #'Y'
+000ACCr 3  A9 3A            lda #':'
 000ACEr 3  22 rr rr rr      jsl RA8875_WriteChar
-000AD2r 3  A9 3A            lda #':'
+000AD2r 3  A9 20            lda #' '
 000AD4r 3  22 rr rr rr      jsl RA8875_WriteChar
-000AD8r 3  A9 20            lda #' '
-000ADAr 3  22 rr rr rr      jsl RA8875_WriteChar
-000ADEr 3  A3 02            lda 2,s           ;get mode
+000AD8r 3  A3 02            lda 2,s           ;get mode
+000ADAr 3  22 rr rr rr      jsl RA8875_WriteHex
+000ADEr 3  A3 01            lda 1,s           ;get mode
 000AE0r 3  22 rr rr rr      jsl RA8875_WriteHex
-000AE4r 3  A3 01            lda 1,s           ;get mode
-000AE6r 3  22 rr rr rr      jsl RA8875_WriteHex
-000AEAr 3  A9 0A            lda #$0A
+000AE4r 3  A9 0A            lda #$0A
+000AE6r 3  22 rr rr rr      jsl RA8875_WriteChar
+000AEAr 3               
+000AEAr 3  A9 58            lda #'X'
 000AECr 3  22 rr rr rr      jsl RA8875_WriteChar
-000AF0r 3               
-000AF0r 3  A9 58            lda #'X'
+000AF0r 3  A9 3A            lda #':'
 000AF2r 3  22 rr rr rr      jsl RA8875_WriteChar
-000AF6r 3  A9 3A            lda #':'
+000AF6r 3  A9 20            lda #' '
 000AF8r 3  22 rr rr rr      jsl RA8875_WriteChar
-000AFCr 3  A9 20            lda #' '
-000AFEr 3  22 rr rr rr      jsl RA8875_WriteChar
-000B02r 3  A3 04            lda 4,s           ;get mode
+000AFCr 3  A3 04            lda 4,s           ;get mode
+000AFEr 3  22 rr rr rr      jsl RA8875_WriteHex
+000B02r 3  A3 03            lda 3,s           ;get mode
 000B04r 3  22 rr rr rr      jsl RA8875_WriteHex
-000B08r 3  A3 03            lda 3,s           ;get mode
-000B0Ar 3  22 rr rr rr      jsl RA8875_WriteHex
-000B0Er 3  A9 0A            lda #$0A
-000B10r 3  22 rr rr rr      jsl RA8875_WriteChar
+000B08r 3  A9 0A            lda #$0A
+000B0Ar 3  22 rr rr rr      jsl RA8875_WriteChar
+000B0Er 3               
+000B0Er 3               
+000B0Er 3               
+000B0Er 3  C2 30            longr       ;select 16 bit registers
+000B10r 3               
+000B10r 3  7A               ply
+000B11r 3  FA               plx
+000B12r 3  68               pla
+000B13r 3               
+000B13r 3  60               rts
 000B14r 3               
-000B14r 3               
-000B14r 3               
-000B14r 3  C2 30            longr       ;select 16 bit registers
-000B16r 3               
-000B16r 3  7A               ply
-000B17r 3  FA               plx
-000B18r 3  68               pla
-000B19r 3               
-000B19r 3  60               rts
-000B1Ar 3               
-000B1Ar 2               
-000B1Ar 1               .A8
-000B1Ar 1               .I8
-000B1Ar 1               ResetVector:
-000B1Ar 1  A2 FF            ldx #$FF
-000B1Cr 1  9A               txs
-000B1Dr 1  D8               cld
-000B1Er 1  20 rr rr         jsr InitBIOS                    ; Entry point for boot
-000B21r 1               
-000B21r 1  C2 30            longr
-000B23r 1  20 rr rr         jsr InitKernel                  ; Kernel Init
-000B26r 1               
-000B26r 1                   ;shortr
-000B26r 1                   ;write test_string
-000B26r 1               
-000B26r 1                   ; longr
-000B26r 1                   ; ldx #$1234
-000B26r 1                   ; ldy #$5678
-000B26r 1                   ; lda #$9ABC
-000B26r 1                   ; jsr DumpRegs
-000B26r 1               
-000B26r 1                   ; longr
-000B26r 1                   ; ldx #$EFEF
-000B26r 1                   ; ldy #$4242
-000B26r 1                   ; lda #$ABCD
-000B26r 1                   ; pha
-000B26r 1                   ; lda #$0123
-000B26r 1                   ; pha
-000B26r 1                   ; lda #$CDEF
-000B26r 1               
-000B26r 1                   ; longr
-000B26r 1                   ; pla
-000B26r 1               
-000B26r 1               ; print break
-000B26r 1               
-000B26r 1                   ;write test_string
-000B26r 1               
-000B26r 1               ; StrLen
-000B26r 1               
-000B26r 1               
-000B26r 1                   ; pea testlen_string				; Add parameter to stack
-000B26r 1               
-000B26r 1                   ; lda #Std_StrLen
-000B26r 1                   ; jsl StdLib						; Call stdlib
-000B26r 1               
-000B26r 1               	; plx								; Clean up stack
-000B26r 1               
-000B26r 1                   ; jsl RA8875_WriteHex16			; Debug write result
-000B26r 1               
-000B26r 1               ; print break
-000B26r 1               
-000B26r 1                   ;write test_string
-000B26r 1               
-000B26r 1               
-000B26r 1               
-000B26r 1               
-000B26r 1               ; Readnum
-000B26r 1               
-000B26r 1               
-000B26r 1                   ; pea testlen_string				; Add parameter to stack
-000B26r 1               
-000B26r 1               
-000B26r 1                   ; lda #Std_ReadNum
-000B26r 1                   ; jsl StdLib						; Call stdlib
-000B26r 1               
-000B26r 1               	; plx								; Clean up stack
-000B26r 1               
-000B26r 1                   ; jsl RA8875_WriteHex16			; Debug write result
-000B26r 1               
-000B26r 1               ; print break
-000B26r 1               
-000B26r 1                   ;write test_string
-000B26r 1               
-000B26r 1  E2 30            shortr
-000B28r 1  A9 00            lda #$00            ; push program bank of ShellExec
-000B2Ar 1  48               pha
-000B2Br 1  C2 30            longr
-000B2Dr 1  F4 rr rr         pea ShellExec       ; push 2byte addr of ShellExec
-000B30r 1               
-000B30r 1  22 rr rr rr      jsl TaskSpawn
-000B34r 1  68               pla
-000B35r 1  E2 30            shortr
-000B37r 1  68               pla
-000B38r 1               
-000B38r 1               
-000B38r 1                   ;longr
-000B38r 1                   ;write test_string
-000B38r 1                   ;shortr
-000B38r 1                   ;lda TaskStatus
-000B38r 1                   ;jsl RA8875_WriteHex
-000B38r 1               
-000B38r 1               
-000B38r 1                   ;longr
-000B38r 1                   ;write test_string
-000B38r 1                   ;shortr
-000B38r 1               
-000B38r 1  AD rr rr         lda TaskProgramBank
-000B3Br 1  22 rr rr rr      jsl RA8875_WriteHex
-000B3Fr 1  AD rr rr         lda TaskProgramPointer
-000B42r 1  22 rr rr rr      jsl RA8875_WriteHex
-000B46r 1  AD rr rr         lda TaskProgramPointer+1
-000B49r 1  22 rr rr rr      jsl RA8875_WriteHex
-000B4Dr 1               
-000B4Dr 1                   ;longr
-000B4Dr 1                   ;write test_string
-000B4Dr 1                   ;shortr
-000B4Dr 1               
-000B4Dr 1  A9 00            lda #$00            ; push program bank of ClockExec
-000B4Fr 1  48               pha
-000B50r 1  C2 30            longr
-000B52r 1  F4 rr rr         pea ClockExec       ; push 2byte addr of ClockExec
-000B55r 1  22 rr rr rr      jsl TaskSpawn
-000B59r 1               
-000B59r 1  68               pla ; elean up 16bits
-000B5Ar 1               
-000B5Ar 1                   ;write test_string
-000B5Ar 1  E2 30            shortr
-000B5Cr 1  68               pla ; clean up
-000B5Dr 1               
-000B5Dr 1                   ; debug printing of task
-000B5Dr 1                   ;lda TaskProgramBank+1
-000B5Dr 1                   ;jsl RA8875_WriteHex
-000B5Dr 1                   ;lda TaskProgramPointer+2
-000B5Dr 1                   ;jsl RA8875_WriteHex
-000B5Dr 1                   ;lda TaskProgramPointer+3
-000B5Dr 1                   ;jsl RA8875_WriteHex
-000B5Dr 1               
-000B5Dr 1               
-000B5Dr 1  58               cli
-000B5Er 1               
-000B5Er 1                   ;jsl Scheduler_NextTask
-000B5Er 1                   ;jsr ShellExec                   ; Run shell program
-000B5Er 1               
-000B5Er 1               ; Blink Diode
-000B5Er 1                   ;jsl LoaderExec
-000B5Er 1               
-000B5Er 1               Loop:
-000B5Er 1  4C rr rr         jmp Loop
-000B61r 1               
-000B61r 1               .SEGMENT "NATIVE_VECTORS"
+000B14r 2               
+000B14r 1               .A8
+000B14r 1               .I8
+000B14r 1               ResetVector:
+000B14r 1  A2 FF            ldx #$FF
+000B16r 1  9A               txs
+000B17r 1  D8               cld
+000B18r 1  20 rr rr         jsr InitBIOS                    ; Entry point for boot
+000B1Br 1               
+000B1Br 1  C2 30            longr
+000B1Dr 1  20 rr rr         jsr InitKernel                  ; Kernel Init
+000B20r 1               
+000B20r 1                   ;shortr
+000B20r 1                   ;write test_string
+000B20r 1               
+000B20r 1                   ; longr
+000B20r 1                   ; ldx #$1234
+000B20r 1                   ; ldy #$5678
+000B20r 1                   ; lda #$9ABC
+000B20r 1                   ; jsr DumpRegs
+000B20r 1               
+000B20r 1                   ; longr
+000B20r 1                   ; ldx #$EFEF
+000B20r 1                   ; ldy #$4242
+000B20r 1                   ; lda #$ABCD
+000B20r 1                   ; pha
+000B20r 1                   ; lda #$0123
+000B20r 1                   ; pha
+000B20r 1                   ; lda #$CDEF
+000B20r 1               
+000B20r 1                   ; longr
+000B20r 1                   ; pla
+000B20r 1               
+000B20r 1               ; print break
+000B20r 1               
+000B20r 1                   ;write test_string
+000B20r 1               
+000B20r 1               ; StrLen
+000B20r 1               
+000B20r 1               
+000B20r 1                   ; pea testlen_string				; Add parameter to stack
+000B20r 1               
+000B20r 1                   ; lda #Std_StrLen
+000B20r 1                   ; jsl StdLib						; Call stdlib
+000B20r 1               
+000B20r 1               	; plx								; Clean up stack
+000B20r 1               
+000B20r 1                   ; jsl RA8875_WriteHex16			; Debug write result
+000B20r 1               
+000B20r 1               ; print break
+000B20r 1               
+000B20r 1                   ;write test_string
+000B20r 1               
+000B20r 1               
+000B20r 1               
+000B20r 1               
+000B20r 1               ; Readnum
+000B20r 1               
+000B20r 1               
+000B20r 1                   ; pea testlen_string				; Add parameter to stack
+000B20r 1               
+000B20r 1               
+000B20r 1                   ; lda #Std_ReadNum
+000B20r 1                   ; jsl StdLib						; Call stdlib
+000B20r 1               
+000B20r 1               	; plx								; Clean up stack
+000B20r 1               
+000B20r 1                   ; jsl RA8875_WriteHex16			; Debug write result
+000B20r 1               
+000B20r 1               ; print break
+000B20r 1               
+000B20r 1                   ;write test_string
+000B20r 1               
+000B20r 1  E2 30            shortr
+000B22r 1  A9 00            lda #$00            ; push program bank of ShellExec
+000B24r 1  48               pha
+000B25r 1  C2 30            longr
+000B27r 1  F4 rr rr         pea ShellExec       ; push 2byte addr of ShellExec
+000B2Ar 1               
+000B2Ar 1  22 rr rr rr      jsl TaskSpawn
+000B2Er 1  68               pla
+000B2Fr 1  E2 30            shortr
+000B31r 1  68               pla
+000B32r 1               
+000B32r 1               
+000B32r 1                   ;longr
+000B32r 1                   ;write test_string
+000B32r 1                   ;shortr
+000B32r 1                   ;lda TaskStatus
+000B32r 1                   ;jsl RA8875_WriteHex
+000B32r 1               
+000B32r 1               
+000B32r 1                   ;longr
+000B32r 1                   ;write test_string
+000B32r 1                   ;shortr
+000B32r 1               
+000B32r 1  AD rr rr         lda TaskProgramBank
+000B35r 1  22 rr rr rr      jsl RA8875_WriteHex
+000B39r 1  AD rr rr         lda TaskProgramPointer
+000B3Cr 1  22 rr rr rr      jsl RA8875_WriteHex
+000B40r 1  AD rr rr         lda TaskProgramPointer+1
+000B43r 1  22 rr rr rr      jsl RA8875_WriteHex
+000B47r 1               
+000B47r 1                   ;longr
+000B47r 1                   ;write test_string
+000B47r 1                   ;shortr
+000B47r 1               
+000B47r 1  A9 00            lda #$00            ; push program bank of ClockExec
+000B49r 1  48               pha
+000B4Ar 1  C2 30            longr
+000B4Cr 1  F4 rr rr         pea ClockExec       ; push 2byte addr of ClockExec
+000B4Fr 1  22 rr rr rr      jsl TaskSpawn
+000B53r 1               
+000B53r 1  68               pla ; elean up 16bits
+000B54r 1               
+000B54r 1                   ;write test_string
+000B54r 1  E2 30            shortr
+000B56r 1  68               pla ; clean up
+000B57r 1               
+000B57r 1                   ; debug printing of task
+000B57r 1                   ;lda TaskProgramBank+1
+000B57r 1                   ;jsl RA8875_WriteHex
+000B57r 1                   ;lda TaskProgramPointer+2
+000B57r 1                   ;jsl RA8875_WriteHex
+000B57r 1                   ;lda TaskProgramPointer+3
+000B57r 1                   ;jsl RA8875_WriteHex
+000B57r 1               
+000B57r 1               
+000B57r 1  58               cli
+000B58r 1               
+000B58r 1                   ;jsl Scheduler_NextTask
+000B58r 1                   ;jsr ShellExec                   ; Run shell program
+000B58r 1               
+000B58r 1               ; Blink Diode
+000B58r 1                   ;jsl LoaderExec
+000B58r 1               
+000B58r 1               Loop:
+000B58r 1  4C rr rr         jmp Loop
+000B5Br 1               
+000B5Br 1               .SEGMENT "NATIVE_VECTORS"
 000000r 1  00 00            .word $0000                 ; COP
 000002r 1  00 00            .word $0000                 ; BRK
 000004r 1  00 00            .word $0000                 ; ABORTB

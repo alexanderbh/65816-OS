@@ -35,10 +35,10 @@ import {
 import { System } from "./lib/System";
 import { Subject } from "await-notify";
 import * as base64 from "base64-js";
-import { Register } from "./lib/CPU";
 import { ROM } from "./lib/ROM";
 import { basename } from "path";
 import { addr } from "./lib/Utils";
+import { Register } from "./lib/Register";
 
 /**
  * This interface describes the mock-debug specific launch attributes
@@ -73,7 +73,13 @@ export class MockDebugSession extends LoggingDebugSession {
   private _system: System;
 
   private _variableHandles = new Handles<
-    "locals" | "registers" | "emulator" | "p" | "stack" | RuntimeVariable
+    | "locals"
+    | "registers"
+    | "emulator"
+    | "p"
+    | "stack"
+    | "via1"
+    | RuntimeVariable
   >();
   private _pVariableHandle = this._variableHandles.create("p");
   private _stackVarReference = this._variableHandles.create("stack");
@@ -443,6 +449,7 @@ export class MockDebugSession extends LoggingDebugSession {
         new Scope("Emulator", this._variableHandles.create("emulator"), false),
         // new Scope("Locals", this._variableHandles.create("locals"), false),
         new Scope("Stack", this._stackVarReference, false),
+        new Scope("VIA1", this._variableHandles.create("via1"), false),
       ],
     };
     this.sendResponse(response);
@@ -552,6 +559,12 @@ export class MockDebugSession extends LoggingDebugSession {
             variablesReference: 0,
           },
         ],
+      };
+    } else if (v === "via1") {
+      response.body = {
+        variables: this._system.via1.registers.map((r) =>
+          this.convertFromRuntime(r, "$binary ($hex)")
+        ),
       };
     } else if (v && Array.isArray(v.value)) {
     }
@@ -750,10 +763,15 @@ export class MockDebugSession extends LoggingDebugSession {
   }
 
   //---- helpers
-  private convertFromRuntime(v: Register): DebugProtocol.Variable {
+  private convertFromRuntime(
+    v: Register,
+    format: string = "$hex"
+  ): DebugProtocol.Variable {
     let dapVariable: DebugProtocol.Variable = {
       name: v.name,
-      value: "0x" + v.toString().toUpperCase(),
+      value: format
+        .replace("$hex", "0x" + v.toString().toUpperCase())
+        .replace("$binary", v.toString(2).padStart(8, "0")),
       type: "string",
       variablesReference: 0,
       evaluateName: "$" + v.name,

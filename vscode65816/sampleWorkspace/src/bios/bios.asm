@@ -51,8 +51,8 @@ InitBIOS:
 
 
     
-    jsr RamTestWideRegistersRun
-    jsr RamTestWideRun
+    ; jsr RamTestWideRegistersRun
+    ; jsr RamTestWideRun
 
     ;shortr
     ;LDA #%00011100
