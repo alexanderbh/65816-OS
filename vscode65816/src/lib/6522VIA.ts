@@ -1,5 +1,6 @@
 import { Register } from "./Register";
 import { System } from "./System";
+import { high, low } from "./Utils";
 
 export class VIA6522 implements AddressBus {
   public readonly registers: Register[] = [];
@@ -27,17 +28,35 @@ export class VIA6522 implements AddressBus {
 
   read(addr: Sesqui): Byte {
     const register = this.registers[addr - this.startAddress];
-    return register.byte;
+    switch (register.name) {
+      case "IER":
+        return 0b10000000 & register.byte;
+      default:
+        return register.byte;
+    }
   }
   readWord(addr: Sesqui): Word {
     throw new Error("Method not implemented.");
   }
   write(addr: Sesqui, data: Byte): void {
     const register = this.registers[addr - this.startAddress];
-    register.setByte(data);
+    switch (register.name) {
+      case "IER":
+        if (data & 0b10000000) {
+          register.setByte(register.byte | (data & 0b01111111));
+        } else {
+          register.setByte(register.byte & ~(data & 0b01111111));
+        }
+        break;
+
+      default:
+        register.setByte(data);
+        break;
+    }
   }
   writeWord(addr: Sesqui, data: Word): void {
-    throw new Error("Method not implemented.");
+    this.write(addr, low(data));
+    this.write(addr + 1, high(data));
   }
 
   // Not implemented

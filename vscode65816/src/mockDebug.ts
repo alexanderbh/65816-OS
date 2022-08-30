@@ -862,7 +862,10 @@ export class MockDebugSession extends LoggingDebugSession {
     });
 
     files.forEach((file) => {
-      this._fileLineToPc.set(this._workspacePath + "/" + file.file, new Map());
+      this._fileLineToPc.set(
+        this.normalizePathAndCasing(this._workspacePath + "/" + file.file),
+        new Map()
+      );
     });
 
     lines.forEach((line, id) => {
@@ -888,25 +891,35 @@ export class MockDebugSession extends LoggingDebugSession {
       const pc = segment.start + span.start;
       if (
         this._fileLineToPc
-          .get(this._workspacePath + "/" + file.file)
+          .get(
+            this.normalizePathAndCasing(this._workspacePath + "/" + file.file)
+          )
           ?.has(line.line)
       ) {
         this._fileLineToPc
-          .get(this._workspacePath + "/" + file.file)
+          .get(
+            this.normalizePathAndCasing(this._workspacePath + "/" + file.file)
+          )
           ?.set(line.line, [
             pc,
             ...this._fileLineToPc
-              .get(this._workspacePath + "/" + file.file)!
+              .get(
+                this.normalizePathAndCasing(
+                  this._workspacePath + "/" + file.file
+                )
+              )!
               .get(line.line)!,
           ]);
       }
       this._fileLineToPc
-        .get(this._workspacePath + "/" + file.file)
+        .get(this.normalizePathAndCasing(this._workspacePath + "/" + file.file))
         ?.set(line.line, [pc]);
 
       if (!this._pcToFileLine.has(pc) || line.type === 2) {
         this._pcToFileLine.set(pc, {
-          file: this._workspacePath + "/" + file.file,
+          file: this.normalizePathAndCasing(
+            this._workspacePath + "/" + file.file
+          ),
           line: line.line,
           type: line.type,
         });
@@ -918,13 +931,19 @@ export class MockDebugSession extends LoggingDebugSession {
 
   private setBreakpoints() {
     this._breakpointRequests.forEach((args) => {
-      const existing = Array.from(this._system.breakpoints).filter(
-        (b) => this._pcToFileLine.get(b)?.file === args.source.path
-      );
-      existing.forEach((e) => this._system.breakpoints.delete(e));
+      if (args.source.path) {
+        const existing = Array.from(this._system.breakpoints).filter(
+          (b) =>
+            this._pcToFileLine.get(b)?.file ===
+            this.normalizePathAndCasing(args.source.path!)
+        );
+        existing.forEach((e) => this._system.breakpoints.delete(e));
+      }
 
       args.breakpoints?.forEach((b, index) => {
-        const pc = this._fileLineToPc.get(args.source.path!)?.get(b.line);
+        const pc = this._fileLineToPc
+          .get(this.normalizePathAndCasing(args.source.path!))
+          ?.get(b.line);
         if (!pc) {
           console.log("Not found pc", args.source.path, b.line);
         } else {

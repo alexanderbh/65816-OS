@@ -397,28 +397,6 @@ export class CPU {
           case 0xfe:	this.Op_inc(this.Am_absx());	break;
           case 0xff:	this.Op_sbc(this.Am_alnx());	break;
 
-          case 0x18: this.Op_clc(); break;
-          case 0x20: this.Op_jsr(this.Am_absl2()); break;
-          case 0x38: this.Op_sec(); break;
-          case 0x60: this.Op_rts(); break;
-          case 0x69: this.Op_adc(this.Am_immm()); break;
-          case 0x4c: this.Op_jmp(this.Am_absl2()); break;
-          case 0x85: this.Op_sta(this.Am_dpag()); break;
-          case 0x8d: this.Op_sta(this.Am_absl()); break;
-
-          case 0xa0: this.Op_ldy(this.Am_immm()); break;
-          case 0xa2: this.Op_ldx(this.Am_immm()); break;
-          case 0xa4: this.Op_ldy(this.Am_dpag()); break;
-          case 0xa5: this.Op_lda(this.Am_dpag()); break;
-          case 0xa6: this.Op_ldx(this.Am_dpag()); break;
-          case 0xa9: this.Op_lda(this.Am_immm()); break;
-          case 0xad: this.Op_lda(this.Am_absl()); break;
-          case 0xae: this.Op_ldx(this.Am_absl()); break;
-          case 0xac: this.Op_ldy(this.Am_absl()); break;
-
-          case 0xc2: this.Op_rep(this.Am_immb()); break;
-          case 0xe2: this.Op_sep(this.Am_immb()); break;
-          case 0xfb: this.Op_xce(); break;
           default: throw new Error(`Unknown opcode: ${opcode}`);
         }
       }
