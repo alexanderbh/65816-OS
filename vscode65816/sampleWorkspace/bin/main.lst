@@ -1,4 +1,4 @@
-ca65 V2.19 - Git 16d259d
+ca65 V2.18 - Ubuntu 2.19-1
 Main file   : src/main.asm
 Current file: src/main.asm
 
@@ -3264,8 +3264,8 @@ Current file: src/main.asm
 000004r 1  00 00            .word $0000                 ; ABORTB
 000006r 1  00 00            .word $0000                 ; NMIB
 000008r 1  00 00            .word $0000                 ; RES
-00000Ar 1  rr rr            .word InterruptVector       ; IRQB
-00000Cr 1               .SEGMENT "VECTORS"
-000000r 1  rr rr            .word ResetVector
-000002r 1               
-000002r 1               
+00000Ar 1               .SEGMENT "VECTORS"
+000000r 1  rr rr            .word ResetVector           ; RESET
+000002r 1  rr rr            .word InterruptVector       ; IRQB
+000004r 1               
+000004r 1               

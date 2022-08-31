@@ -167,7 +167,7 @@ Loop:
     .word $0000                 ; ABORTB
     .word $0000                 ; NMIB
     .word $0000                 ; RES
-    .word InterruptVector       ; IRQB
 .SEGMENT "VECTORS"
-    .word ResetVector
+    .word ResetVector           ; RESET
+    .word InterruptVector       ; IRQB
 

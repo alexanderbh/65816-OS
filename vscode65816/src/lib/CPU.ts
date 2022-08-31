@@ -30,6 +30,8 @@ export type CPUPRegister = {
 
 export class CPU {
   private system: System;
+  interruptPending = false;
+  isInterrupted = false;
   cycles: number = 0;
   PC: Register;
   PBR: Register;
@@ -69,6 +71,16 @@ export class CPU {
       result |= 1 << 7;
     }
     return result;
+  }
+  private SetStatusRegister(b: Byte) {
+    this.P.C = (b & (1 << 0)) > 0;
+    this.P.Z = (b & (1 << 1)) > 0;
+    this.P.I = (b & (1 << 2)) > 0;
+    this.P.D = (b & (1 << 3)) > 0;
+    this.P.X = (b & (1 << 4)) > 0;
+    this.P.M = (b & (1 << 5)) > 0;
+    this.P.V = (b & (1 << 6)) > 0;
+    this.P.N = (b & (1 << 7)) > 0;
   }
 
   // Emulation mode
@@ -113,10 +125,37 @@ export class CPU {
     this.callTrace.push({ entry: resetVector });
   }
 
+  private handleInterrupt() {
+    this.pushByte(this.PBR.byte);
+    this.pushWord(this.PC.word);
+    this.pushByte(this.StatusRegister());
+    this.P.I = true;
+    this.P.D = false;
+    this.PBR.setByte(0x00);
+    this.PC.setWord(this.system.readWord(addr(0, 0xfffe)));
+  }
+
   public step(steps: number = 1): Byte {
     let opcode: Byte = 0;
     for (var step = 0; step < steps; step++) {
       this.system.ram.clearAccess();
+      if (!this.P.I && this.interruptPending && !this.isInterrupted) {
+        this.isInterrupted = true;
+        console.log("interript routine");
+        this.handleInterrupt();
+        return 0x00;
+        /**
+If the I bit in SR is clear the 65C816 will process the interrupt and start by pushing PB to the stack.
+PC, which is pointing to the next instruction to be executed, is pushed to the stack, MSB first followed by LSB.
+SR is pushed to the stack.
+The I bit in SR is set.
+The D bit in SR is cleared.
+PB is loaded with $00.
+PC is loaded with the contents of the IRQ hardware vector at $00FFEE (LSB) and $00FFEF (MSB).
+Execution is transferred to the IRQ service routine.
+         */
+      }
+
       opcode = this.system.read(bank(this.PBR.byte) | this.PC.word);
 
       this.incProgramCounter(1);
@@ -460,10 +499,10 @@ export class CPU {
       this.A.setByte(result);
       this.cycles += 2;
     } else {
-      const n = this.system.read(addr);
-      const result = this.A.byte + n + (this.P.C ? 1 : 0);
+      const n = this.system.readWord(addr);
+      const result = this.A.word + n + (this.P.C ? 1 : 0);
       this.SetC(result & 0x10000);
-      this.SetV((~(this.A.byte ^ n) & (this.A.byte ^ result) & 0x8000) !== 0);
+      this.SetV((~(this.A.word ^ n) & (this.A.word ^ result) & 0x8000) !== 0);
       this.A.setWord(result);
       this.cycles += 2;
     }
@@ -1144,7 +1183,15 @@ export class CPU {
   }
 
   private Op_rti() {
-    throw new Error("Not implemented: RTI"); // TODO
+    this.isInterrupted = false;
+    if (this.E) {
+      throw new Error("RTI Not implemented in emulation mode"); // TODO
+    } else {
+      this.SetStatusRegister(this.pullByte());
+      this.PC.setWord(this.pullWord());
+      this.PBR.setByte(this.pullByte());
+      this.cycles += 7;
+    }
   }
   private Op_rtl() {
     this.callTrace.pop();
@@ -1162,7 +1209,21 @@ export class CPU {
   }
 
   private Op_sbc(addr: Address) {
-    throw new Error("Not implemented: SBC"); // TODO
+    if (this.E || this.P.M) {
+      const n = ~this.system.read(addr);
+      const result = this.A.byte + n + (this.P.C ? 0 : 1);
+      this.SetC(result & 0x100);
+      this.SetV((~(this.A.byte ^ n) & (this.A.byte ^ result) & 0x80) !== 0);
+      this.A.setByte(result);
+      this.cycles += 2;
+    } else {
+      const n = ~this.system.readWord(addr);
+      const result = this.A.word + n + (this.P.C ? 0 : 1);
+      this.SetC(result & 0x10000);
+      this.SetV((~(this.A.word ^ n) & (this.A.byte ^ result) & 0x8000) !== 0);
+      this.A.setWord(result);
+      this.cycles += 2;
+    }
   }
 
   private Op_sec() {

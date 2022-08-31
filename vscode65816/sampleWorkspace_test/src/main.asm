@@ -9,7 +9,14 @@
 ResetVector:
     clc
     xce
-    LDA #$01
+    clc
+    LDA #$04
+    SBC #$01
+    SBC #$01
+    sec
+    SBC #$01
+    SBC #$01
+    SBC #$01
     rep #$20
     .A16
     LDA #$ABCD

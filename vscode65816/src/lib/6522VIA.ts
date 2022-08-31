@@ -61,10 +61,10 @@ export class VIA6522 implements AddressBus, PHI2Listener {
         }
 
         if ((this.registerMap.get("IER")!.byte & 0b01000000) > 0) {
-          console.log("timer1 is triggered");
           this.registerMap
             .get("IFR")!
             .setByte(this.registerMap.get("IFR")!.byte | 0b11000000);
+          this.system.cpu.interruptPending = true;
         }
       }
     } else {
@@ -86,6 +86,10 @@ export class VIA6522 implements AddressBus, PHI2Listener {
         this.registerMap
           .get("IFR")!
           .setByte(this.registerMap.get("IFR")!.byte & 0b10111111);
+        if (this.registerMap.get("IFR")?.byte === 0b10000000) {
+          this.registerMap.get("IFR")!.setByte(0);
+          this.system.cpu.interruptPending = false;
+        }
       default:
         return register.byte;
     }

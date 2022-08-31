@@ -1,7 +1,7 @@
 Modules list:
 -------------
 main.o:
-    CODE              Offs=000000  Size=00006F  Align=00001  Fill=0000
+    CODE              Offs=000000  Size=00007B  Align=00001  Fill=0000
     RAM               Offs=000000  Size=000004  Align=00001  Fill=0000
     VECTORS           Offs=000000  Size=000002  Align=00001  Fill=0000
 
@@ -11,7 +11,7 @@ Segment list:
 Name                   Start     End    Size  Align
 ----------------------------------------------------
 RAM                   000200  000203  000004  00001
-CODE                  00C000  00C06E  00006F  00001
+CODE                  00C000  00C07A  00007B  00001
 VECTORS               00FFFC  00FFFD  000002  00001
 
 

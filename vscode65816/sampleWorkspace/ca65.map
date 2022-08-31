@@ -6,8 +6,8 @@ main.o:
     ZEROPAGE          Offs=000000  Size=000009  Align=00001  Fill=0000
     RAM               Offs=000000  Size=000134  Align=00001  Fill=0000
     STDLIB            Offs=000000  Size=0000F5  Align=00001  Fill=0000
-    NATIVE_VECTORS    Offs=000000  Size=00000C  Align=00001  Fill=0000
-    VECTORS           Offs=000000  Size=000002  Align=00001  Fill=0000
+    NATIVE_VECTORS    Offs=000000  Size=00000A  Align=00001  Fill=0000
+    VECTORS           Offs=000000  Size=000004  Align=00001  Fill=0000
 
 
 Segment list:
@@ -19,8 +19,8 @@ RAM                   000200  000333  000134  00001
 CODE                  00C000  00CB5A  000B5B  00001
 STDLIB                00E000  00E0F4  0000F5  00001
 RODATA                00F000  00F47F  000480  00001
-NATIVE_VECTORS        00FFE4  00FFEF  00000C  00001
-VECTORS               00FFFC  00FFFD  000002  00001
+NATIVE_VECTORS        00FFE4  00FFED  00000A  00001
+VECTORS               00FFFC  00FFFF  000004  00001
 
 
 Exports list by name:
@@ -38,7 +38,7 @@ __VIA1_START__            00B000 RLA    __VIA2_START__            00B100 RLA
 Imports list:
 -------------
 __VIA1_START__ ([linker generated]):
-    main.o                    src/bios/via.inc:2
+    main.o                    src/bios/via.inc(2)
 __VIA2_START__ ([linker generated]):
-    main.o                    src/bios/via.inc:3
+    main.o                    src/bios/via.inc(3)
 
