@@ -1,9 +1,11 @@
 import { Register } from "./Register";
 import { System } from "./System";
-import { high, low } from "./Utils";
+import { high, join, low } from "./Utils";
 
 export class VIA6522 implements AddressBus {
   public readonly registers: Register[] = [];
+  private readonly registerMap = new Map<string, Register>();
+  public timer1: Word | undefined = undefined;
 
   constructor(private system: System, private startAddress: Address) {
     this.registers = [
@@ -24,6 +26,9 @@ export class VIA6522 implements AddressBus {
       new Register("IER", system, false),
       new Register("ORA/IRA", system, false),
     ];
+    this.registers.forEach((register) => {
+      this.registerMap.set(register.name, register);
+    });
   }
 
   read(addr: Sesqui): Byte {
@@ -48,7 +53,13 @@ export class VIA6522 implements AddressBus {
           register.setByte(register.byte & ~(data & 0b01111111));
         }
         break;
-
+      case "T1C-H":
+        register.setByte(data);
+        this.timer1 = join(
+          this.registerMap.get("T1C-L")!.byte,
+          this.registerMap.get("T1C-H")!.byte
+        );
+        break;
       default:
         register.setByte(data);
         break;
