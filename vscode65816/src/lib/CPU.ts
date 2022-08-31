@@ -121,6 +121,7 @@ export class CPU {
 
       this.incProgramCounter(1);
 
+      const phi2Before = this.cycles;
       // prettier-ignore
       // eslint-disable-next-line no-lone-blocks
       {
@@ -400,7 +401,11 @@ export class CPU {
           default: throw new Error(`Unknown opcode: ${opcode}`);
         }
       }
+
+      const phi2Delta = this.cycles - phi2Before;
+      this.system.phi2(phi2Delta);
     }
+
     this.changed();
     return opcode;
   }

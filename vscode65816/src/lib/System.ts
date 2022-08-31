@@ -19,6 +19,10 @@ type MemoryDevice = {
   type: "ram" | "rom" | "via";
 };
 
+export interface PHI2Listener {
+  phi2(count: number): void;
+}
+
 export class System extends EventEmitter implements AddressBus {
   private observer: (cpu: System) => void;
   public ram: RAM;
@@ -30,6 +34,7 @@ export class System extends EventEmitter implements AddressBus {
   public breakpoints: Set<Address> = new Set();
   private interval?: NodeJS.Timeout;
   public pcToInstructionMap: Map<Address, { size: number }> = new Map();
+  public phi2Listeners: PHI2Listener[] = [];
 
   public constructor(rom?: ROM) {
     super();
@@ -179,6 +184,10 @@ export class System extends EventEmitter implements AddressBus {
       this.interval = undefined;
     }
     this.sendEvent("stopOnStep");
+  }
+
+  public phi2(count: number) {
+    this.phi2Listeners.forEach((p) => p.phi2(count));
   }
 
   public read(addr: Address): Byte {

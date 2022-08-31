@@ -562,16 +562,9 @@ export class MockDebugSession extends LoggingDebugSession {
       };
     } else if (v === "via1") {
       response.body = {
-        variables: [
-          {
-            name: "Timer1",
-            value: (this._system.via1.timer1 || "N/A").toString(),
-            variablesReference: 0,
-          },
-          ...this._system.via1.registers.map((r) =>
-            this.convertFromRuntime(r, "$binary ($hex)")
-          ),
-        ],
+        variables: this._system.via1.registers.map((r) =>
+          this.convertFromRuntime(r, "$binary ($hex)")
+        ),
       };
     } else if (v && Array.isArray(v.value)) {
     }
