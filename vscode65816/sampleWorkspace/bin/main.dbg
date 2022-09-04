@@ -18,7 +18,7 @@ file	id=14,name="src/bios/ramtest.asm",size=1120,mtime=0x630D0E77,mod=0
 file	id=15,name="src/bios/ramtest_wide.asm",size=816,mtime=0x630D0E77,mod=0
 file	id=16,name="src/kernel/kernel.asm",size=716,mtime=0x630D0E77,mod=0
 file	id=17,name="src/kernel/tasks.asm",size=3874,mtime=0x630D0E77,mod=0
-file	id=18,name="src/kernel/scheduler.asm",size=5584,mtime=0x630D0E77,mod=0
+file	id=18,name="src/kernel/scheduler.asm",size=5582,mtime=0x631452D6,mod=0
 file	id=19,name="src/kernel/tasks.inc",size=225,mtime=0x630D0E77,mod=0
 file	id=20,name="src/kernel/interrupt.asm",size=1313,mtime=0x630D0E77,mod=0
 file	id=21,name="src/kernel/streams.asm",size=3233,mtime=0x630D0E77,mod=0

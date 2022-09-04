@@ -81,7 +81,7 @@ export class VIA6522 implements AddressBus, PHI2Listener {
     const register = this.registers[addr - this.startAddress];
     switch (register.name) {
       case "IER":
-        return 0b10000000 & register.byte;
+        return 0b10000000 | register.byte;
       case "T1C-L":
         this.registerMap
           .get("IFR")!

@@ -1840,7 +1840,7 @@ Current file: src/main.asm
 000614r 4  C2 30            longr
 000616r 4  BD rr rr         lda TaskStackPointer,x
 000619r 4  18               clc
-00061Ar 4  E9 0F 00         sbc #InterruptPB-1
+00061Ar 4  E9 10 00         sbc #InterruptPB
 00061Dr 4  1B               tcs
 00061Er 4  E2 30            shortr
 000620r 4               

@@ -86,7 +86,6 @@ export class MockDebugSession extends LoggingDebugSession {
 
   private _configurationDone = new Subject();
 
-  private _useInvalidatedEvent = false;
   private _sourceFile?: string;
 
   private _pcToFileLine: Map<
@@ -202,10 +201,6 @@ export class MockDebugSession extends LoggingDebugSession {
     response: DebugProtocol.InitializeResponse,
     args: DebugProtocol.InitializeRequestArguments
   ): void {
-    if (args.supportsInvalidatedEvent) {
-      this._useInvalidatedEvent = true;
-    }
-
     // build and return the capabilities of this debug adapter:
     response.body = response.body || {};
 

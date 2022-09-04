@@ -2,7 +2,7 @@
 import { randomInt } from "crypto";
 import { Register } from "./Register";
 import { System } from "./System";
-import { join, low, bank, high, addr, word, toSigned } from "./Utils";
+import { join, low, bank, high, addr, word, toSigned, byte } from "./Utils";
 
 const EMPTY_STATUS_REGISTER: CPUPRegister = {
   N: false,
@@ -126,6 +126,7 @@ export class CPU {
   }
 
   private handleInterrupt() {
+    // TODO: Save call stack per interrupt
     this.pushByte(this.PBR.byte);
     this.pushWord(this.PC.word);
     this.pushByte(this.StatusRegister());
@@ -141,21 +142,16 @@ export class CPU {
       this.system.ram.clearAccess();
       if (!this.P.I && this.interruptPending && !this.isInterrupted) {
         this.isInterrupted = true;
-        console.log("interript routine");
         this.handleInterrupt();
         return 0x00;
-        /**
-If the I bit in SR is clear the 65C816 will process the interrupt and start by pushing PB to the stack.
-PC, which is pointing to the next instruction to be executed, is pushed to the stack, MSB first followed by LSB.
-SR is pushed to the stack.
-The I bit in SR is set.
-The D bit in SR is cleared.
-PB is loaded with $00.
-PC is loaded with the contents of the IRQ hardware vector at $00FFEE (LSB) and $00FFEF (MSB).
-Execution is transferred to the IRQ service routine.
-         */
       }
 
+      const pcToSource = this.system.pcToInstructionMap.get(
+        bank(this.PBR.byte) | this.PC.word
+      );
+      if (!pcToSource) {
+        console.log("No source for PC");
+      }
       opcode = this.system.read(bank(this.PBR.byte) | this.PC.word);
 
       this.incProgramCounter(1);
@@ -508,7 +504,7 @@ Execution is transferred to the IRQ service routine.
     }
   }
   private Op_and(addr: Address) {
-    if (this.E) {
+    if (this.E || this.P.M) {
       const n = this.system.read(addr);
       this.A.setByte(this.A.byte & n);
       this.cycles += 2;
@@ -797,13 +793,13 @@ Execution is transferred to the IRQ service routine.
 
   private Op_dec(addr: Address) {
     if (this.E || this.P.M) {
-      const data = this.system.read(addr) - 1;
+      const data = byte(this.system.read(addr) - 1);
 
       this.system.write(addr, data);
       this.setNZ(data);
       this.cycles += 4;
     } else {
-      const data = this.system.readWord(addr) - 1;
+      const data = word(this.system.readWord(addr) - 1);
 
       this.system.writeWord(addr, data);
       this.setNZWord(data);
@@ -852,13 +848,13 @@ Execution is transferred to the IRQ service routine.
 
   private Op_inc(addr: Address) {
     if (this.E || this.P.M) {
-      const data = this.system.read(addr) + 1;
+      const data = byte(this.system.read(addr) + 1);
 
       this.system.write(addr, data);
       this.setNZ(data);
       this.cycles += 4;
     } else {
-      const data = this.system.readWord(addr) + 1;
+      const data = word(this.system.readWord(addr) + 1);
 
       this.system.writeWord(addr, data);
       this.setNZWord(data);
@@ -1074,12 +1070,6 @@ Execution is transferred to the IRQ service routine.
     this.DP.setWord(b);
     this.setNZWord(b);
     this.cycles += 5;
-  }
-  private Op_plk() {
-    const b = this.pullByte();
-    this.PBR.setByte(b);
-    this.setNZ(b);
-    this.cycles += 4;
   }
   private Op_plp() {
     throw new Error("Not implemented: PLP"); // TODO
@@ -1721,12 +1711,12 @@ Execution is transferred to the IRQ service routine.
   }
 
   public setNZ(b: Byte) {
-    this.P.Z = b === 0;
+    this.P.Z = (b & 0xff) === 0;
     this.SetN(b & 0x80);
   }
 
   public setNZWord(w: Word) {
-    this.P.Z = w === 0;
+    this.P.Z = (w & 0xffff) === 0;
     this.SetN(w & 0x8000);
   }
 }

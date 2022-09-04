@@ -13,6 +13,10 @@ export const word = (addr: number): Word => {
   return addr & 0x00ffff;
 };
 
+export const byte = (val: number): Byte => {
+  return val & 0xff;
+};
+
 export const low = (w: Word): Byte => {
   return w & 0x00ff;
 };
