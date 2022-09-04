@@ -215,7 +215,7 @@ Scheduler_NextTask:
     longr
     lda TaskStackPointer,x
     clc
-    sbc #InterruptPB-1
+    sbc #InterruptPB
     tcs
     shortr
 
