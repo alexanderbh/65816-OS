@@ -1,4 +1,5 @@
 import { Register } from "./Register";
+import { SPI } from "./SPI";
 import { PHI2Listener, System } from "./System";
 import { high, low } from "./Utils";
 
@@ -7,7 +8,11 @@ export class VIA6522 implements AddressBus, PHI2Listener {
   private readonly registerMap = new Map<string, Register>();
   private timer1Running = false;
 
-  constructor(private system: System, private startAddress: Address) {
+  constructor(
+    private system: System,
+    private startAddress: Address,
+    private spiDevices: Map<number, SPI>
+  ) {
     this.registers = [
       new Register("ORB/IRB", system, false),
       new Register("ORA/IRA", system, false),
@@ -148,5 +153,28 @@ export class VIA6522 implements AddressBus, PHI2Listener {
     // VIA PORT B
     //   7    6      5 4 3      2    1    0
     //  MISO MOSI            RA8875      CLK
+    const portB = this.registerMap.get("ORB/IRB")!.byte;
+
+    const clk = (portB & 0b00000001) > 0;
+    if (!clk) {
+      // Handle low to high SPI clock?
+      return;
+    }
+    const cs = portB & 0b00111110;
+
+    const spiDevice = this.spiDevices.get(cs);
+    if (!spiDevice) {
+      Array.from(this.spiDevices.entries()).forEach(([cs, spiDevice]) => {
+        spiDevice.deselect();
+      });
+      return;
+    }
+
+    const mosi = (portB & 0b01000000) > 0;
+    const miso = spiDevice.clock(clk, mosi);
+
+    this.registerMap
+      .get("ORB/IRB")!
+      .setByte((portB & ~0b10000000) | (miso ? 0b10000000 : 0));
   }
 }

@@ -28,6 +28,7 @@ import { ROM } from "./lib/ROM";
 import { basename } from "path";
 import { addr } from "./lib/Utils";
 import { Register } from "./lib/Register";
+import { RA8875 } from "./lib/RA8875";
 
 /**
  * This interface describes the mock-debug specific launch attributes
@@ -91,35 +92,16 @@ export class MockDebugSession extends LoggingDebugSession {
    */
   public constructor(
     private fileAccessor: FileAccessor,
-    private panel?: vscode.WebviewPanel
+    private panel: vscode.WebviewPanel
   ) {
     super("mock-debug.txt");
 
-    panel?.webview.postMessage({ command: "write", char: "H" });
-    panel?.webview.postMessage({ command: "write", char: "e" });
-    panel?.webview.postMessage({ command: "write", char: "l" });
-    panel?.webview.postMessage({ command: "write", char: "l" });
-    panel?.webview.postMessage({ command: "write", char: "o" });
-    panel?.webview.postMessage({ command: "write", char: " " });
-    panel?.webview.postMessage({ command: "write", char: "W" });
-    panel?.webview.postMessage({ command: "write", char: "o" });
-    panel?.webview.postMessage({ command: "write", char: "r" });
-    panel?.webview.postMessage({ command: "write", char: "l" });
-    panel?.webview.postMessage({ command: "write", char: "d" });
-    panel?.webview.postMessage({ command: "write", char: "!" });
-    panel?.webview.postMessage({ command: "write", char: "\n" });
-    panel?.webview.postMessage({ command: "write", char: "1" });
-    panel?.webview.postMessage({ command: "write", char: "2" });
-    panel?.webview.postMessage({ command: "write", char: "3" });
-    panel?.webview.postMessage({ command: "write", char: "4" });
-    panel?.webview.postMessage({ command: "write", char: "5" });
-    panel?.webview.postMessage({ command: "write", char: "6" });
-    panel?.webview.postMessage({ command: "write", char: "7" });
+    panel?.webview.postMessage({ command: "write", char: 52 });
     // this debugger uses zero-based lines and columns
     this.setDebuggerLinesStartAt1(false);
     this.setDebuggerColumnsStartAt1(false);
 
-    this._system = new System();
+    this._system = new System(new RA8875(panel));
 
     // setup event handlers
     this._system.on("stopOnEntry", () => {

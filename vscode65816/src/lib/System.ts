@@ -2,6 +2,7 @@ import { EventEmitter } from "events";
 import { clearInterval } from "timers";
 import { VIA6522 } from "./6522VIA";
 import { CPU } from "./CPU";
+import { RA8875 } from "./RA8875";
 import { RAM } from "./RAM";
 import { ROM } from "./ROM";
 import { addr } from "./Utils";
@@ -36,14 +37,13 @@ export class System extends EventEmitter implements AddressBus {
   public pcToInstructionMap: Map<Address, { size: number }> = new Map();
   public phi2Listeners: PHI2Listener[] = [];
 
-  public constructor(rom?: ROM) {
+  public constructor(ra8875: RA8875) {
     super();
     this.observer = () => {};
     this.pcToInstructionMap = new Map();
     this.ram = new RAM();
-    this.rom = rom;
     this.cpu = new CPU(this);
-    this.via1 = new VIA6522(this, VIA1_START);
+    this.via1 = new VIA6522(this, VIA1_START, new Map([[4, ra8875]]));
     this.memoryDevices = [];
     this.memoryDevices.push({
       start: RAM_START,

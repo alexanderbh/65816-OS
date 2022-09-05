@@ -39,22 +39,21 @@ function getWebviewContent() {
     ctx.fillStyle = 'rgb(255, 255, 255)';
     ctx.font = '16px monospace';
     let X = 0;
-    let Y = 16;
+    let Y = 0;
     window.addEventListener('message', event => {
 
       const message = event.data; // The JSON data our extension sent
 
       switch (message.command) {
-          case 'write':
-              if (message.char === '\\n') {
-                Y = Y + 16;
-                X = 0;
-              } else {
-
-                ctx.fillText(message.char, (X*8), Y);
-                X++;
-              }
-              break;
+        case 'cursorx':
+          X = message.value;
+          break;
+        case 'cursory':
+          Y = message.value;
+          break;
+        case 'write':
+          ctx.fillText(String.fromCharCode(message.char), X, Y+16);
+          break;
       }
     });
     </script>

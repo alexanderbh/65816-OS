@@ -1,3 +1,4 @@
 export interface SPI {
-  clock(): 1 | 0;
+  clock(clk: boolean, mosi: boolean): boolean;
+  deselect(): void;
 }
