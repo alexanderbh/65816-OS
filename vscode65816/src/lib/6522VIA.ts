@@ -100,6 +100,10 @@ export class VIA6522 implements AddressBus, PHI2Listener {
   write(addr: Sesqui, data: Byte): void {
     const register = this.registers[addr - this.startAddress];
     switch (register.name) {
+      case "ORB/IRB":
+        register.setByte(data);
+        this.handleSPI();
+        break;
       case "IER":
         if (data & 0b10000000) {
           register.setByte(register.byte | (data & 0b01111111));
@@ -138,5 +142,11 @@ export class VIA6522 implements AddressBus, PHI2Listener {
   }
   readSesqui(addr: Sesqui): Sesqui {
     throw new Error("Method not implemented.");
+  }
+
+  handleSPI() {
+    // VIA PORT B
+    //   7    6      5 4 3      2    1    0
+    //  MISO MOSI            RA8875      CLK
   }
 }

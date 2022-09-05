@@ -1,15 +1,4 @@
-/*---------------------------------------------------------
- * Copyright (C) Microsoft Corporation. All rights reserved.
- *--------------------------------------------------------*/
-/*
- * mockDebug.ts implements the Debug Adapter that "adapts" or translates the Debug Adapter Protocol (DAP) used by the client (e.g. VS Code)
- * into requests and events of the real "execution engine" or "debugger" (here: class MockRuntime).
- * When implementing your own debugger extension for VS Code, most of the work will go into the Debug Adapter.
- * Since the Debug Adapter is independent from VS Code, it can be used in any client (IDE) supporting the Debug Adapter Protocol.
- *
- * The most important class of the Debug Adapter is the MockDebugSession which implements many DAP requests by talking to the MockRuntime.
- */
-
+import * as vscode from "vscode";
 import {
   Logger,
   logger,
@@ -55,13 +44,9 @@ interface ILaunchRequestArguments extends DebugProtocol.LaunchRequestArguments {
   trace?: boolean;
   /** run without debugging */
   noDebug?: boolean;
-  /** if specified, results in a simulated compile error in launch. */
-  compileError?: "default" | "show" | "hide";
 
   workspacePath: string;
 }
-
-interface IAttachRequestArguments extends ILaunchRequestArguments {}
 
 export class MockDebugSession extends LoggingDebugSession {
   // we don't support multiple threads, so we can use a hardcoded ID for the default thread
@@ -104,9 +89,32 @@ export class MockDebugSession extends LoggingDebugSession {
    * Creates a new debug adapter that is used for one debug session.
    * We configure the default implementation of a debug adapter here.
    */
-  public constructor(private fileAccessor: FileAccessor) {
+  public constructor(
+    private fileAccessor: FileAccessor,
+    private panel?: vscode.WebviewPanel
+  ) {
     super("mock-debug.txt");
 
+    panel?.webview.postMessage({ command: "write", char: "H" });
+    panel?.webview.postMessage({ command: "write", char: "e" });
+    panel?.webview.postMessage({ command: "write", char: "l" });
+    panel?.webview.postMessage({ command: "write", char: "l" });
+    panel?.webview.postMessage({ command: "write", char: "o" });
+    panel?.webview.postMessage({ command: "write", char: " " });
+    panel?.webview.postMessage({ command: "write", char: "W" });
+    panel?.webview.postMessage({ command: "write", char: "o" });
+    panel?.webview.postMessage({ command: "write", char: "r" });
+    panel?.webview.postMessage({ command: "write", char: "l" });
+    panel?.webview.postMessage({ command: "write", char: "d" });
+    panel?.webview.postMessage({ command: "write", char: "!" });
+    panel?.webview.postMessage({ command: "write", char: "\n" });
+    panel?.webview.postMessage({ command: "write", char: "1" });
+    panel?.webview.postMessage({ command: "write", char: "2" });
+    panel?.webview.postMessage({ command: "write", char: "3" });
+    panel?.webview.postMessage({ command: "write", char: "4" });
+    panel?.webview.postMessage({ command: "write", char: "5" });
+    panel?.webview.postMessage({ command: "write", char: "6" });
+    panel?.webview.postMessage({ command: "write", char: "7" });
     // this debugger uses zero-based lines and columns
     this.setDebuggerLinesStartAt1(false);
     this.setDebuggerColumnsStartAt1(false);
@@ -273,23 +281,6 @@ export class MockDebugSession extends LoggingDebugSession {
 
     // notify the launchRequest that configuration has finished
     this._configurationDone.notify();
-  }
-
-  protected disconnectRequest(
-    response: DebugProtocol.DisconnectResponse,
-    args: DebugProtocol.DisconnectArguments,
-    request?: DebugProtocol.Request
-  ): void {
-    console.log(
-      `disconnectRequest suspend: ${args.suspendDebuggee}, terminate: ${args.terminateDebuggee}`
-    );
-  }
-
-  protected async attachRequest(
-    response: DebugProtocol.AttachResponse,
-    args: IAttachRequestArguments
-  ) {
-    return this.launchRequest(response, args);
   }
 
   protected async launchRequest(

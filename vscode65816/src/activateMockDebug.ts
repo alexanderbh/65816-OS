@@ -17,73 +17,67 @@ import {
 import { FileAccessor } from "./debugAdapter";
 import { MockDebugSession } from "./mockDebug";
 
+function getWebviewContent() {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cat Coding</title>
+    <style>
+    @font-face {
+      font-family: 'VT323';
+      src: url('https://fonts.googleapis.com/css?family=VT323');
+    }
+    </style>
+</head>
+<body style="background-color: #BABABA;">
+    <canvas id="canvas" width="800" height="480" style="background-color: black; border: 8px solid gray"></canvas>
+
+    <script>
+    const ctx = document.getElementById('canvas').getContext('2d');
+    ctx.fillStyle = 'rgb(255, 255, 255)';
+    ctx.font = '16px monospace';
+    let X = 0;
+    let Y = 16;
+    window.addEventListener('message', event => {
+
+      const message = event.data; // The JSON data our extension sent
+
+      switch (message.command) {
+          case 'write':
+              if (message.char === '\\n') {
+                Y = Y + 16;
+                X = 0;
+              } else {
+
+                ctx.fillText(message.char, (X*8), Y);
+                X++;
+              }
+              break;
+      }
+    });
+    </script>
+</body>
+</html>`;
+}
+
 export function activateMockDebug(
   context: vscode.ExtensionContext,
   factory?: vscode.DebugAdapterDescriptorFactory
 ) {
-  context.subscriptions.push(
-    vscode.commands.registerCommand(
-      "extension.mock-debug.runEditorContents",
-      (resource: vscode.Uri) => {
-        let targetResource = resource;
-        if (!targetResource && vscode.window.activeTextEditor) {
-          targetResource = vscode.window.activeTextEditor.document.uri;
-        }
-        if (targetResource) {
-          vscode.debug.startDebugging(
-            undefined,
-            {
-              type: "mock",
-              name: "Run File",
-              request: "launch",
-              program: targetResource.fsPath,
-            },
-            { noDebug: true }
-          );
-        }
-      }
-    ),
-    vscode.commands.registerCommand(
-      "extension.mock-debug.debugEditorContents",
-      (resource: vscode.Uri) => {
-        let targetResource = resource;
-        if (!targetResource && vscode.window.activeTextEditor) {
-          targetResource = vscode.window.activeTextEditor.document.uri;
-        }
-        if (targetResource) {
-          vscode.debug.startDebugging(undefined, {
-            type: "mock",
-            name: "Debug File",
-            request: "launch",
-            program: targetResource.fsPath,
-            stopOnEntry: true,
-          });
-        }
-      }
-    ),
-    vscode.commands.registerCommand(
-      "extension.mock-debug.toggleFormatting",
-      (variable) => {
-        const ds = vscode.debug.activeDebugSession;
-        if (ds) {
-          ds.customRequest("toggleFormatting");
-        }
-      }
-    )
+  const panel = vscode.window.createWebviewPanel(
+    "ca65video", // Identifies the type of the webview. Used internally
+    "65816 Screen", // Title of the panel displayed to the user
+    vscode.ViewColumn.One, // Editor column to show the new webview panel in.
+    {
+      // Enable scripts in the webview
+      enableScripts: true,
+      retainContextWhenHidden: true,
+    }
   );
 
-  context.subscriptions.push(
-    vscode.commands.registerCommand(
-      "extension.mock-debug.getProgramName",
-      (config) => {
-        return vscode.window.showInputBox({
-          placeHolder:
-            "Please enter the name of a markdown file in the workspace folder",
-          value: "readme.md",
-        });
-      }
-    )
-  );
+  panel.webview.html = getWebviewContent();
 
   // register a configuration provider for 'mock' debug type
   const provider = new MockConfigurationProvider();
@@ -126,7 +120,7 @@ export function activateMockDebug(
   );
 
   if (!factory) {
-    factory = new InlineDebugAdapterFactory();
+    factory = new InlineDebugAdapterFactory(panel);
   }
   context.subscriptions.push(
     vscode.debug.registerDebugAdapterDescriptorFactory("mock", factory)
@@ -138,7 +132,7 @@ export function activateMockDebug(
   // override VS Code's default implementation of the debug hover
   // here we match only Mock "variables", that are words starting with an '$'
   context.subscriptions.push(
-    vscode.languages.registerEvaluatableExpressionProvider("markdown", {
+    vscode.languages.registerEvaluatableExpressionProvider("ca65", {
       provideEvaluatableExpression(
         document: vscode.TextDocument,
         position: vscode.Position
@@ -166,7 +160,7 @@ export function activateMockDebug(
 
   // override VS Code's default implementation of the "inline values" feature"
   context.subscriptions.push(
-    vscode.languages.registerInlineValuesProvider("markdown", {
+    vscode.languages.registerInlineValuesProvider("ca65", {
       provideInlineValues(
         document: vscode.TextDocument,
         viewport: vscode.Range,
@@ -225,7 +219,7 @@ class MockConfigurationProvider implements vscode.DebugConfigurationProvider {
     // if launch.json is missing or empty
     if (!config.type && !config.request && !config.name) {
       const editor = vscode.window.activeTextEditor;
-      if (editor && editor.document.languageId === "markdown") {
+      if (editor && editor.document.languageId === "ca65") {
         config.type = "mock";
         config.name = "Launch";
         config.request = "launch";
@@ -273,11 +267,12 @@ function pathToUri(path: string) {
 class InlineDebugAdapterFactory
   implements vscode.DebugAdapterDescriptorFactory
 {
+  constructor(private panel: vscode.WebviewPanel) {}
   createDebugAdapterDescriptor(
     _session: vscode.DebugSession
   ): ProviderResult<vscode.DebugAdapterDescriptor> {
     return new vscode.DebugAdapterInlineImplementation(
-      new MockDebugSession(workspaceFileAccessor)
+      new MockDebugSession(workspaceFileAccessor, this.panel)
     );
   }
 }
