@@ -25,16 +25,25 @@ export class RA8875 implements SPI {
     if (clk) {
       this.byte = (this.byte << 1) | (mosi ? 1 : 0);
       this.byteCyclesLeft--;
+      if (this.cycleType === "data_read") {
+        const byteToReturn = this.handleDataRead();
+
+        if (this.byteCyclesLeft === 0) {
+          this.byteCyclesLeft = 8;
+        }
+        return ((byteToReturn >> (this.byteCyclesLeft - 1)) & 1) > 0;
+      }
+
       if (this.byteCyclesLeft === 0) {
-        this.byteCyclesLeft = 8;
         this.handleByte();
+        this.byteCyclesLeft = 8;
         this.byte = 0;
       }
     }
     return false;
   }
 
-  handleByte() {
+  handleByte(): Byte {
     if (this.cycleType === undefined) {
       if (this.byte === 0x80) {
         this.cycleType = "cmd_write";
@@ -45,13 +54,13 @@ export class RA8875 implements SPI {
       if (this.byte === 0x40) {
         this.cycleType = "data_read";
       }
-      return;
+      return 0;
     }
 
     if (this.cycleType === "cmd_write") {
       this.cmdWritten = this.byte;
       this.cycleType = undefined;
-      return;
+      return 0;
     }
 
     if (!this.cmdWritten) {
@@ -61,18 +70,29 @@ export class RA8875 implements SPI {
 
     if (this.cycleType === "data_write") {
       this.handleDataWrite();
-      return;
+      return 0;
     }
-    if (this.cycleType === "data_read") {
-      this.handleDataRead();
-      return;
-    }
+
+    return 0;
   }
-  handleDataRead() {
-    console.log("Read RA8875", this.cmdWritten);
-    this.cmdWritten = undefined;
+  handleDataRead(): Byte {
     this.cycleType = undefined;
+
+    switch (this.cmdWritten) {
+      case RA8875_F_CURXL:
+        return low(this.cursorX);
+      case RA8875_F_CURXH:
+        return high(this.cursorX);
+      case RA8875_F_CURYL:
+        return low(this.cursorY);
+      case RA8875_F_CURYH:
+        return high(this.cursorY);
+      default:
+        console.log("RA8875 Read not supported", this.cmdWritten);
+        return 0;
+    }
   }
+
   handleDataWrite() {
     this.cycleType = undefined;
     switch (this.cmdWritten) {

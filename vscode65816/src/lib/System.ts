@@ -222,6 +222,7 @@ export class System extends EventEmitter implements AddressBus {
     if (entry) {
       return entry.device;
     }
+    this.sendEvent("stopOnException", new Error("No device found for: " + ad));
     throw new Error("No device found for: " + ad);
   }
 

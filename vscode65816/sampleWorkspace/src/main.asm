@@ -4,8 +4,8 @@
 .feature string_escapes
 
 .zeropage
-.include "drivers/spi/spi.zp.inc"
-.include "drivers/ra8875/ra8875.zp.inc"
+.include "bios/drivers/spi/spi.zp.inc"
+.include "bios/drivers/ra8875/ra8875.zp.inc"
 
 .RODATA
 

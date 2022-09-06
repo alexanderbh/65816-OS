@@ -8,12 +8,12 @@ Current file: src/main.asm
 000000r 1               .feature string_escapes
 000000r 1               
 000000r 1               .zeropage
-000000r 1               .include "drivers/spi/spi.zp.inc"
+000000r 1               .include "bios/drivers/spi/spi.zp.inc"
 000000r 2  xx           spi_byte_out:               .res 1
 000001r 2  xx           spi_byte_in:                .res 1
 000002r 2  xx           spi_selected_device:        .res 1
 000003r 2               
-000003r 1               .include "drivers/ra8875/ra8875.zp.inc"
+000003r 1               .include "bios/drivers/ra8875/ra8875.zp.inc"
 000003r 2               
 000003r 2  xx xx        string_ptr:                 .res 2
 000005r 2  xx           cursor_x:                   .res 1
@@ -190,7 +190,7 @@ Current file: src/main.asm
 000000r 3                   VIA2B_DIRECTION = __VIA2_START__ + 2              ; VIA2 PORT B direction register is $5002
 000000r 3                   VIA2A_DIRECTION = __VIA2_START__ + 3              ; VIA2 PORT A direction register is $5003
 000000r 3               
-000000r 2               .include "../drivers/spi/spi.asm"           ; include SPI code
+000000r 2               .include "drivers/spi/spi.asm"           ; include SPI code
 000000r 3               .A8
 000000r 3               .I8
 000000r 3               SPI_VIA = VIA1B
@@ -251,7 +251,7 @@ Current file: src/main.asm
 00003Er 3               
 00003Er 3  60               RTS
 00003Fr 3               
-00003Fr 2               .include "../drivers/keyboard/keyboard.asm" ; include Keyboard driver
+00003Fr 2               .include "drivers/keyboard/keyboard.asm" ; include Keyboard driver
 00003Fr 3               KB_CONTROL_RELEASE      = %00000001
 00003Fr 3               KB_CONTROL_RELEASE_INV  = %11111110
 00003Fr 3               KB_CONTROL_EXTENDED     = %00000010
@@ -713,7 +713,7 @@ Current file: src/main.asm
 000135r 3               
 000135r 3               
 000135r 3               
-000135r 2               .include "../drivers/ra8875/ra8875.asm"     ; include Driver for RA8875
+000135r 2               .include "drivers/ra8875/ra8875.asm"     ; include Driver for RA8875
 000135r 3               .A8
 000135r 3               .I8
 000135r 3                   .include "ra8875.inc"
@@ -1275,7 +1275,7 @@ Current file: src/main.asm
 0003DAr 3               SkipControl:
 0003DAr 3  60               RTS
 0003DBr 3               
-0003DBr 2               .include "../drivers/ra8875/ra8875_api.asm" ; include API for RA8875
+0003DBr 2               .include "drivers/ra8875/ra8875_api.asm" ; include API for RA8875
 0003DBr 3               .A16
 0003DBr 3               .I16
 0003DBr 3               RA8875_WriteString16_ARG = 8
