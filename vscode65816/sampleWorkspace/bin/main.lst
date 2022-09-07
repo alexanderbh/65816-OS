@@ -16,14 +16,14 @@ Current file: src/main.asm
 000003r 1               .include "bios/drivers/ra8875/ra8875.zp.inc"
 000003r 2               
 000003r 2  xx xx        string_ptr:                 .res 2
-000005r 2  xx           cursor_x:                   .res 1
-000006r 2  xx           cursor_y:                   .res 1
-000007r 2               
-000007r 2  xx           control_sequence_param_1:   .res 1
-000008r 2  xx           control_sequence_param_2:   .res 1
+000005r 2  xx xx        cursor_x:                   .res 2
+000007r 2  xx xx        cursor_y:                   .res 2
 000009r 2               
-000009r 1               
-000009r 1               .RODATA
+000009r 2  xx           control_sequence_param_1:   .res 1
+00000Ar 2  xx           control_sequence_param_2:   .res 1
+00000Br 2               
+00000Br 1               
+00000Br 1               .RODATA
 000000r 1               
 000000r 1  0A 2D 2D 2D  test_string: .asciiz "\n---\n"
 000004r 1  0A 00        

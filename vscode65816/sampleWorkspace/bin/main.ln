@@ -15,7 +15,7 @@ al 00B100 .__VIA2_LAST__
 al 000100 .__VIA2_SIZE__
 al 00B100 .__VIA2_START__
 al 000000 .__ZP_FILEOFFS__
-al 000009 .__ZP_LAST__
+al 00000B .__ZP_LAST__
 al 000100 .__ZP_SIZE__
 al 000000 .__ZP_START__
 al 00CB58 .Loop
@@ -234,9 +234,9 @@ al 00F017 .init_kernel_done
 al 00F015 .newline
 al 00F006 .testlen_string
 al 00F000 .test_string
-al 000008 .control_sequence_param_2
-al 000007 .control_sequence_param_1
-al 000006 .cursor_y
+al 00000A .control_sequence_param_2
+al 000009 .control_sequence_param_1
+al 000007 .cursor_y
 al 000005 .cursor_x
 al 000003 .string_ptr
 al 000002 .spi_selected_device

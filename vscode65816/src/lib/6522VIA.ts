@@ -155,11 +155,6 @@ export class VIA6522 implements AddressBus, PHI2Listener {
     //  MISO MOSI            RA8875      CLK
     const portB = this.registerMap.get("ORB/IRB")!.byte;
 
-    const clk = (portB & 0b00000001) > 0;
-    if (!clk) {
-      // Handle low to high SPI clock?
-      return;
-    }
     const cs = portB & 0b00111110;
 
     const spiDevice = this.spiDevices.get(cs);
@@ -167,6 +162,12 @@ export class VIA6522 implements AddressBus, PHI2Listener {
       Array.from(this.spiDevices.entries()).forEach(([cs, spiDevice]) => {
         spiDevice.deselect();
       });
+      return;
+    }
+
+    const clk = (portB & 0b00000001) > 0;
+    if (!clk) {
+      // Handle low to high SPI clock?
       return;
     }
 

@@ -16,8 +16,6 @@ export class RA8875 implements SPI {
 
   deselect(): void {
     this.byte = 0;
-    this.cycleType = undefined;
-    this.cmdWritten = undefined;
     this.byteCyclesLeft = 8;
   }
 
@@ -28,10 +26,13 @@ export class RA8875 implements SPI {
       if (this.cycleType === "data_read") {
         const byteToReturn = this.handleDataRead();
 
+        const bitToReturn = ((byteToReturn >> this.byteCyclesLeft) & 1) > 0;
+
         if (this.byteCyclesLeft === 0) {
           this.byteCyclesLeft = 8;
+          this.cycleType = undefined;
         }
-        return ((byteToReturn >> (this.byteCyclesLeft - 1)) & 1) > 0;
+        return bitToReturn;
       }
 
       if (this.byteCyclesLeft === 0) {
@@ -76,8 +77,6 @@ export class RA8875 implements SPI {
     return 0;
   }
   handleDataRead(): Byte {
-    this.cycleType = undefined;
-
     switch (this.cmdWritten) {
       case RA8875_F_CURXL:
         return low(this.cursorX);

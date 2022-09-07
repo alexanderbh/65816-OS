@@ -96,7 +96,6 @@ export class MockDebugSession extends LoggingDebugSession {
   ) {
     super("mock-debug.txt");
 
-    panel?.webview.postMessage({ command: "write", char: 52 });
     // this debugger uses zero-based lines and columns
     this.setDebuggerLinesStartAt1(false);
     this.setDebuggerColumnsStartAt1(false);

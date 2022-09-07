@@ -2,7 +2,7 @@ version	major=2,minor=0
 info	csym=0,file=32,lib=0,line=1991,mod=1,scope=1,seg=11,span=1771,sym=359,type=3
 file	id=0,name="src/main.asm",size=2822,mtime=0x6317B1F4,mod=0
 file	id=1,name="src/bios/drivers/spi/spi.zp.inc",size=104,mtime=0x630D0E77,mod=0
-file	id=2,name="src/bios/drivers/ra8875/ra8875.zp.inc",size=176,mtime=0x630D0E77,mod=0
+file	id=2,name="src/bios/drivers/ra8875/ra8875.zp.inc",size=176,mtime=0x631843B9,mod=0
 file	id=3,name="src/kernel/kernel.inc",size=489,mtime=0x630D0E77,mod=0
 file	id=4,name="src/macros/macros.inc",size=1594,mtime=0x630D0E77,mod=0
 file	id=5,name="src/bios/bios.asm",size=1358,mtime=0x6317B1F8,mod=0
@@ -2028,7 +2028,7 @@ seg	id=0,name="CODE",start=0x00C000,size=0x0B5B,addrsize=absolute,type=ro,oname=
 seg	id=1,name="RODATA",start=0x00F000,size=0x0480,addrsize=absolute,type=ro,oname="bin/main.bin",ooffs=28672
 seg	id=2,name="BSS",start=0x000000,size=0x0000,addrsize=absolute,type=rw
 seg	id=3,name="DATA",start=0x000000,size=0x0000,addrsize=absolute,type=rw
-seg	id=4,name="ZEROPAGE",start=0x000000,size=0x0009,addrsize=zeropage,type=rw
+seg	id=4,name="ZEROPAGE",start=0x000000,size=0x000B,addrsize=zeropage,type=rw
 seg	id=5,name="NULL",start=0x000000,size=0x0000,addrsize=absolute,type=rw
 seg	id=6,name="RAM",start=0x000200,size=0x0134,addrsize=absolute,type=rw
 seg	id=7,name="TASK",start=0x002000,size=0x0000,addrsize=absolute,type=rw
@@ -2039,10 +2039,10 @@ span	id=0,seg=4,start=0,size=1
 span	id=1,seg=4,start=1,size=1
 span	id=2,seg=4,start=2,size=1
 span	id=3,seg=4,start=3,size=2
-span	id=4,seg=4,start=5,size=1
-span	id=5,seg=4,start=6,size=1
-span	id=6,seg=4,start=7,size=1
-span	id=7,seg=4,start=8,size=1
+span	id=4,seg=4,start=5,size=2
+span	id=5,seg=4,start=7,size=2
+span	id=6,seg=4,start=9,size=1
+span	id=7,seg=4,start=10,size=1
 span	id=8,seg=1,start=0,size=6
 span	id=9,seg=1,start=6,size=15
 span	id=10,seg=1,start=21,size=2
@@ -3801,7 +3801,7 @@ span	id=1762,seg=10,start=0,size=2,type=2
 span	id=1763,seg=10,start=2,size=2,type=2
 span	id=1764,seg=0,start=0,size=2907
 span	id=1765,seg=1,start=0,size=1152
-span	id=1766,seg=4,start=0,size=9
+span	id=1766,seg=4,start=0,size=11
 span	id=1767,seg=6,start=0,size=308
 span	id=1768,seg=8,start=0,size=245
 span	id=1769,seg=9,start=0,size=10
@@ -4158,10 +4158,10 @@ sym	id=347,name="init_kernel_done",addrsize=absolute,size=13,scope=0,def=627,val
 sym	id=348,name="newline",addrsize=absolute,size=2,scope=0,def=1951,val=0xF015,seg=1,type=lab
 sym	id=349,name="testlen_string",addrsize=absolute,size=15,scope=0,def=1159,val=0xF006,seg=1,type=lab
 sym	id=350,name="test_string",addrsize=absolute,size=6,scope=0,def=900,val=0xF000,seg=1,type=lab
-sym	id=351,name="control_sequence_param_2",addrsize=zeropage,size=1,scope=0,def=1576,val=0x8,seg=4,type=lab
-sym	id=352,name="control_sequence_param_1",addrsize=zeropage,size=1,scope=0,def=1768,val=0x7,seg=4,type=lab
-sym	id=353,name="cursor_y",addrsize=zeropage,size=1,scope=0,def=1174,ref=874+113+1600+531+845+1452+1322+1449+1895,val=0x6,seg=4,type=lab
-sym	id=354,name="cursor_x",addrsize=zeropage,size=1,scope=0,def=612,ref=1479+1153+1309+291+1775+1237+484+1932+446+1245,val=0x5,seg=4,type=lab
+sym	id=351,name="control_sequence_param_2",addrsize=zeropage,size=1,scope=0,def=1576,val=0xA,seg=4,type=lab
+sym	id=352,name="control_sequence_param_1",addrsize=zeropage,size=1,scope=0,def=1768,val=0x9,seg=4,type=lab
+sym	id=353,name="cursor_y",addrsize=zeropage,size=2,scope=0,def=1174,ref=874+113+1600+531+845+1452+1322+1449+1895,val=0x7,seg=4,type=lab
+sym	id=354,name="cursor_x",addrsize=zeropage,size=2,scope=0,def=612,ref=1479+1153+1309+291+1775+1237+484+1932+446+1245,val=0x5,seg=4,type=lab
 sym	id=355,name="string_ptr",addrsize=zeropage,size=2,scope=0,def=963,val=0x3,seg=4,type=lab
 sym	id=356,name="spi_selected_device",addrsize=zeropage,size=1,scope=0,def=373,ref=190+1327+1294+412,val=0x2,seg=4,type=lab
 sym	id=357,name="spi_byte_in",addrsize=zeropage,size=1,scope=0,def=135,ref=186+1925+362,val=0x1,seg=4,type=lab
