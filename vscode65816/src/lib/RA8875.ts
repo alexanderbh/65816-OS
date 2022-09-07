@@ -124,7 +124,6 @@ export class RA8875 implements SPI {
           command: "cursory",
           value: this.cursorY,
         });
-        console.log("Cursor", this.cursorX, this.cursorY);
         break;
       default:
         this.cmdWritten = 0;

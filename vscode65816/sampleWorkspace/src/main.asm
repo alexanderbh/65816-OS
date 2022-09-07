@@ -94,6 +94,9 @@ ResetVector:
 ; print break
 
     ;write test_string
+    shortr
+    LDA #$0A
+    JSL RA8875_WriteChar
 
     shortr
     lda #$00            ; push program bank of ShellExec
