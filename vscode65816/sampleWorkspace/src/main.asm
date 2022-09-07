@@ -100,7 +100,6 @@ ResetVector:
     pha
     longr
     pea ShellExec       ; push 2byte addr of ShellExec
-
     jsl TaskSpawn
     pla
     shortr
@@ -118,12 +117,12 @@ ResetVector:
     ;write test_string
     ;shortr
 
-    lda TaskProgramBank
-    jsl RA8875_WriteHex
-    lda TaskProgramPointer
-    jsl RA8875_WriteHex
-    lda TaskProgramPointer+1
-    jsl RA8875_WriteHex
+    ;lda TaskProgramBank
+    ;jsl RA8875_WriteHex
+    ;lda TaskProgramPointer
+    ;jsl RA8875_WriteHex
+    ;lda TaskProgramPointer+1
+    ;jsl RA8875_WriteHex
 
     ;longr
     ;write test_string
@@ -134,10 +133,7 @@ ResetVector:
     longr
     pea ClockExec       ; push 2byte addr of ClockExec
     jsl TaskSpawn
-
-    pla ; elean up 16bits
-
-    ;write test_string
+    pla
     shortr
     pla ; clean up
 
@@ -147,7 +143,7 @@ ResetVector:
     longr
     pea LoaderExec       ; push 2byte addr of LoaderExec
     jsl TaskSpawn
-    pla ; elean up 16bits
+    pla
     shortr
     pla ; clean up
     

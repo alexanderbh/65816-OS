@@ -37,7 +37,7 @@ function getWebviewContent() {
     <script>
     const ctx = document.getElementById('canvas').getContext('2d');
     ctx.fillStyle = 'rgb(255, 255, 255)';
-    ctx.font = '16px monospace';
+    ctx.font = '16px Courier New';
     let X = 0;
     let Y = 0;
     window.addEventListener('message', event => {
@@ -52,7 +52,11 @@ function getWebviewContent() {
           Y = message.value;
           break;
         case 'write':
-          ctx.fillText(String.fromCharCode(message.char), X, Y+16);
+          const s = String.fromCharCode(message.char);
+          ctx.fillStyle = 'black';
+          ctx.fillRect(X+1, Y+3, s === " " ? 7 : 8, 15);
+          ctx.fillStyle = 'white';
+          ctx.fillText(s, X, Y+16);
           break;
       }
     });
