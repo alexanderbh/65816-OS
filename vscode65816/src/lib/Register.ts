@@ -36,7 +36,7 @@ export class Register {
     // TODO: Over/underflow handled here? or on every use?
     b = b & 0xff;
     this.byte = b;
-    this.word = join(b, 0);
+    this.word = b as Word;
     if (this.updatesPRegister) {
       this.system.cpu.setNZ(b);
     }

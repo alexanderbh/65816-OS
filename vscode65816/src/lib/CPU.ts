@@ -923,7 +923,7 @@ export class CPU {
   }
 
   private Op_ldx(addr: Address) {
-    if (this.E || this.P.I) {
+    if (this.E || this.P.X) {
       this.X.setByte(this.system.read(addr));
       this.cycles += 2;
     } else {
@@ -933,7 +933,7 @@ export class CPU {
   }
 
   private Op_ldy(addr: Address) {
-    if (this.E || this.P.I) {
+    if (this.E || this.P.X) {
       this.Y.setByte(this.system.read(addr));
       this.cycles += 2;
     } else {
@@ -1687,7 +1687,6 @@ export class CPU {
     } else {
       ia = this.system.readWord(addr(0, word(this.S.word + disp)));
     }
-
     return addr(this.DBR.byte, word(ia + this.Y.word));
   }
 

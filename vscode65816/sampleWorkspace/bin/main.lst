@@ -3238,27 +3238,37 @@ Current file: src/main.asm
 000B54r 1  E2 30            shortr
 000B56r 1  68               pla ; clean up
 000B57r 1               
-000B57r 1                   ; debug printing of task
-000B57r 1                   ;lda TaskProgramBank+1
-000B57r 1                   ;jsl RA8875_WriteHex
-000B57r 1                   ;lda TaskProgramPointer+2
-000B57r 1                   ;jsl RA8875_WriteHex
-000B57r 1                   ;lda TaskProgramPointer+3
-000B57r 1                   ;jsl RA8875_WriteHex
 000B57r 1               
-000B57r 1               
-000B57r 1  58               cli
-000B58r 1               
-000B58r 1                   ;jsl Scheduler_NextTask
-000B58r 1                   ;jsr ShellExec                   ; Run shell program
-000B58r 1               
-000B58r 1               ; Blink Diode
-000B58r 1                   ;jsl LoaderExec
-000B58r 1               
-000B58r 1               Loop:
-000B58r 1  4C rr rr         jmp Loop
-000B5Br 1               
-000B5Br 1               .SEGMENT "NATIVE_VECTORS"
+000B57r 1  A9 00            lda #$00            ; push program bank of LoaderExec
+000B59r 1  48               pha
+000B5Ar 1  C2 30            longr
+000B5Cr 1  F4 rr rr         pea LoaderExec       ; push 2byte addr of LoaderExec
+000B5Fr 1  22 rr rr rr      jsl TaskSpawn
+000B63r 1  68               pla ; elean up 16bits
+000B64r 1  E2 30            shortr
+000B66r 1  68               pla ; clean up
+000B67r 1               
+000B67r 1                   ; debug printing of task
+000B67r 1                   ;lda TaskProgramBank+1
+000B67r 1                   ;jsl RA8875_WriteHex
+000B67r 1                   ;lda TaskProgramPointer+2
+000B67r 1                   ;jsl RA8875_WriteHex
+000B67r 1                   ;lda TaskProgramPointer+3
+000B67r 1                   ;jsl RA8875_WriteHex
+000B67r 1               
+000B67r 1               
+000B67r 1  58               cli
+000B68r 1               
+000B68r 1                   ;jsl Scheduler_NextTask
+000B68r 1                   ;jsr ShellExec                   ; Run shell program
+000B68r 1               
+000B68r 1               ; Blink Diode
+000B68r 1                   ;jsl LoaderExec
+000B68r 1               
+000B68r 1               Loop:
+000B68r 1  4C rr rr         jmp Loop
+000B6Br 1               
+000B6Br 1               .SEGMENT "NATIVE_VECTORS"
 000000r 1  00 00            .word $0000                 ; COP
 000002r 1  00 00            .word $0000                 ; BRK
 000004r 1  00 00            .word $0000                 ; ABORTB

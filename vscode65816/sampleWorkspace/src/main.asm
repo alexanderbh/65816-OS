@@ -140,6 +140,16 @@ ResetVector:
     ;write test_string
     shortr
     pla ; clean up
+
+
+    lda #$00            ; push program bank of LoaderExec
+    pha
+    longr
+    pea LoaderExec       ; push 2byte addr of LoaderExec
+    jsl TaskSpawn
+    pla ; elean up 16bits
+    shortr
+    pla ; clean up
     
     ; debug printing of task
     ;lda TaskProgramBank+1
