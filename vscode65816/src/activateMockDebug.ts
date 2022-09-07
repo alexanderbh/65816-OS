@@ -23,7 +23,7 @@ function getWebviewContent() {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cat Coding</title>
+    <title>65816 I/O</title>
     <style>
     @font-face {
       font-family: 'VT323';
@@ -33,32 +33,40 @@ function getWebviewContent() {
 </head>
 <body style="background-color: #BABABA;">
     <canvas id="canvas" width="800" height="480" style="background-color: black; border: 8px solid gray"></canvas>
-
+    <br/>
+    <input type="text" id="input" style="width: 800px; font-family: 'VT323'; font-size: 24px; padding: 4px; border: 2px solid gray; background-color: black; color: white;"/>
     <script>
+    const input = document.getElementById("input");
+    input.focus();
+
+    new FontFace('VT323', 'url(https://fonts.gstatic.com/s/vt323/v17/pxiKyp0ihIEF2isfFJU.woff2)').load().then(function(font) {
+      document.fonts.add(font);
+  
     const ctx = document.getElementById('canvas').getContext('2d');
-    ctx.fillStyle = 'rgb(255, 255, 255)';
-    ctx.font = '16px Courier New';
-    let X = 0;
-    let Y = 0;
-    window.addEventListener('message', event => {
+      ctx.fillStyle = 'rgb(255, 255, 255)';
+      ctx.font = '20px VT323';
+      let X = 0;
+      let Y = 0;
+      window.addEventListener('message', event => {
+        
+        const message = event.data; // The JSON data our extension sent
 
-      const message = event.data; // The JSON data our extension sent
-
-      switch (message.command) {
-        case 'cursorx':
-          X = message.value;
-          break;
-        case 'cursory':
-          Y = message.value;
-          break;
-        case 'write':
-          const s = String.fromCharCode(message.char);
-          ctx.fillStyle = 'black';
-          ctx.fillRect(X+1, Y+3, s === " " ? 7 : 8, 15);
-          ctx.fillStyle = 'white';
-          ctx.fillText(s, X, Y+16);
-          break;
-      }
+        switch (message.command) {
+          case 'cursorx':
+            X = message.value;
+            break;
+          case 'cursory':
+            Y = message.value;
+            break;
+          case 'write':
+            const s = String.fromCharCode(message.char);
+            ctx.fillStyle = 'black';
+            ctx.fillRect(X+1, Y+3, s === " " ? 7 : 8, 15);
+            ctx.fillStyle = 'white';
+            ctx.fillText(s, X, Y+16);
+            break;
+        }
+      });
     });
     </script>
 </body>
@@ -70,8 +78,8 @@ export function activateMockDebug(
   factory?: vscode.DebugAdapterDescriptorFactory
 ) {
   const panel = vscode.window.createWebviewPanel(
-    "ca65video", // Identifies the type of the webview. Used internally
-    "65816 Screen", // Title of the panel displayed to the user
+    "ca65io", // Identifies the type of the webview. Used internally
+    "65816 I/O", // Title of the panel displayed to the user
     vscode.ViewColumn.One, // Editor column to show the new webview panel in.
     {
       // Enable scripts in the webview

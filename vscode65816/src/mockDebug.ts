@@ -100,7 +100,7 @@ export class MockDebugSession extends LoggingDebugSession {
     this.setDebuggerLinesStartAt1(false);
     this.setDebuggerColumnsStartAt1(false);
 
-    this._system = new System(new RA8875(panel));
+    this._system = new System(new RA8875(this.panel));
 
     // setup event handlers
     this._system.on("stopOnEntry", () => {
