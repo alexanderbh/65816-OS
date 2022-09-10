@@ -326,7 +326,8 @@ RA8875_SetTextCursor:
 
     RTS
 
-
+.A8
+.I8
 RA8875_TextMode:
     LDA #RA8875_MWCR0
     JSR RA8875WriteCommand

@@ -115,3 +115,56 @@ RA8875_WriteHex16:
     jsl RA8875_WriteHex     ; print second byte
     longr
     RTL
+
+
+
+; CURSOR
+
+
+.A16
+.I16
+; takes 16 bit value in A and sets as cursor X
+RA8875_SetTextCursorX:
+    PHA
+    PHA
+shortr
+    LDA #RA8875_F_CURXL
+    JSR RA8875WriteCommand
+longr
+    PLA
+shortr
+    JSR RA8875WriteData
+
+    LDA #RA8875_F_CURXH
+    JSR RA8875WriteCommand
+longr
+    PLA
+    XBA
+shortr
+    JSR RA8875WriteData
+longr
+    RTL
+
+
+.A16
+.I16
+RA8875_SetTextCursorY:
+    PHA
+    PHA
+shortr
+    LDA #RA8875_F_CURYL
+    JSR RA8875WriteCommand
+longr
+    PLA
+shortr
+    JSR RA8875WriteData
+
+    LDA #RA8875_F_CURYH
+    JSR RA8875WriteCommand
+longr
+    PLA
+    XBA
+shortr
+    JSR RA8875WriteData
+longr
+    RTL

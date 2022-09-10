@@ -16,32 +16,69 @@ LoaderExec:
     jsl RA8875_WriteChar16          ; write new line
 shortr
     jsl Sys_GetPID
-    jsl RA8875_WriteHex
 longr
+    clc
+    adc #(16*15)
+    sta $00
+
+    jsl RA8875_WriteHex16
+
     lda #$0A
     jsl RA8875_WriteChar16          ; write new line
 LoaderLoop:
 
+    lda $00
+    jsl RA8875_SetTextCursorY
     write running_diode_0
     jsr LongDelayLoaderExec
+
+    lda $00
+    jsl RA8875_SetTextCursorY
     write running_diode_1
     jsr LongDelayLoaderExec
+
+    lda $00
+    jsl RA8875_SetTextCursorY
     write running_diode_2
     jsr LongDelayLoaderExec
+
+    lda $00
+    jsl RA8875_SetTextCursorY
     write running_diode_3
     jsr LongDelayLoaderExec
+
+    lda $00
+    jsl RA8875_SetTextCursorY
     write running_diode_4
     jsr LongDelayLoaderExec
+
+    lda $00
+    jsl RA8875_SetTextCursorY
     write running_diode_5
     jsr LongDelayLoaderExec
+
+    lda $00
+    jsl RA8875_SetTextCursorY
     write running_diode_6
     jsr LongDelayLoaderExec
+
+    lda $00
+    jsl RA8875_SetTextCursorY
     write running_diode_5
     jsr LongDelayLoaderExec
+
+    lda $00
+    jsl RA8875_SetTextCursorY
     write running_diode_4
     jsr LongDelayLoaderExec
+
+    lda $00
+    jsl RA8875_SetTextCursorY
     write running_diode_3
     jsr LongDelayLoaderExec
+
+    lda $00
+    jsl RA8875_SetTextCursorY
     write running_diode_2
     jsr LongDelayLoaderExec
     write running_diode_1

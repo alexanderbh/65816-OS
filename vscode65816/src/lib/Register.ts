@@ -1,5 +1,5 @@
 import { System } from "./System";
-import { low, join } from "./Utils";
+import { low, join, high } from "./Utils";
 
 export class Register {
   public byte: Byte;
@@ -36,7 +36,7 @@ export class Register {
     // TODO: Over/underflow handled here? or on every use?
     b = b & 0xff;
     this.byte = b;
-    this.word = b as Word;
+    this.word = join(b, high(this.word));
     if (this.updatesPRegister) {
       this.system.cpu.setNZ(b);
     }
