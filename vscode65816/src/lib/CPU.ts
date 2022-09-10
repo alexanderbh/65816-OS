@@ -104,10 +104,6 @@ export class CPU {
     });
   }
 
-  public changed() {
-    this.system.changed();
-  }
-
   public reset() {
     this.cycles = 0;
     this.PBR.reset();
@@ -139,20 +135,20 @@ export class CPU {
   public step(steps: number = 1): Byte {
     let opcode: Byte = 0;
     for (var step = 0; step < steps; step++) {
-      this.system.ram.clearAccess();
       if (!this.P.I && this.interruptPending && !this.isInterrupted) {
         this.isInterrupted = true;
         this.handleInterrupt();
         return 0x00;
       }
 
-      const pcToSource = this.system.pcToInstructionMap.get(
-        bank(this.PBR.byte) | this.PC.word
-      );
+      const nextInstr = addr(this.PBR.byte, this.PC.word);
+
+      const pcToSource = this.system.pcToInstructionMap.get(nextInstr);
       if (!pcToSource) {
         console.log("No source for PC");
+        this.system.emit("StopOnException");
       }
-      opcode = this.system.read(bank(this.PBR.byte) | this.PC.word);
+      opcode = this.system.read(nextInstr);
 
       this.incProgramCounter(1);
 
@@ -441,7 +437,6 @@ export class CPU {
       this.system.phi2(phi2Delta);
     }
 
-    this.changed();
     return opcode;
   }
 

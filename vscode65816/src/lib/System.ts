@@ -25,7 +25,6 @@ export interface PHI2Listener {
 }
 
 export class System extends EventEmitter implements AddressBus {
-  private observer: (cpu: System) => void;
   public ram: RAM;
   private rom?: ROM;
   public cpu: CPU;
@@ -35,11 +34,10 @@ export class System extends EventEmitter implements AddressBus {
   public breakpoints: Set<Address> = new Set();
   private interval?: NodeJS.Timeout;
   public pcToInstructionMap: Map<Address, { size: number }> = new Map();
-  public phi2Listeners: PHI2Listener[] = [];
+  public phi2Listener: PHI2Listener | undefined = undefined;
 
   public constructor(ra8875: RA8875) {
     super();
-    this.observer = () => {};
     this.pcToInstructionMap = new Map();
     this.ram = new RAM();
     this.cpu = new CPU(this);
@@ -78,16 +76,6 @@ export class System extends EventEmitter implements AddressBus {
     }
   }
 
-  public observe(cb: (sys: System) => void) {
-    this.observer = cb;
-  }
-
-  public changed() {
-    if (this.observer) {
-      this.observer(this);
-    }
-  }
-
   public loadRom(rom: ROM) {
     this.rom = rom;
     this.pcToInstructionMap = new Map();
@@ -103,7 +91,6 @@ export class System extends EventEmitter implements AddressBus {
 
   public reset() {
     this.cpu?.reset();
-    this.changed();
   }
 
   public step() {
@@ -187,7 +174,7 @@ export class System extends EventEmitter implements AddressBus {
   }
 
   public phi2(count: number) {
-    this.phi2Listeners.forEach((p) => p.phi2(count));
+    this.phi2Listener && this.phi2Listener.phi2(count);
   }
 
   public read(addr: Address): Byte {

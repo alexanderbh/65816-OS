@@ -1,3 +1,9 @@
+.SEGMENT "KERNEL"
+    spi_byte_out:               .res 1
+    spi_byte_in:                .res 1
+    spi_selected_device:        .res 1
+
+.code
 .A8
 .I8
 SPI_VIA = VIA1B
@@ -30,6 +36,7 @@ SpiDeviceDeselect:
 ;   A - byte received over SPI
 
 SpiByte:
+    SEI
     STA spi_byte_out                            ; store 
     STZ spi_byte_in
     LDX #8
@@ -55,5 +62,5 @@ spibyte2:
     DEX
     BNE spibytelp;
     LDA spi_byte_in	                            ; load result into A
-    
+    CLI
     RTS

@@ -3,10 +3,6 @@
 .smart
 .feature string_escapes
 
-.zeropage
-.include "bios/drivers/spi/spi.zp.inc"
-.include "bios/drivers/ra8875/ra8875.zp.inc"
-
 .RODATA
 
 test_string: .asciiz "\n---\n"
