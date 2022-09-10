@@ -64,6 +64,11 @@ function getWebviewContent() {
             ctx.fillRect(X+1, Y+3, s === " " ? 7 : 8, 15);
             ctx.fillStyle = 'white';
             ctx.fillText(s, X, Y+16);
+            X += 8;
+            if (X >= 800) {
+              X = 0;
+              Y += 16;
+            }
             break;
         }
       });

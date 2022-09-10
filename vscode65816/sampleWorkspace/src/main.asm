@@ -30,69 +30,6 @@ ResetVector:
     longr
     jsr InitKernel                  ; Kernel Init
 
-    ;shortr
-    ;write test_string
-
-    ; longr
-    ; ldx #$1234
-    ; ldy #$5678
-    ; lda #$9ABC
-    ; jsr DumpRegs
-
-    ; longr
-    ; ldx #$EFEF
-    ; ldy #$4242
-    ; lda #$ABCD
-    ; pha
-    ; lda #$0123
-    ; pha
-    ; lda #$CDEF
-
-    ; longr
-    ; pla
-
-; print break
-
-    ;write test_string
-
-; StrLen
-
-    
-    ; pea testlen_string				; Add parameter to stack
-
-    ; lda #Std_StrLen
-    ; jsl StdLib						; Call stdlib
-
-	; plx								; Clean up stack
-    
-    ; jsl RA8875_WriteHex16			; Debug write result
-
-; print break
-
-    ;write test_string
-
-
-
-
-; Readnum
-
-
-    ; pea testlen_string				; Add parameter to stack
-
-
-    ; lda #Std_ReadNum
-    ; jsl StdLib						; Call stdlib
-
-	; plx								; Clean up stack
-
-    ; jsl RA8875_WriteHex16			; Debug write result
-
-; print break
-
-    ;write test_string
-    shortr
-    LDA #$0A
-    JSL RA8875_WriteChar
 
     shortr
     lda #$00            ; push program bank of ShellExec
@@ -103,29 +40,6 @@ ResetVector:
     pla
     shortr
     pla
-
-
-    ;longr
-    ;write test_string
-    ;shortr
-    ;lda TaskStatus
-    ;jsl RA8875_WriteHex
-
-
-    ;longr
-    ;write test_string
-    ;shortr
-
-    ;lda TaskProgramBank
-    ;jsl RA8875_WriteHex
-    ;lda TaskProgramPointer
-    ;jsl RA8875_WriteHex
-    ;lda TaskProgramPointer+1
-    ;jsl RA8875_WriteHex
-
-    ;longr
-    ;write test_string
-    ;shortr
 
     lda #$00            ; push program bank of ClockExec
     pha

@@ -1953,14 +1953,11 @@ Current file: src/main.asm
 000707r 4  AA               tax
 000708r 4               ; Set Direct Page to $9x00
 000708r 4  AD rr rr         lda ActiveTask
-00070Br 4               ;longr
+00070Br 4               
 00070Br 4  18               clc
 00070Cr 4  69 90            adc #$90                                ; A = $9x
-00070Er 4               ;    xba
-00070Er 4               ;    tcd
+00070Er 4               
 00070Er 4  83 0B            sta InterruptDP+1,s
-000710r 4               ;shortr
-000710r 4                   ;jsl RA8875_WriteHex
 000710r 4               
 000710r 4               ; Set registers
 000710r 4  BD rr rr         lda TaskA,x
@@ -3322,174 +3319,88 @@ Current file: src/main.asm
 000C8Cr 1  C2 30            longr
 000C8Er 1  20 rr rr         jsr InitKernel                  ; Kernel Init
 000C91r 1               
-000C91r 1                   ;shortr
-000C91r 1                   ;write test_string
 000C91r 1               
-000C91r 1                   ; longr
-000C91r 1                   ; ldx #$1234
-000C91r 1                   ; ldy #$5678
-000C91r 1                   ; lda #$9ABC
-000C91r 1                   ; jsr DumpRegs
-000C91r 1               
-000C91r 1                   ; longr
-000C91r 1                   ; ldx #$EFEF
-000C91r 1                   ; ldy #$4242
-000C91r 1                   ; lda #$ABCD
-000C91r 1                   ; pha
-000C91r 1                   ; lda #$0123
-000C91r 1                   ; pha
-000C91r 1                   ; lda #$CDEF
-000C91r 1               
-000C91r 1                   ; longr
-000C91r 1                   ; pla
-000C91r 1               
-000C91r 1               ; print break
-000C91r 1               
-000C91r 1                   ;write test_string
-000C91r 1               
-000C91r 1               ; StrLen
-000C91r 1               
-000C91r 1               
-000C91r 1                   ; pea testlen_string				; Add parameter to stack
-000C91r 1               
-000C91r 1                   ; lda #Std_StrLen
-000C91r 1                   ; jsl StdLib						; Call stdlib
-000C91r 1               
-000C91r 1               	; plx								; Clean up stack
-000C91r 1               
-000C91r 1                   ; jsl RA8875_WriteHex16			; Debug write result
-000C91r 1               
-000C91r 1               ; print break
-000C91r 1               
-000C91r 1                   ;write test_string
-000C91r 1               
-000C91r 1               
-000C91r 1               
-000C91r 1               
-000C91r 1               ; Readnum
-000C91r 1               
-000C91r 1               
-000C91r 1                   ; pea testlen_string				; Add parameter to stack
-000C91r 1               
-000C91r 1               
-000C91r 1                   ; lda #Std_ReadNum
-000C91r 1                   ; jsl StdLib						; Call stdlib
-000C91r 1               
-000C91r 1               	; plx								; Clean up stack
-000C91r 1               
-000C91r 1                   ; jsl RA8875_WriteHex16			; Debug write result
-000C91r 1               
-000C91r 1               ; print break
-000C91r 1               
-000C91r 1                   ;write test_string
 000C91r 1  E2 30            shortr
-000C93r 1  A9 0A            LDA #$0A
-000C95r 1  22 rr rr rr      JSL RA8875_WriteChar
-000C99r 1               
-000C99r 1  E2 30            shortr
-000C9Br 1  A9 00            lda #$00            ; push program bank of ShellExec
-000C9Dr 1  48               pha
-000C9Er 1  C2 30            longr
-000CA0r 1  F4 rr rr         pea ShellExec       ; push 2byte addr of ShellExec
-000CA3r 1  22 rr rr rr      jsl TaskSpawn
-000CA7r 1  68               pla
-000CA8r 1  E2 30            shortr
-000CAAr 1  68               pla
-000CABr 1               
-000CABr 1               
-000CABr 1                   ;longr
-000CABr 1                   ;write test_string
-000CABr 1                   ;shortr
-000CABr 1                   ;lda TaskStatus
-000CABr 1                   ;jsl RA8875_WriteHex
-000CABr 1               
-000CABr 1               
-000CABr 1                   ;longr
-000CABr 1                   ;write test_string
-000CABr 1                   ;shortr
-000CABr 1               
-000CABr 1                   ;lda TaskProgramBank
-000CABr 1                   ;jsl RA8875_WriteHex
-000CABr 1                   ;lda TaskProgramPointer
-000CABr 1                   ;jsl RA8875_WriteHex
-000CABr 1                   ;lda TaskProgramPointer+1
-000CABr 1                   ;jsl RA8875_WriteHex
-000CABr 1               
-000CABr 1                   ;longr
-000CABr 1                   ;write test_string
-000CABr 1                   ;shortr
-000CABr 1               
-000CABr 1  A9 00            lda #$00            ; push program bank of ClockExec
-000CADr 1  48               pha
-000CAEr 1  C2 30            longr
-000CB0r 1  F4 rr rr         pea ClockExec       ; push 2byte addr of ClockExec
-000CB3r 1  22 rr rr rr      jsl TaskSpawn
-000CB7r 1  68               pla
-000CB8r 1  E2 30            shortr
-000CBAr 1  68               pla ; clean up
-000CBBr 1               
-000CBBr 1               
-000CBBr 1  A9 00            lda #$00            ; push program bank of LoaderExec
-000CBDr 1  48               pha
-000CBEr 1  C2 30            longr
-000CC0r 1  F4 rr rr         pea TaskPrinterExec       ; push 2byte addr of LoaderExec
-000CC3r 1  22 rr rr rr      jsl TaskSpawn
-000CC7r 1  68               pla
-000CC8r 1  E2 30            shortr
-000CCAr 1  68               pla ; clean up
-000CCBr 1               
-000CCBr 1               
-000CCBr 1  A9 00            lda #$00            ; push program bank of LoaderExec
-000CCDr 1  48               pha
-000CCEr 1  C2 30            longr
-000CD0r 1  F4 rr rr         pea TaskPrinterExec       ; push 2byte addr of LoaderExec
-000CD3r 1  22 rr rr rr      jsl TaskSpawn
-000CD7r 1  68               pla
-000CD8r 1  E2 30            shortr
-000CDAr 1  68               pla ; clean up
-000CDBr 1               
-000CDBr 1  A9 00            lda #$00            ; push program bank of LoaderExec
-000CDDr 1  48               pha
-000CDEr 1  C2 30            longr
-000CE0r 1  F4 rr rr         pea TaskPrinterExec       ; push 2byte addr of LoaderExec
-000CE3r 1  22 rr rr rr      jsl TaskSpawn
-000CE7r 1  68               pla
-000CE8r 1  E2 30            shortr
-000CEAr 1  68               pla ; clean up
-000CEBr 1               
-000CEBr 1  A9 00            lda #$00            ; push program bank of LoaderExec
-000CEDr 1  48               pha
-000CEEr 1  C2 30            longr
-000CF0r 1  F4 rr rr         pea TaskPrinterExec       ; push 2byte addr of LoaderExec
-000CF3r 1  22 rr rr rr      jsl TaskSpawn
-000CF7r 1  68               pla
-000CF8r 1  E2 30            shortr
-000CFAr 1  68               pla ; clean up
-000CFBr 1               
-000CFBr 1               
-000CFBr 1               
-000CFBr 1               
-000CFBr 1                   ; debug printing of task
-000CFBr 1                   ;lda TaskProgramBank+1
-000CFBr 1                   ;jsl RA8875_WriteHex
-000CFBr 1                   ;lda TaskProgramPointer+2
-000CFBr 1                   ;jsl RA8875_WriteHex
-000CFBr 1                   ;lda TaskProgramPointer+3
-000CFBr 1                   ;jsl RA8875_WriteHex
-000CFBr 1               
-000CFBr 1               
-000CFBr 1  58               cli
-000CFCr 1               
-000CFCr 1                   ;jsl Scheduler_NextTask
-000CFCr 1                   ;jsr ShellExec                   ; Run shell program
-000CFCr 1               
-000CFCr 1               ; Blink Diode
-000CFCr 1                   ;jsl LoaderExec
-000CFCr 1               
-000CFCr 1               Loop:
-000CFCr 1  4C rr rr         jmp Loop
-000CFFr 1               
-000CFFr 1               .SEGMENT "NATIVE_VECTORS"
+000C93r 1  A9 00            lda #$00            ; push program bank of ShellExec
+000C95r 1  48               pha
+000C96r 1  C2 30            longr
+000C98r 1  F4 rr rr         pea ShellExec       ; push 2byte addr of ShellExec
+000C9Br 1  22 rr rr rr      jsl TaskSpawn
+000C9Fr 1  68               pla
+000CA0r 1  E2 30            shortr
+000CA2r 1  68               pla
+000CA3r 1               
+000CA3r 1  A9 00            lda #$00            ; push program bank of ClockExec
+000CA5r 1  48               pha
+000CA6r 1  C2 30            longr
+000CA8r 1  F4 rr rr         pea ClockExec       ; push 2byte addr of ClockExec
+000CABr 1  22 rr rr rr      jsl TaskSpawn
+000CAFr 1  68               pla
+000CB0r 1  E2 30            shortr
+000CB2r 1  68               pla ; clean up
+000CB3r 1               
+000CB3r 1               
+000CB3r 1  A9 00            lda #$00            ; push program bank of LoaderExec
+000CB5r 1  48               pha
+000CB6r 1  C2 30            longr
+000CB8r 1  F4 rr rr         pea TaskPrinterExec       ; push 2byte addr of LoaderExec
+000CBBr 1  22 rr rr rr      jsl TaskSpawn
+000CBFr 1  68               pla
+000CC0r 1  E2 30            shortr
+000CC2r 1  68               pla ; clean up
+000CC3r 1               
+000CC3r 1               
+000CC3r 1  A9 00            lda #$00            ; push program bank of LoaderExec
+000CC5r 1  48               pha
+000CC6r 1  C2 30            longr
+000CC8r 1  F4 rr rr         pea TaskPrinterExec       ; push 2byte addr of LoaderExec
+000CCBr 1  22 rr rr rr      jsl TaskSpawn
+000CCFr 1  68               pla
+000CD0r 1  E2 30            shortr
+000CD2r 1  68               pla ; clean up
+000CD3r 1               
+000CD3r 1  A9 00            lda #$00            ; push program bank of LoaderExec
+000CD5r 1  48               pha
+000CD6r 1  C2 30            longr
+000CD8r 1  F4 rr rr         pea TaskPrinterExec       ; push 2byte addr of LoaderExec
+000CDBr 1  22 rr rr rr      jsl TaskSpawn
+000CDFr 1  68               pla
+000CE0r 1  E2 30            shortr
+000CE2r 1  68               pla ; clean up
+000CE3r 1               
+000CE3r 1  A9 00            lda #$00            ; push program bank of LoaderExec
+000CE5r 1  48               pha
+000CE6r 1  C2 30            longr
+000CE8r 1  F4 rr rr         pea TaskPrinterExec       ; push 2byte addr of LoaderExec
+000CEBr 1  22 rr rr rr      jsl TaskSpawn
+000CEFr 1  68               pla
+000CF0r 1  E2 30            shortr
+000CF2r 1  68               pla ; clean up
+000CF3r 1               
+000CF3r 1               
+000CF3r 1               
+000CF3r 1               
+000CF3r 1                   ; debug printing of task
+000CF3r 1                   ;lda TaskProgramBank+1
+000CF3r 1                   ;jsl RA8875_WriteHex
+000CF3r 1                   ;lda TaskProgramPointer+2
+000CF3r 1                   ;jsl RA8875_WriteHex
+000CF3r 1                   ;lda TaskProgramPointer+3
+000CF3r 1                   ;jsl RA8875_WriteHex
+000CF3r 1               
+000CF3r 1               
+000CF3r 1  58               cli
+000CF4r 1               
+000CF4r 1                   ;jsl Scheduler_NextTask
+000CF4r 1                   ;jsr ShellExec                   ; Run shell program
+000CF4r 1               
+000CF4r 1               ; Blink Diode
+000CF4r 1                   ;jsl LoaderExec
+000CF4r 1               
+000CF4r 1               Loop:
+000CF4r 1  4C rr rr         jmp Loop
+000CF7r 1               
+000CF7r 1               .SEGMENT "NATIVE_VECTORS"
 000000r 1  00 00            .word $0000                 ; COP
 000002r 1  00 00            .word $0000                 ; BRK
 000004r 1  00 00            .word $0000                 ; ABORTB

@@ -18,7 +18,7 @@ al 000000 .__ZP_FILEOFFS__
 al 000000 .__ZP_LAST__
 al 000100 .__ZP_SIZE__
 al 000000 .__ZP_START__
-al 00CCFC .Loop
+al 00CCF4 .Loop
 al 00CC85 .ResetVector
 al 00CC0C .DumpRegs
 al 00CA7E .DumpStack

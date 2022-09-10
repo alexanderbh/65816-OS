@@ -242,14 +242,11 @@ Scheduler_NextTask:
     tax
 ; Set Direct Page to $9x00
     lda ActiveTask
-;longr
+
     clc
     adc #$90                                ; A = $9x
-;    xba
-;    tcd
+
     sta InterruptDP+1,s
-;shortr
-    ;jsl RA8875_WriteHex
 
 ; Set registers
     lda TaskA,x

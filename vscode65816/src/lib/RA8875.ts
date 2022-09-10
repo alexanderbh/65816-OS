@@ -131,18 +131,16 @@ export class RA8875 implements SPI {
     }
   }
   handleWriteMRWC() {
-    // console.log("Write MRWC", this.byte);
-
     this.panel.webview.postMessage({
       command: "write",
       char: this.byte,
     });
 
     this.cursorX += 8;
-    this.panel.webview.postMessage({
-      command: "cursorx",
-      value: this.cursorX,
-    });
+    if (this.cursorX > 800) {
+      this.cursorX = 0;
+      this.cursorY += 16;
+    }
   }
 }
 

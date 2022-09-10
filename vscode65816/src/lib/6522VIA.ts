@@ -167,7 +167,7 @@ export class VIA6522 implements AddressBus, PHI2Listener {
 
     const clk = (portB & 0b00000001) > 0;
     if (!clk) {
-      // Handle low to high SPI clock?
+      // Handle low SPI clock?
       return;
     }
 
