@@ -17,9 +17,17 @@ LoaderExec:
 shortr
     jsl Sys_GetPID
 longr
+    asl
+    asl
+    asl
+    asl
     clc
-    adc #(16*15)
+    adc #(16*13)
     sta $00
+    
+
+    lda $00
+    jsl RA8875_SetTextCursorY
 
     jsl RA8875_WriteHex16
 

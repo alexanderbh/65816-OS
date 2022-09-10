@@ -1,9 +1,11 @@
 .A16
 .I16
 .macro write str_addr
+    SEI
     pea str_addr
     JSL RA8875_WriteString16
     PLA
+    CLI
 .endmacro
 
 .A8

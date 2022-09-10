@@ -125,6 +125,7 @@ RA8875_WriteHex16:
 .I16
 ; takes 16 bit value in A and sets as cursor X
 RA8875_SetTextCursorX:
+    SEI
     PHA
     PHA
 shortr
@@ -143,12 +144,14 @@ longr
 shortr
     JSR RA8875WriteData
 longr
+    CLI
     RTL
 
 
 .A16
 .I16
 RA8875_SetTextCursorY:
+    SEI
     PHA
     PHA
 shortr
@@ -167,4 +170,5 @@ longr
 shortr
     JSR RA8875WriteData
 longr
+    CLI
     RTL

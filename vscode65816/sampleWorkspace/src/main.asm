@@ -140,21 +140,21 @@ ResetVector:
     lda #$00            ; push program bank of LoaderExec
     pha
     longr
-    pea LoaderExec       ; push 2byte addr of LoaderExec
+    pea TaskPrinterExec       ; push 2byte addr of LoaderExec
     jsl TaskSpawn
     pla
     shortr
     pla ; clean up
 
 
-    ; lda #$00            ; push program bank of LoaderExec
-    ; pha
-    ; longr
-    ; pea LoaderExec       ; push 2byte addr of LoaderExec
-    ; jsl TaskSpawn
-    ; pla
-    ; shortr
-    ; pla ; clean up
+    lda #$00            ; push program bank of LoaderExec
+    pha
+    longr
+    pea TaskPrinterExec       ; push 2byte addr of LoaderExec
+    jsl TaskSpawn
+    pla
+    shortr
+    pla ; clean up
     
 
 

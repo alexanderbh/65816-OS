@@ -94,7 +94,7 @@ export class CPU {
     this.PC = new Register("PC", system, false, { size: 16, value: 0xfffc });
     this.PBR = new Register("PBR", system, false);
     this.DBR = new Register("DBR", system, false);
-    this.DP = new Register("DP", system, false);
+    this.DP = new Register("DP", system, false, { size: 16, value: 0x0000 });
     this.A = new Register("A", system, true);
     this.X = new Register("X", system, true);
     this.Y = new Register("Y", system, true);
