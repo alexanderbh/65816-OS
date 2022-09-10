@@ -4,7 +4,7 @@ SIZE_OF_STREAM = 16             ; Number of bytes per stream
 
 STREAM_STDIN = 0
 
-.SEGMENT "RAM"
+.SEGMENT "KERNEL"
 
 StreamLookupHead:
     .res NUMBER_OF_STREAMS

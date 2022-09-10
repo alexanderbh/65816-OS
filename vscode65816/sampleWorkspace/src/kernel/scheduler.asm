@@ -35,7 +35,7 @@ InterruptStatusRegister = InterruptDB+1
 InterruptPC = InterruptStatusRegister+1
 InterruptPB = InterruptPC+2
 
-.SEGMENT "RAM"
+.SEGMENT "KERNEL"
 
 SchedulerCount: .res 1
 

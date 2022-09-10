@@ -11,7 +11,7 @@ TASK_EXIT_CODE_KILLED = 7
 .include "scheduler.asm"
 .include "tasks.inc"
 
-.SEGMENT "RAM"
+.SEGMENT "KERNEL"
 
 KernelSp: .res 1
 ActiveTask: .res 1
@@ -27,10 +27,7 @@ TaskX: .res NUMBER_OF_TASKS * 2
 TaskY: .res NUMBER_OF_TASKS * 2
 
 
-.SEGMENT "TASK" ; marked as used
-
 .code
-
 
 ; Initialize tasks
 .A16

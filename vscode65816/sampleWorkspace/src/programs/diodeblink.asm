@@ -14,7 +14,12 @@ running_diode_6: .asciiz "\r(------*)"
 LoaderExec:
     lda #$0A
     jsl RA8875_WriteChar16          ; write new line
-
+shortr
+    jsl Sys_GetPID
+    jsl RA8875_WriteHex
+longr
+    lda #$0A
+    jsl RA8875_WriteChar16          ; write new line
 LoaderLoop:
 
     write running_diode_0

@@ -2,6 +2,7 @@
 .include "tasks.asm"
 .include "interrupt.asm"
 .include "streams.asm"
+.include "syscalls.asm"
 
 .A16
 .I16

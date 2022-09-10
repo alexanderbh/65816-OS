@@ -146,7 +146,7 @@ export class CPU {
       const pcToSource = this.system.pcToInstructionMap.get(nextInstr);
       if (!pcToSource) {
         console.log("No source for PC");
-        this.system.emit("StopOnException");
+        this.system.sendEvent("StopOnException", new Error("No source for PC"));
       }
       opcode = this.system.read(nextInstr);
 

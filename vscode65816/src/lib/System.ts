@@ -213,7 +213,7 @@ export class System extends EventEmitter implements AddressBus {
     throw new Error("No device found for: " + ad);
   }
 
-  private sendEvent(event: string, ...args: any[]): void {
+  public sendEvent(event: string, ...args: any[]): void {
     setTimeout(() => {
       this.emit(event, ...args);
     }, 0);
