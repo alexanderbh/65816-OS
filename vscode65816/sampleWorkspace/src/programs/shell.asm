@@ -37,14 +37,47 @@ ShellExec:
 
     @cnt:
         stz Shell_InputBufferStart,x    ; 0-terminate the end of the input buffer
-
+        stx Shell_InputBufferIndex      ; store index
         jmp @loop
     
     @execute:
 ; TODO: EXECUTE string in input buffer
+        longr
+        tdc
+        pha
+        shortr
 
-        ;lda #00                         ; put start of input buffer on stack
-        ;pha
-        ;pha
+        ; PS
+        pea CMD_NAME_PS
+        lda #Std_StrCompareUntilWhiteSpace
+        jsl StdLib
+        pla
+        pla
+        bcs @next1
+        jsl ExecPs
+        jmp @preparerestart
+    
+    @next1:
 
+        
+    @nothingfound:
+        longr
+        pea STR_SHELL_COMMAND_NOT_FOUND
+        jsl RA8875_WriteString16
+        tdc
+        pha
+        jsl RA8875_WriteString16
+        shortr        
+    @preparerestart:
+        lda #$0A                        ; print new line before restart
+        jsl RA8875_WriteChar
+
+        pla
+        pla
         jmp @restart
+
+CMD_NAME_PS:                  .asciiz "ps"
+CMD_NAME_ECHO:                .asciiz "echo"
+
+
+STR_SHELL_COMMAND_NOT_FOUND:  .asciiz "Unknown command: "

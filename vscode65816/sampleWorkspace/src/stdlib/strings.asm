@@ -144,14 +144,19 @@ MulTen:
 ; out:
 ;   carry set if no match
 ;	carry clear if match
+.A8
+.I8
 StdLib_StrCompareUntilWhiteSpace_Arg_String2 = args_start
 StdLib_StrCompareUntilWhiteSpace_Arg_String1 = args_start + 2
 StdLib_StrCompareUntilWhiteSpace:
+		shortr
 		clc
 		ldy #$00
 	@strcmp_token_load:
 		lda (StdLib_StrCompareUntilWhiteSpace_Arg_String1,s), Y
 		cmp #$20                                ; is whitespace?
+		beq @strcmp_token_is_second_done		; yes then check if string2 is done
+		cmp #$0                                 ; is end of string?
 		beq @strcmp_token_is_second_done		; yes then check if string2 is done
 		cmp (StdLib_StrCompareUntilWhiteSpace_Arg_String2,s), Y
 		bne @strcmp_token_notequal				; is it equal to string2?
@@ -168,7 +173,10 @@ StdLib_StrCompareUntilWhiteSpace:
 	@strcmp_token_notequal:
 		sec
 	@return:
+		longr
 		ply
 		plx
 		pla
+		shortr
 		rtl
+		
