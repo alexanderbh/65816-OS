@@ -2984,406 +2984,406 @@ Current file: src/main.asm
 000A12r 3               @loop:
 000A12r 3               
 000A12r 3  A5 00            lda $00
-000A14r 3  22 rr rr rr      jsl RA8875_WriteHex
-000A18r 3  20 rr rr         jsr LongDelayTaskPrinterExec
+000A14r 3                   ; jsl RA8875_WriteHex
+000A14r 3  20 rr rr         jsr LongDelayTaskPrinterExec
+000A17r 3               
+000A17r 3  5C rr rr rr      JML @loop
 000A1Br 3               
-000A1Br 3  5C rr rr rr      JML @loop
-000A1Fr 3               
-000A1Fr 3               LongDelayTaskPrinterExec:
-000A1Fr 3  20 rr rr         jsr LogDelayTaskPrinter
-000A22r 3  20 rr rr         jsr LogDelayTaskPrinter
-000A25r 3  20 rr rr         jsr LogDelayTaskPrinter
-000A28r 3  60               rts
-000A29r 3               
-000A29r 3               .A8
-000A29r 3               .I8
-000A29r 3               LogDelayTaskPrinter:
-000A29r 3  A2 FF            ldx #$FF
-000A2Br 3               LogDelayTaskPrinterLoop1:
-000A2Br 3  A0 FF            ldy #$FF
-000A2Dr 3               LogDelayTaskPrinterLoop2:
-000A2Dr 3  88               dey
-000A2Er 3  D0 FD            bne LogDelayTaskPrinterLoop2
-000A30r 3  CA               dex
-000A31r 3  D0 F8            bne LogDelayTaskPrinterLoop1
+000A1Br 3               LongDelayTaskPrinterExec:
+000A1Br 3  20 rr rr         jsr LogDelayTaskPrinter
+000A1Er 3  20 rr rr         jsr LogDelayTaskPrinter
+000A21r 3  20 rr rr         jsr LogDelayTaskPrinter
+000A24r 3  60               rts
+000A25r 3               
+000A25r 3               .A8
+000A25r 3               .I8
+000A25r 3               LogDelayTaskPrinter:
+000A25r 3  A2 FF            ldx #$FF
+000A27r 3               LogDelayTaskPrinterLoop1:
+000A27r 3  A0 FF            ldy #$FF
+000A29r 3               LogDelayTaskPrinterLoop2:
+000A29r 3  88               dey
+000A2Ar 3  D0 FD            bne LogDelayTaskPrinterLoop2
+000A2Cr 3  CA               dex
+000A2Dr 3  D0 F8            bne LogDelayTaskPrinterLoop1
+000A2Fr 3  60               rts
+000A30r 3               
+000A30r 2               .include "dump.asm"
+000A30r 3               DumpExec:
+000A30r 3  20 rr rr         jsr RA8875_WriteHex
 000A33r 3  60               rts
 000A34r 3               
-000A34r 2               .include "dump.asm"
-000A34r 3               DumpExec:
-000A34r 3  20 rr rr         jsr RA8875_WriteHex
-000A37r 3  60               rts
-000A38r 3               
-000A38r 2               .include "dumpstack.asm"
-000A38r 3               .I16
-000A38r 3               .A16
-000A38r 3               DumpStack:
-000A38r 3  E2 30            shortr
-000A3Ar 3                 ;  lda 1,s           ;get mode
-000A3Ar 3                 ;  jsl RA8875_WriteHex
-000A3Ar 3                 ;  lda 2,s           ;get mode
-000A3Ar 3                 ;  jsl RA8875_WriteHex
-000A3Ar 3               
-000A3Ar 3                 ;  lda #' '
-000A3Ar 3                 ;  jsl RA8875_WriteChar
-000A3Ar 3               
-000A3Ar 3                   ;lda #$A
-000A3Ar 3                   ;jsl RA8875_WriteChar
-000A3Ar 3               
-000A3Ar 3  C2 30            longr
-000A3Cr 3  3B               tsc
-000A3Dr 3  18               clc
-000A3Er 3  69 04 00         adc #4
-000A41r 3  22 rr rr rr      jsl RA8875_WriteHex16
-000A45r 3  E2 30            shortr
-000A47r 3  A9 20            lda #' '
-000A49r 3  22 rr rr rr      jsl RA8875_WriteChar
-000A4Dr 3               
-000A4Dr 3  C2 30            longr
-000A4Fr 3  3B               tsc
-000A50r 3  18               clc
-000A51r 3  69 06 00         adc #6
-000A54r 3  22 rr rr rr      jsl RA8875_WriteHex16
-000A58r 3  E2 30            shortr
-000A5Ar 3  A9 20            lda #' '
-000A5Cr 3  22 rr rr rr      jsl RA8875_WriteChar
-000A60r 3               
-000A60r 3  C2 30            longr
-000A62r 3  3B               tsc
-000A63r 3  18               clc
-000A64r 3  69 08 00         adc #8
-000A67r 3  22 rr rr rr      jsl RA8875_WriteHex16
-000A6Br 3  E2 30            shortr
-000A6Dr 3  A9 20            lda #' '
-000A6Fr 3  22 rr rr rr      jsl RA8875_WriteChar
-000A73r 3               
-000A73r 3               
-000A73r 3  C2 30            longr
-000A75r 3  3B               tsc
-000A76r 3  18               clc
-000A77r 3  69 0A 00         adc #10
-000A7Ar 3  22 rr rr rr      jsl RA8875_WriteHex16
-000A7Er 3  E2 30            shortr
-000A80r 3  A9 20            lda #' '
-000A82r 3  22 rr rr rr      jsl RA8875_WriteChar
-000A86r 3               
-000A86r 3               
-000A86r 3               
-000A86r 3  C2 30            longr
-000A88r 3  3B               tsc
-000A89r 3  18               clc
-000A8Ar 3  69 0C 00         adc #12
-000A8Dr 3  22 rr rr rr      jsl RA8875_WriteHex16
-000A91r 3  E2 30            shortr
-000A93r 3  A9 20            lda #' '
-000A95r 3  22 rr rr rr      jsl RA8875_WriteChar
-000A99r 3  C2 30            longr
-000A9Br 3  3B               tsc
-000A9Cr 3  18               clc
-000A9Dr 3  69 0E 00         adc #14
-000AA0r 3  22 rr rr rr      jsl RA8875_WriteHex16
-000AA4r 3  E2 30            shortr
-000AA6r 3  A9 20            lda #' '
-000AA8r 3  22 rr rr rr      jsl RA8875_WriteChar
-000AACr 3               
-000AACr 3  C2 30            longr
-000AAEr 3  3B               tsc
-000AAFr 3  18               clc
-000AB0r 3  69 10 00         adc #16
-000AB3r 3  22 rr rr rr      jsl RA8875_WriteHex16
-000AB7r 3  E2 30            shortr
-000AB9r 3  A9 20            lda #' '
-000ABBr 3  22 rr rr rr      jsl RA8875_WriteChar
-000ABFr 3               
-000ABFr 3  C2 30            longr
-000AC1r 3  3B               tsc
-000AC2r 3  18               clc
-000AC3r 3  69 12 00         adc #18
-000AC6r 3  22 rr rr rr      jsl RA8875_WriteHex16
-000ACAr 3  E2 30            shortr
-000ACCr 3  A9 20            lda #' '
-000ACEr 3  22 rr rr rr      jsl RA8875_WriteChar
-000AD2r 3               
-000AD2r 3  C2 30            longr
-000AD4r 3  3B               tsc
-000AD5r 3  18               clc
-000AD6r 3  69 14 00         adc #20
-000AD9r 3  22 rr rr rr      jsl RA8875_WriteHex16
-000ADDr 3  E2 30            shortr
-000ADFr 3  A9 20            lda #' '
-000AE1r 3  22 rr rr rr      jsl RA8875_WriteChar
-000AE5r 3               
-000AE5r 3  A9 0A            lda #$A
-000AE7r 3  22 rr rr rr      jsl RA8875_WriteChar
-000AEBr 3               
-000AEBr 3               ; Skip the first two as they are DumpStack return
-000AEBr 3  A3 04            lda 4,s           ;get mode
-000AEDr 3  22 rr rr rr      jsl RA8875_WriteHex
-000AF1r 3  A3 05            lda 5,s           ;get mode
-000AF3r 3  22 rr rr rr      jsl RA8875_WriteHex
-000AF7r 3               
-000AF7r 3  A9 20            lda #' '
-000AF9r 3  22 rr rr rr      jsl RA8875_WriteChar
-000AFDr 3               
-000AFDr 3               
-000AFDr 3  A3 06            lda 6,s           ;get mode
-000AFFr 3  22 rr rr rr      jsl RA8875_WriteHex
-000B03r 3  A3 07            lda 7,s           ;get mode
-000B05r 3  22 rr rr rr      jsl RA8875_WriteHex
-000B09r 3               
-000B09r 3  A9 20            lda #' '
-000B0Br 3  22 rr rr rr      jsl RA8875_WriteChar
-000B0Fr 3               
-000B0Fr 3               
-000B0Fr 3  A3 08            lda 8,s           ;get mode
-000B11r 3  22 rr rr rr      jsl RA8875_WriteHex
-000B15r 3  A3 09            lda 9,s           ;get mode
-000B17r 3  22 rr rr rr      jsl RA8875_WriteHex
-000B1Br 3               
-000B1Br 3               
-000B1Br 3  A9 20            lda #' '
-000B1Dr 3  22 rr rr rr      jsl RA8875_WriteChar
-000B21r 3               
-000B21r 3               
-000B21r 3  A3 0A            lda 10,s           ;get mode
-000B23r 3  22 rr rr rr      jsl RA8875_WriteHex
-000B27r 3  A3 0B            lda 11,s           ;get mode
-000B29r 3  22 rr rr rr      jsl RA8875_WriteHex
-000B2Dr 3               
-000B2Dr 3  A9 20            lda #' '
-000B2Fr 3  22 rr rr rr      jsl RA8875_WriteChar
-000B33r 3               
-000B33r 3               
-000B33r 3  A3 0C            lda 12,s           ;get mode
-000B35r 3  22 rr rr rr      jsl RA8875_WriteHex
-000B39r 3  A3 0D            lda 13,s           ;get mode
-000B3Br 3  22 rr rr rr      jsl RA8875_WriteHex
-000B3Fr 3               
-000B3Fr 3  A9 20            lda #' '
-000B41r 3  22 rr rr rr      jsl RA8875_WriteChar
-000B45r 3               
-000B45r 3               
-000B45r 3  A3 0E            lda 14,s           ;get mode
-000B47r 3  22 rr rr rr      jsl RA8875_WriteHex
-000B4Br 3  A3 0F            lda 15,s           ;get mode
-000B4Dr 3  22 rr rr rr      jsl RA8875_WriteHex
-000B51r 3               
-000B51r 3  A9 20            lda #' '
-000B53r 3  22 rr rr rr      jsl RA8875_WriteChar
-000B57r 3               
-000B57r 3               
-000B57r 3  A3 10            lda 16,s           ;get mode
-000B59r 3  22 rr rr rr      jsl RA8875_WriteHex
-000B5Dr 3  A3 11            lda 17,s           ;get mode
-000B5Fr 3  22 rr rr rr      jsl RA8875_WriteHex
-000B63r 3               
-000B63r 3               
-000B63r 3  A9 20            lda #' '
-000B65r 3  22 rr rr rr      jsl RA8875_WriteChar
-000B69r 3               
-000B69r 3               
-000B69r 3  A3 12            lda 18,s           ;get mode
-000B6Br 3  22 rr rr rr      jsl RA8875_WriteHex
-000B6Fr 3  A3 13            lda 19,s           ;get mode
-000B71r 3  22 rr rr rr      jsl RA8875_WriteHex
-000B75r 3               
-000B75r 3  A9 20            lda #' '
-000B77r 3  22 rr rr rr      jsl RA8875_WriteChar
-000B7Br 3               
-000B7Br 3               
-000B7Br 3  A3 14            lda 20,s           ;get mode
-000B7Dr 3  22 rr rr rr      jsl RA8875_WriteHex
-000B81r 3  A3 15            lda 21,s           ;get mode
-000B83r 3  22 rr rr rr      jsl RA8875_WriteHex
-000B87r 3               
-000B87r 3  A9 20            lda #' '
-000B89r 3  22 rr rr rr      jsl RA8875_WriteChar
-000B8Dr 3               
-000B8Dr 3               
-000B8Dr 3  A3 16            lda 22,s           ;get mode
-000B8Fr 3  22 rr rr rr      jsl RA8875_WriteHex
-000B93r 3  A3 17            lda 23,s           ;get mode
-000B95r 3  22 rr rr rr      jsl RA8875_WriteHex
-000B99r 3               
-000B99r 3  A9 20            lda #' '
-000B9Br 3  22 rr rr rr      jsl RA8875_WriteChar
-000B9Fr 3               
-000B9Fr 3               
-000B9Fr 3  A3 18            lda 24,s           ;get mode
-000BA1r 3  22 rr rr rr      jsl RA8875_WriteHex
-000BA5r 3  A3 19            lda 25,s           ;get mode
-000BA7r 3  22 rr rr rr      jsl RA8875_WriteHex
-000BABr 3               
-000BABr 3               
-000BABr 3  A9 20            lda #' '
-000BADr 3  22 rr rr rr      jsl RA8875_WriteChar
-000BB1r 3               
-000BB1r 3               
-000BB1r 3  A3 1A            lda 26,s           ;get mode
-000BB3r 3  22 rr rr rr      jsl RA8875_WriteHex
-000BB7r 3  A3 1B            lda 27,s           ;get mode
-000BB9r 3  22 rr rr rr      jsl RA8875_WriteHex
-000BBDr 3               
-000BBDr 3  A9 0A            lda #$A
-000BBFr 3  22 rr rr rr      jsl RA8875_WriteChar
-000BC3r 3               
-000BC3r 3  C2 30            longr
-000BC5r 3  6B               rtl
-000BC6r 3               
-000BC6r 2               .include "dumpregs.asm"
-000BC6r 3               .A8
-000BC6r 3               .I8
-000BC6r 3               DumpRegs:
-000BC6r 3  C2 30            longr
-000BC8r 3  48               pha
-000BC9r 3  DA               phx
-000BCAr 3  5A               phy
-000BCBr 3               
-000BCBr 3  E2 30            shortr
-000BCDr 3               
-000BCDr 3  A9 41            lda #'A'
-000BCFr 3  22 rr rr rr      jsl RA8875_WriteChar
-000BD3r 3  A9 3A            lda #':'
-000BD5r 3  22 rr rr rr      jsl RA8875_WriteChar
-000BD9r 3  A9 20            lda #' '
-000BDBr 3  22 rr rr rr      jsl RA8875_WriteChar
-000BDFr 3  A3 06            lda 6,s           ;get mode
-000BE1r 3  22 rr rr rr      jsl RA8875_WriteHex
-000BE5r 3  A3 05            lda 5,s           ;get mode
-000BE7r 3  22 rr rr rr      jsl RA8875_WriteHex
-000BEBr 3  A9 0A            lda #$0A
-000BEDr 3  22 rr rr rr      jsl RA8875_WriteChar
-000BF1r 3               
-000BF1r 3               
-000BF1r 3  A9 59            lda #'Y'
-000BF3r 3  22 rr rr rr      jsl RA8875_WriteChar
-000BF7r 3  A9 3A            lda #':'
-000BF9r 3  22 rr rr rr      jsl RA8875_WriteChar
-000BFDr 3  A9 20            lda #' '
-000BFFr 3  22 rr rr rr      jsl RA8875_WriteChar
-000C03r 3  A3 02            lda 2,s           ;get mode
-000C05r 3  22 rr rr rr      jsl RA8875_WriteHex
-000C09r 3  A3 01            lda 1,s           ;get mode
-000C0Br 3  22 rr rr rr      jsl RA8875_WriteHex
-000C0Fr 3  A9 0A            lda #$0A
-000C11r 3  22 rr rr rr      jsl RA8875_WriteChar
-000C15r 3               
-000C15r 3  A9 58            lda #'X'
-000C17r 3  22 rr rr rr      jsl RA8875_WriteChar
-000C1Br 3  A9 3A            lda #':'
-000C1Dr 3  22 rr rr rr      jsl RA8875_WriteChar
-000C21r 3  A9 20            lda #' '
-000C23r 3  22 rr rr rr      jsl RA8875_WriteChar
-000C27r 3  A3 04            lda 4,s           ;get mode
-000C29r 3  22 rr rr rr      jsl RA8875_WriteHex
-000C2Dr 3  A3 03            lda 3,s           ;get mode
-000C2Fr 3  22 rr rr rr      jsl RA8875_WriteHex
-000C33r 3  A9 0A            lda #$0A
-000C35r 3  22 rr rr rr      jsl RA8875_WriteChar
-000C39r 3               
-000C39r 3               
-000C39r 3               
-000C39r 3  C2 30            longr       ;select 16 bit registers
+000A34r 2               .include "dumpstack.asm"
+000A34r 3               .I16
+000A34r 3               .A16
+000A34r 3               DumpStack:
+000A34r 3  E2 30            shortr
+000A36r 3                 ;  lda 1,s           ;get mode
+000A36r 3                 ;  jsl RA8875_WriteHex
+000A36r 3                 ;  lda 2,s           ;get mode
+000A36r 3                 ;  jsl RA8875_WriteHex
+000A36r 3               
+000A36r 3                 ;  lda #' '
+000A36r 3                 ;  jsl RA8875_WriteChar
+000A36r 3               
+000A36r 3                   ;lda #$A
+000A36r 3                   ;jsl RA8875_WriteChar
+000A36r 3               
+000A36r 3  C2 30            longr
+000A38r 3  3B               tsc
+000A39r 3  18               clc
+000A3Ar 3  69 04 00         adc #4
+000A3Dr 3  22 rr rr rr      jsl RA8875_WriteHex16
+000A41r 3  E2 30            shortr
+000A43r 3  A9 20            lda #' '
+000A45r 3  22 rr rr rr      jsl RA8875_WriteChar
+000A49r 3               
+000A49r 3  C2 30            longr
+000A4Br 3  3B               tsc
+000A4Cr 3  18               clc
+000A4Dr 3  69 06 00         adc #6
+000A50r 3  22 rr rr rr      jsl RA8875_WriteHex16
+000A54r 3  E2 30            shortr
+000A56r 3  A9 20            lda #' '
+000A58r 3  22 rr rr rr      jsl RA8875_WriteChar
+000A5Cr 3               
+000A5Cr 3  C2 30            longr
+000A5Er 3  3B               tsc
+000A5Fr 3  18               clc
+000A60r 3  69 08 00         adc #8
+000A63r 3  22 rr rr rr      jsl RA8875_WriteHex16
+000A67r 3  E2 30            shortr
+000A69r 3  A9 20            lda #' '
+000A6Br 3  22 rr rr rr      jsl RA8875_WriteChar
+000A6Fr 3               
+000A6Fr 3               
+000A6Fr 3  C2 30            longr
+000A71r 3  3B               tsc
+000A72r 3  18               clc
+000A73r 3  69 0A 00         adc #10
+000A76r 3  22 rr rr rr      jsl RA8875_WriteHex16
+000A7Ar 3  E2 30            shortr
+000A7Cr 3  A9 20            lda #' '
+000A7Er 3  22 rr rr rr      jsl RA8875_WriteChar
+000A82r 3               
+000A82r 3               
+000A82r 3               
+000A82r 3  C2 30            longr
+000A84r 3  3B               tsc
+000A85r 3  18               clc
+000A86r 3  69 0C 00         adc #12
+000A89r 3  22 rr rr rr      jsl RA8875_WriteHex16
+000A8Dr 3  E2 30            shortr
+000A8Fr 3  A9 20            lda #' '
+000A91r 3  22 rr rr rr      jsl RA8875_WriteChar
+000A95r 3  C2 30            longr
+000A97r 3  3B               tsc
+000A98r 3  18               clc
+000A99r 3  69 0E 00         adc #14
+000A9Cr 3  22 rr rr rr      jsl RA8875_WriteHex16
+000AA0r 3  E2 30            shortr
+000AA2r 3  A9 20            lda #' '
+000AA4r 3  22 rr rr rr      jsl RA8875_WriteChar
+000AA8r 3               
+000AA8r 3  C2 30            longr
+000AAAr 3  3B               tsc
+000AABr 3  18               clc
+000AACr 3  69 10 00         adc #16
+000AAFr 3  22 rr rr rr      jsl RA8875_WriteHex16
+000AB3r 3  E2 30            shortr
+000AB5r 3  A9 20            lda #' '
+000AB7r 3  22 rr rr rr      jsl RA8875_WriteChar
+000ABBr 3               
+000ABBr 3  C2 30            longr
+000ABDr 3  3B               tsc
+000ABEr 3  18               clc
+000ABFr 3  69 12 00         adc #18
+000AC2r 3  22 rr rr rr      jsl RA8875_WriteHex16
+000AC6r 3  E2 30            shortr
+000AC8r 3  A9 20            lda #' '
+000ACAr 3  22 rr rr rr      jsl RA8875_WriteChar
+000ACEr 3               
+000ACEr 3  C2 30            longr
+000AD0r 3  3B               tsc
+000AD1r 3  18               clc
+000AD2r 3  69 14 00         adc #20
+000AD5r 3  22 rr rr rr      jsl RA8875_WriteHex16
+000AD9r 3  E2 30            shortr
+000ADBr 3  A9 20            lda #' '
+000ADDr 3  22 rr rr rr      jsl RA8875_WriteChar
+000AE1r 3               
+000AE1r 3  A9 0A            lda #$A
+000AE3r 3  22 rr rr rr      jsl RA8875_WriteChar
+000AE7r 3               
+000AE7r 3               ; Skip the first two as they are DumpStack return
+000AE7r 3  A3 04            lda 4,s           ;get mode
+000AE9r 3  22 rr rr rr      jsl RA8875_WriteHex
+000AEDr 3  A3 05            lda 5,s           ;get mode
+000AEFr 3  22 rr rr rr      jsl RA8875_WriteHex
+000AF3r 3               
+000AF3r 3  A9 20            lda #' '
+000AF5r 3  22 rr rr rr      jsl RA8875_WriteChar
+000AF9r 3               
+000AF9r 3               
+000AF9r 3  A3 06            lda 6,s           ;get mode
+000AFBr 3  22 rr rr rr      jsl RA8875_WriteHex
+000AFFr 3  A3 07            lda 7,s           ;get mode
+000B01r 3  22 rr rr rr      jsl RA8875_WriteHex
+000B05r 3               
+000B05r 3  A9 20            lda #' '
+000B07r 3  22 rr rr rr      jsl RA8875_WriteChar
+000B0Br 3               
+000B0Br 3               
+000B0Br 3  A3 08            lda 8,s           ;get mode
+000B0Dr 3  22 rr rr rr      jsl RA8875_WriteHex
+000B11r 3  A3 09            lda 9,s           ;get mode
+000B13r 3  22 rr rr rr      jsl RA8875_WriteHex
+000B17r 3               
+000B17r 3               
+000B17r 3  A9 20            lda #' '
+000B19r 3  22 rr rr rr      jsl RA8875_WriteChar
+000B1Dr 3               
+000B1Dr 3               
+000B1Dr 3  A3 0A            lda 10,s           ;get mode
+000B1Fr 3  22 rr rr rr      jsl RA8875_WriteHex
+000B23r 3  A3 0B            lda 11,s           ;get mode
+000B25r 3  22 rr rr rr      jsl RA8875_WriteHex
+000B29r 3               
+000B29r 3  A9 20            lda #' '
+000B2Br 3  22 rr rr rr      jsl RA8875_WriteChar
+000B2Fr 3               
+000B2Fr 3               
+000B2Fr 3  A3 0C            lda 12,s           ;get mode
+000B31r 3  22 rr rr rr      jsl RA8875_WriteHex
+000B35r 3  A3 0D            lda 13,s           ;get mode
+000B37r 3  22 rr rr rr      jsl RA8875_WriteHex
+000B3Br 3               
+000B3Br 3  A9 20            lda #' '
+000B3Dr 3  22 rr rr rr      jsl RA8875_WriteChar
+000B41r 3               
+000B41r 3               
+000B41r 3  A3 0E            lda 14,s           ;get mode
+000B43r 3  22 rr rr rr      jsl RA8875_WriteHex
+000B47r 3  A3 0F            lda 15,s           ;get mode
+000B49r 3  22 rr rr rr      jsl RA8875_WriteHex
+000B4Dr 3               
+000B4Dr 3  A9 20            lda #' '
+000B4Fr 3  22 rr rr rr      jsl RA8875_WriteChar
+000B53r 3               
+000B53r 3               
+000B53r 3  A3 10            lda 16,s           ;get mode
+000B55r 3  22 rr rr rr      jsl RA8875_WriteHex
+000B59r 3  A3 11            lda 17,s           ;get mode
+000B5Br 3  22 rr rr rr      jsl RA8875_WriteHex
+000B5Fr 3               
+000B5Fr 3               
+000B5Fr 3  A9 20            lda #' '
+000B61r 3  22 rr rr rr      jsl RA8875_WriteChar
+000B65r 3               
+000B65r 3               
+000B65r 3  A3 12            lda 18,s           ;get mode
+000B67r 3  22 rr rr rr      jsl RA8875_WriteHex
+000B6Br 3  A3 13            lda 19,s           ;get mode
+000B6Dr 3  22 rr rr rr      jsl RA8875_WriteHex
+000B71r 3               
+000B71r 3  A9 20            lda #' '
+000B73r 3  22 rr rr rr      jsl RA8875_WriteChar
+000B77r 3               
+000B77r 3               
+000B77r 3  A3 14            lda 20,s           ;get mode
+000B79r 3  22 rr rr rr      jsl RA8875_WriteHex
+000B7Dr 3  A3 15            lda 21,s           ;get mode
+000B7Fr 3  22 rr rr rr      jsl RA8875_WriteHex
+000B83r 3               
+000B83r 3  A9 20            lda #' '
+000B85r 3  22 rr rr rr      jsl RA8875_WriteChar
+000B89r 3               
+000B89r 3               
+000B89r 3  A3 16            lda 22,s           ;get mode
+000B8Br 3  22 rr rr rr      jsl RA8875_WriteHex
+000B8Fr 3  A3 17            lda 23,s           ;get mode
+000B91r 3  22 rr rr rr      jsl RA8875_WriteHex
+000B95r 3               
+000B95r 3  A9 20            lda #' '
+000B97r 3  22 rr rr rr      jsl RA8875_WriteChar
+000B9Br 3               
+000B9Br 3               
+000B9Br 3  A3 18            lda 24,s           ;get mode
+000B9Dr 3  22 rr rr rr      jsl RA8875_WriteHex
+000BA1r 3  A3 19            lda 25,s           ;get mode
+000BA3r 3  22 rr rr rr      jsl RA8875_WriteHex
+000BA7r 3               
+000BA7r 3               
+000BA7r 3  A9 20            lda #' '
+000BA9r 3  22 rr rr rr      jsl RA8875_WriteChar
+000BADr 3               
+000BADr 3               
+000BADr 3  A3 1A            lda 26,s           ;get mode
+000BAFr 3  22 rr rr rr      jsl RA8875_WriteHex
+000BB3r 3  A3 1B            lda 27,s           ;get mode
+000BB5r 3  22 rr rr rr      jsl RA8875_WriteHex
+000BB9r 3               
+000BB9r 3  A9 0A            lda #$A
+000BBBr 3  22 rr rr rr      jsl RA8875_WriteChar
+000BBFr 3               
+000BBFr 3  C2 30            longr
+000BC1r 3  6B               rtl
+000BC2r 3               
+000BC2r 2               .include "dumpregs.asm"
+000BC2r 3               .A8
+000BC2r 3               .I8
+000BC2r 3               DumpRegs:
+000BC2r 3  C2 30            longr
+000BC4r 3  48               pha
+000BC5r 3  DA               phx
+000BC6r 3  5A               phy
+000BC7r 3               
+000BC7r 3  E2 30            shortr
+000BC9r 3               
+000BC9r 3  A9 41            lda #'A'
+000BCBr 3  22 rr rr rr      jsl RA8875_WriteChar
+000BCFr 3  A9 3A            lda #':'
+000BD1r 3  22 rr rr rr      jsl RA8875_WriteChar
+000BD5r 3  A9 20            lda #' '
+000BD7r 3  22 rr rr rr      jsl RA8875_WriteChar
+000BDBr 3  A3 06            lda 6,s           ;get mode
+000BDDr 3  22 rr rr rr      jsl RA8875_WriteHex
+000BE1r 3  A3 05            lda 5,s           ;get mode
+000BE3r 3  22 rr rr rr      jsl RA8875_WriteHex
+000BE7r 3  A9 0A            lda #$0A
+000BE9r 3  22 rr rr rr      jsl RA8875_WriteChar
+000BEDr 3               
+000BEDr 3               
+000BEDr 3  A9 59            lda #'Y'
+000BEFr 3  22 rr rr rr      jsl RA8875_WriteChar
+000BF3r 3  A9 3A            lda #':'
+000BF5r 3  22 rr rr rr      jsl RA8875_WriteChar
+000BF9r 3  A9 20            lda #' '
+000BFBr 3  22 rr rr rr      jsl RA8875_WriteChar
+000BFFr 3  A3 02            lda 2,s           ;get mode
+000C01r 3  22 rr rr rr      jsl RA8875_WriteHex
+000C05r 3  A3 01            lda 1,s           ;get mode
+000C07r 3  22 rr rr rr      jsl RA8875_WriteHex
+000C0Br 3  A9 0A            lda #$0A
+000C0Dr 3  22 rr rr rr      jsl RA8875_WriteChar
+000C11r 3               
+000C11r 3  A9 58            lda #'X'
+000C13r 3  22 rr rr rr      jsl RA8875_WriteChar
+000C17r 3  A9 3A            lda #':'
+000C19r 3  22 rr rr rr      jsl RA8875_WriteChar
+000C1Dr 3  A9 20            lda #' '
+000C1Fr 3  22 rr rr rr      jsl RA8875_WriteChar
+000C23r 3  A3 04            lda 4,s           ;get mode
+000C25r 3  22 rr rr rr      jsl RA8875_WriteHex
+000C29r 3  A3 03            lda 3,s           ;get mode
+000C2Br 3  22 rr rr rr      jsl RA8875_WriteHex
+000C2Fr 3  A9 0A            lda #$0A
+000C31r 3  22 rr rr rr      jsl RA8875_WriteChar
+000C35r 3               
+000C35r 3               
+000C35r 3               
+000C35r 3  C2 30            longr       ;select 16 bit registers
+000C37r 3               
+000C37r 3  7A               ply
+000C38r 3  FA               plx
+000C39r 3  68               pla
+000C3Ar 3               
+000C3Ar 3  60               rts
 000C3Br 3               
-000C3Br 3  7A               ply
-000C3Cr 3  FA               plx
-000C3Dr 3  68               pla
-000C3Er 3               
-000C3Er 3  60               rts
-000C3Fr 3               
-000C3Fr 2               
-000C3Fr 1               .A8
-000C3Fr 1               .I8
-000C3Fr 1               ResetVector:
-000C3Fr 1  A2 FF            ldx #$FF
-000C41r 1  9A               txs
-000C42r 1  D8               cld
-000C43r 1  20 rr rr         jsr InitBIOS                    ; Entry point for boot
-000C46r 1               
-000C46r 1  C2 30            longr
-000C48r 1  20 rr rr         jsr InitKernel                  ; Kernel Init
-000C4Br 1               
-000C4Br 1               
-000C4Br 1  E2 30            shortr
-000C4Dr 1  A9 00            lda #$00            ; push program bank of ShellExec
-000C4Fr 1  48               pha
-000C50r 1  C2 30            longr
-000C52r 1  F4 rr rr         pea ShellExec       ; push 2byte addr of ShellExec
-000C55r 1  22 rr rr rr      jsl TaskSpawn
-000C59r 1  68               pla
-000C5Ar 1  E2 30            shortr
-000C5Cr 1  68               pla
-000C5Dr 1               
-000C5Dr 1  A9 00            lda #$00            ; push program bank of ClockExec
-000C5Fr 1  48               pha
-000C60r 1  C2 30            longr
-000C62r 1  F4 rr rr         pea ClockExec       ; push 2byte addr of ClockExec
-000C65r 1  22 rr rr rr      jsl TaskSpawn
-000C69r 1  68               pla
-000C6Ar 1  E2 30            shortr
-000C6Cr 1  68               pla ; clean up
-000C6Dr 1               
-000C6Dr 1               
-000C6Dr 1  A9 00            lda #$00            ; push program bank of LoaderExec
-000C6Fr 1  48               pha
-000C70r 1  C2 30            longr
-000C72r 1  F4 rr rr         pea TaskPrinterExec       ; push 2byte addr of LoaderExec
-000C75r 1  22 rr rr rr      jsl TaskSpawn
-000C79r 1  68               pla
-000C7Ar 1  E2 30            shortr
-000C7Cr 1  68               pla ; clean up
-000C7Dr 1               
-000C7Dr 1               
-000C7Dr 1  A9 00            lda #$00            ; push program bank of LoaderExec
-000C7Fr 1  48               pha
-000C80r 1  C2 30            longr
-000C82r 1  F4 rr rr         pea TaskPrinterExec       ; push 2byte addr of LoaderExec
-000C85r 1  22 rr rr rr      jsl TaskSpawn
-000C89r 1  68               pla
-000C8Ar 1  E2 30            shortr
-000C8Cr 1  68               pla ; clean up
-000C8Dr 1               
-000C8Dr 1  A9 00            lda #$00            ; push program bank of LoaderExec
-000C8Fr 1  48               pha
-000C90r 1  C2 30            longr
-000C92r 1  F4 rr rr         pea TaskPrinterExec       ; push 2byte addr of LoaderExec
-000C95r 1  22 rr rr rr      jsl TaskSpawn
-000C99r 1  68               pla
-000C9Ar 1  E2 30            shortr
-000C9Cr 1  68               pla ; clean up
-000C9Dr 1               
-000C9Dr 1  A9 00            lda #$00            ; push program bank of LoaderExec
-000C9Fr 1  48               pha
-000CA0r 1  C2 30            longr
-000CA2r 1  F4 rr rr         pea TaskPrinterExec       ; push 2byte addr of LoaderExec
-000CA5r 1  22 rr rr rr      jsl TaskSpawn
-000CA9r 1  68               pla
-000CAAr 1  E2 30            shortr
-000CACr 1  68               pla ; clean up
+000C3Br 2               
+000C3Br 1               .A8
+000C3Br 1               .I8
+000C3Br 1               ResetVector:
+000C3Br 1  A2 FF            ldx #$FF
+000C3Dr 1  9A               txs
+000C3Er 1  D8               cld
+000C3Fr 1  20 rr rr         jsr InitBIOS                    ; Entry point for boot
+000C42r 1               
+000C42r 1  C2 30            longr
+000C44r 1  20 rr rr         jsr InitKernel                  ; Kernel Init
+000C47r 1               
+000C47r 1               
+000C47r 1  E2 30            shortr
+000C49r 1  A9 00            lda #$00            ; push program bank of ShellExec
+000C4Br 1  48               pha
+000C4Cr 1  C2 30            longr
+000C4Er 1  F4 rr rr         pea ShellExec       ; push 2byte addr of ShellExec
+000C51r 1  22 rr rr rr      jsl TaskSpawn
+000C55r 1  68               pla
+000C56r 1  E2 30            shortr
+000C58r 1  68               pla
+000C59r 1               
+000C59r 1  A9 00            lda #$00            ; push program bank of ClockExec
+000C5Br 1  48               pha
+000C5Cr 1  C2 30            longr
+000C5Er 1  F4 rr rr         pea ClockExec       ; push 2byte addr of ClockExec
+000C61r 1  22 rr rr rr      jsl TaskSpawn
+000C65r 1  68               pla
+000C66r 1  E2 30            shortr
+000C68r 1  68               pla ; clean up
+000C69r 1               
+000C69r 1               
+000C69r 1  A9 00            lda #$00            ; push program bank of LoaderExec
+000C6Br 1  48               pha
+000C6Cr 1  C2 30            longr
+000C6Er 1  F4 rr rr         pea TaskPrinterExec       ; push 2byte addr of LoaderExec
+000C71r 1  22 rr rr rr      jsl TaskSpawn
+000C75r 1  68               pla
+000C76r 1  E2 30            shortr
+000C78r 1  68               pla ; clean up
+000C79r 1               
+000C79r 1               
+000C79r 1  A9 00            lda #$00            ; push program bank of LoaderExec
+000C7Br 1  48               pha
+000C7Cr 1  C2 30            longr
+000C7Er 1  F4 rr rr         pea TaskPrinterExec       ; push 2byte addr of LoaderExec
+000C81r 1  22 rr rr rr      jsl TaskSpawn
+000C85r 1  68               pla
+000C86r 1  E2 30            shortr
+000C88r 1  68               pla ; clean up
+000C89r 1               
+000C89r 1  A9 00            lda #$00            ; push program bank of LoaderExec
+000C8Br 1  48               pha
+000C8Cr 1  C2 30            longr
+000C8Er 1  F4 rr rr         pea TaskPrinterExec       ; push 2byte addr of LoaderExec
+000C91r 1  22 rr rr rr      jsl TaskSpawn
+000C95r 1  68               pla
+000C96r 1  E2 30            shortr
+000C98r 1  68               pla ; clean up
+000C99r 1               
+000C99r 1  A9 00            lda #$00            ; push program bank of LoaderExec
+000C9Br 1  48               pha
+000C9Cr 1  C2 30            longr
+000C9Er 1  F4 rr rr         pea TaskPrinterExec       ; push 2byte addr of LoaderExec
+000CA1r 1  22 rr rr rr      jsl TaskSpawn
+000CA5r 1  68               pla
+000CA6r 1  E2 30            shortr
+000CA8r 1  68               pla ; clean up
+000CA9r 1               
+000CA9r 1               
+000CA9r 1               
+000CA9r 1               
+000CA9r 1                   ; debug printing of task
+000CA9r 1                   ;lda TaskProgramBank+1
+000CA9r 1                   ;jsl RA8875_WriteHex
+000CA9r 1                   ;lda TaskProgramPointer+2
+000CA9r 1                   ;jsl RA8875_WriteHex
+000CA9r 1                   ;lda TaskProgramPointer+3
+000CA9r 1                   ;jsl RA8875_WriteHex
+000CA9r 1               
+000CA9r 1               
+000CA9r 1  58               cli
+000CAAr 1               
+000CAAr 1                   ;jsl Scheduler_NextTask
+000CAAr 1                   ;jsr ShellExec                   ; Run shell program
+000CAAr 1               
+000CAAr 1               ; Blink Diode
+000CAAr 1                   ;jsl LoaderExec
+000CAAr 1               
+000CAAr 1               Loop:
+000CAAr 1  4C rr rr         jmp Loop
 000CADr 1               
-000CADr 1               
-000CADr 1               
-000CADr 1               
-000CADr 1                   ; debug printing of task
-000CADr 1                   ;lda TaskProgramBank+1
-000CADr 1                   ;jsl RA8875_WriteHex
-000CADr 1                   ;lda TaskProgramPointer+2
-000CADr 1                   ;jsl RA8875_WriteHex
-000CADr 1                   ;lda TaskProgramPointer+3
-000CADr 1                   ;jsl RA8875_WriteHex
-000CADr 1               
-000CADr 1               
-000CADr 1  58               cli
-000CAEr 1               
-000CAEr 1                   ;jsl Scheduler_NextTask
-000CAEr 1                   ;jsr ShellExec                   ; Run shell program
-000CAEr 1               
-000CAEr 1               ; Blink Diode
-000CAEr 1                   ;jsl LoaderExec
-000CAEr 1               
-000CAEr 1               Loop:
-000CAEr 1  4C rr rr         jmp Loop
-000CB1r 1               
-000CB1r 1               .SEGMENT "NATIVE_VECTORS"
+000CADr 1               .SEGMENT "NATIVE_VECTORS"
 000000r 1  00 00            .word $0000                 ; COP
 000002r 1  00 00            .word $0000                 ; BRK
 000004r 1  00 00            .word $0000                 ; ABORTB

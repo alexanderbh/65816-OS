@@ -8,7 +8,7 @@ shortr
 @loop:
 
     lda $00
-    jsl RA8875_WriteHex
+    ; jsl RA8875_WriteHex
     jsr LongDelayTaskPrinterExec
 
     JML @loop
