@@ -162,12 +162,7 @@ Scheduler_NextTask:
     cmp #TASK_STATUS_RUNNING
     beq @goreturn
 
-    jsl RA8875_WriteHex
-    txa
-    jsl RA8875_WriteHex
-    longr
-    write task_unknown_status
-    shortr
+    jmp @loop
 @goreturn:
     jmp @return
 
@@ -313,3 +308,13 @@ InitScheduler:
 
     longr
     rts
+
+
+.I8
+.A8
+Scheduler_ExitTask:
+        ldx ActiveTask
+        lda #TASK_STATUS_EXITED
+        sta TaskStatus,x
+    @loop:
+        jmp @loop                   ; wait to die

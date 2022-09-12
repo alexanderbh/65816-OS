@@ -54,7 +54,17 @@ ShellExec:
         pla
         pla
         bcs @next1
-        jsl ExecPs
+
+
+        lda #$00            ; push program bank of LoaderExec
+        pha
+        longr
+        pea ExecPs       ; push 2byte addr of LoaderExec
+        jsl TaskSpawn
+        pla
+        shortr
+        pla ; clean up
+
         jmp @preparerestart
     
     @next1:

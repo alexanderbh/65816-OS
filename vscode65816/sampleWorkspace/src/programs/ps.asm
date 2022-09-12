@@ -12,4 +12,4 @@ ExecPs:
     lda $00
     jsl RA8875_WriteHex
 
-    rtl
+    jml Sys_Exit
