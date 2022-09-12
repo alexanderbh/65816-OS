@@ -24,7 +24,7 @@ ShellExec:
         pha
         jsl RA8875_WriteChar            ; Write to RA8875       - todo: write to stream (from task context) - stdout
         pla
-        cmp $0A                         ; Is it LINE FEED?
+        cmp #$0A                         ; Is it LINE FEED?
         beq @execute                    ; yes - then execute input buffer
 
         ; store in input buffer
