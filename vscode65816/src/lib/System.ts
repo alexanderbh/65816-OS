@@ -2,6 +2,7 @@ import { EventEmitter } from "events";
 import { clearInterval } from "timers";
 import { VIA6522 } from "./6522VIA";
 import { CPU } from "./CPU";
+import { Keyboard } from "./Keyboard";
 import { RA8875 } from "./RA8875";
 import { RAM } from "./RAM";
 import { ROM } from "./ROM";
@@ -20,6 +21,13 @@ type MemoryDevice = {
   type: "ram" | "rom" | "via";
 };
 
+export interface HandshakeDevice {
+  highToLowCallback: undefined | (() => void);
+  lowToHighCallback: undefined | (() => void);
+  readByte(): Byte;
+  writeByte(b: Byte): void;
+}
+
 export interface PHI2Listener {
   phi2(count: number): void;
 }
@@ -36,12 +44,12 @@ export class System extends EventEmitter implements AddressBus {
   public pcToInstructionMap: Map<Address, { size: number }> = new Map();
   public phi2Listener: PHI2Listener | undefined = undefined;
 
-  public constructor(ra8875: RA8875) {
+  public constructor(ra8875: RA8875, keyboard: Keyboard) {
     super();
     this.pcToInstructionMap = new Map();
     this.ram = new RAM();
     this.cpu = new CPU(this);
-    this.via1 = new VIA6522(this, VIA1_START, new Map([[4, ra8875]]));
+    this.via1 = new VIA6522(this, VIA1_START, new Map([[4, ra8875]]), keyboard);
     this.memoryDevices = [];
     this.memoryDevices.push({
       start: RAM_START,

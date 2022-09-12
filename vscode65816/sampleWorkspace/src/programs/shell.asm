@@ -18,12 +18,12 @@ ShellExec:
 
 
     @loop:
-        ldx STREAM_STDIN                ; TODO: Get stream from Task Context (not hardcoded stdin)
+        ldx #STREAM_STDIN                ; TODO: Get stream from Task Context (not hardcoded stdin)
         jsl StreamGetC
         beq @loop                       ; Noting in stream (carry set)
-        
+        pha
         jsl RA8875_WriteChar            ; Write to RA8875       - todo: write to stream (from task context) - stdout
-       
+        pla
         cmp $0A                         ; Is it LINE FEED?
         beq @execute                    ; yes - then execute input buffer
 
@@ -39,9 +39,6 @@ ShellExec:
         stz Shell_InputBufferStart,x    ; 0-terminate the end of the input buffer
 
         jmp @loop
-
-        longr
-        rts
     
     @execute:
 ; TODO: EXECUTE string in input buffer

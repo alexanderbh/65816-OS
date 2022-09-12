@@ -29,6 +29,7 @@ import { basename } from "path";
 import { addr } from "./lib/Utils";
 import { Register } from "./lib/Register";
 import { RA8875 } from "./lib/RA8875";
+import { Keyboard } from "./lib/Keyboard";
 
 /**
  * This interface describes the mock-debug specific launch attributes
@@ -92,7 +93,8 @@ export class MockDebugSession extends LoggingDebugSession {
    */
   public constructor(
     private fileAccessor: FileAccessor,
-    private panel: vscode.WebviewPanel
+    private panel: vscode.WebviewPanel,
+    private keyboard: Keyboard
   ) {
     super("mock-debug.txt");
 
@@ -100,7 +102,7 @@ export class MockDebugSession extends LoggingDebugSession {
     this.setDebuggerLinesStartAt1(false);
     this.setDebuggerColumnsStartAt1(false);
 
-    this._system = new System(new RA8875(this.panel));
+    this._system = new System(new RA8875(this.panel), this.keyboard);
 
     // setup event handlers
     this._system.on("stopOnEntry", () => {

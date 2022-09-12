@@ -15,6 +15,7 @@ import {
   CancellationToken,
 } from "vscode";
 import { FileAccessor } from "./debugAdapter";
+import { Keyboard } from "./lib/Keyboard";
 import { MockDebugSession } from "./mockDebug";
 
 function getWebviewContent() {
@@ -73,6 +74,41 @@ function getWebviewContent() {
         }
       });
     });
+
+    const keyEventToData = (event) => {
+      return {
+        keyCode: event.keyCode,
+        code: event.code,
+        key: event.key,
+        ctrlKey: event.ctrlKey,
+        shiftKey: event.shiftKey,
+        altKey: event.altKey,
+        metaKey: event.metaKey,
+        repeat: event.repeat,
+        which: event.which,
+        type: event.type,
+        isComposing: event.isComposing,
+        eventPhase: event.eventPhase,
+        composed: event.composed,
+        detail: event.detail
+      }
+    }
+    const vscode = acquireVsCodeApi();
+    input.addEventListener("keydown", function(event) {
+      console.log("EVENT DOWN", event);
+      vscode.postMessage({
+        command: 'keydown',
+        event: keyEventToData(event)
+      });
+    });
+    input.addEventListener("keyup", function(event) {
+      console.log("EVENT UP", event);
+      vscode.postMessage({
+        command: 'keyup',
+        event: keyEventToData(event)
+      });
+      input.value = "";
+    });
     </script>
 </body>
 </html>`;
@@ -99,6 +135,22 @@ export function activateMockDebug(
   const provider = new MockConfigurationProvider();
   context.subscriptions.push(
     vscode.debug.registerDebugConfigurationProvider("mock", provider)
+  );
+
+  const keyboard = new Keyboard();
+  panel.webview.onDidReceiveMessage(
+    (message) => {
+      switch (message.command) {
+        case "keydown":
+          keyboard.keyDown(message.event);
+          break;
+        case "keyup":
+          keyboard.keyUp(message.event);
+          break;
+      }
+    },
+    undefined,
+    context.subscriptions
   );
 
   // register a dynamic configuration provider for 'mock' debug type
@@ -136,7 +188,7 @@ export function activateMockDebug(
   );
 
   if (!factory) {
-    factory = new InlineDebugAdapterFactory(panel);
+    factory = new InlineDebugAdapterFactory(panel, keyboard);
   }
   context.subscriptions.push(
     vscode.debug.registerDebugAdapterDescriptorFactory("mock", factory)
@@ -283,12 +335,12 @@ function pathToUri(path: string) {
 class InlineDebugAdapterFactory
   implements vscode.DebugAdapterDescriptorFactory
 {
-  constructor(private panel: vscode.WebviewPanel) {}
+  constructor(private panel: vscode.WebviewPanel, private keyboard: Keyboard) {}
   createDebugAdapterDescriptor(
     _session: vscode.DebugSession
   ): ProviderResult<vscode.DebugAdapterDescriptor> {
     return new vscode.DebugAdapterInlineImplementation(
-      new MockDebugSession(workspaceFileAccessor, this.panel)
+      new MockDebugSession(workspaceFileAccessor, this.panel, this.keyboard)
     );
   }
 }

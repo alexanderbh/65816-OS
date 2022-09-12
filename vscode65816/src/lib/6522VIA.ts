@@ -1,6 +1,6 @@
 import { Register } from "./Register";
 import { SPI } from "./SPI";
-import { PHI2Listener, System } from "./System";
+import { PHI2Listener, HandshakeDevice, System } from "./System";
 import { high, low } from "./Utils";
 
 export class VIA6522 implements AddressBus, PHI2Listener {
@@ -11,7 +11,8 @@ export class VIA6522 implements AddressBus, PHI2Listener {
   constructor(
     private system: System,
     private startAddress: Address,
-    private spiDevices: Map<number, SPI>
+    private spiDevices: Map<number, SPI>,
+    private portAHandshake?: HandshakeDevice
   ) {
     this.registers = [
       new Register("ORB/IRB", system, false),
@@ -35,6 +36,30 @@ export class VIA6522 implements AddressBus, PHI2Listener {
       this.registerMap.set(register.name, register);
     });
     this.system.phi2Listener = this;
+    if (this.portAHandshake) {
+      this.portAHandshake.highToLowCallback = () => {
+        if (
+          (this.registerMap.get("PCR")!.byte & 0b00000001) === 0 &&
+          (this.registerMap.get("IER")!.byte & 0b00000010) > 0
+        ) {
+          this.registerMap
+            .get("IFR")!
+            .setByte(this.registerMap.get("IFR")!.byte | 0b10000010);
+          this.system.cpu.interruptPending = true;
+        }
+      };
+      this.portAHandshake.lowToHighCallback = () => {
+        if (
+          (this.registerMap.get("PCR")!.byte & 0b00000001) > 0 &&
+          (this.registerMap.get("IER")!.byte & 0b00000010) > 0
+        ) {
+          this.registerMap
+            .get("IFR")!
+            .setByte(this.registerMap.get("IFR")!.byte | 0b10000010);
+          this.system.cpu.interruptPending = true;
+        }
+      };
+    }
   }
 
   phi2(count: number): void {
@@ -85,6 +110,17 @@ export class VIA6522 implements AddressBus, PHI2Listener {
   read(addr: Sesqui): Byte {
     const register = this.registers[addr - this.startAddress];
     switch (register.name) {
+      case "ORA/IRA":
+        if (this.portAHandshake) {
+          this.registerMap
+            .get("IFR")!
+            .setByte(this.registerMap.get("IFR")!.byte & 0b11111100);
+          this.system.cpu.interruptPending = false;
+          const b = this.portAHandshake.readByte();
+          console.log("IRA byte", b);
+          return b;
+        }
+        return register.byte;
       case "IER":
         return 0b10000000 | register.byte;
       case "T1C-L":
@@ -92,7 +128,9 @@ export class VIA6522 implements AddressBus, PHI2Listener {
           .get("IFR")!
           .setByte(this.registerMap.get("IFR")!.byte & 0b10111111);
         if (this.registerMap.get("IFR")?.byte === 0b10000000) {
-          this.registerMap.get("IFR")!.setByte(0);
+          this.registerMap
+            .get("IFR")!
+            .setByte(this.registerMap.get("IFR")!.byte & 0b10111111);
           this.system.cpu.interruptPending = false;
         }
       default:
@@ -105,6 +143,16 @@ export class VIA6522 implements AddressBus, PHI2Listener {
   write(addr: Sesqui, data: Byte): void {
     const register = this.registers[addr - this.startAddress];
     switch (register.name) {
+      case "ORA/IRA":
+        if (this.portAHandshake) {
+          this.registerMap
+            .get("IFR")!
+            .setByte(this.registerMap.get("IFR")!.byte & 0b11111100);
+          this.system.cpu.interruptPending = false;
+          return this.portAHandshake.writeByte(data);
+        }
+        register.setByte(data);
+        break;
       case "ORB/IRB":
         register.setByte(data);
         this.handleSPI();
