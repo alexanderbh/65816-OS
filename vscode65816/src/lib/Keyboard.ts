@@ -2,6 +2,12 @@
 
 import { HandshakeDevice } from "./System";
 
+/**
+ * This is a hack for now. Instead of timing it assumes the CPU asks for each key twice.
+ * So it returns each scan code 2 times. Normally this is time based such that after the two
+ * reads the next scan code will have been provided by the ps/2 keyboard.
+ */
+
 export class Keyboard implements HandshakeDevice {
   public lowToHighCallback: (() => void) | undefined = undefined;
   public highToLowCallback: (() => void) | undefined = undefined;
