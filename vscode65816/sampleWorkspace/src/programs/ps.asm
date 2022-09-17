@@ -3,13 +3,10 @@
 .A8
 .I8
 ExecPs:
+    longr
+        jsl Sys_GetPID
+        sta $00
+        lda $00
+        jsl RA8875_WriteHex16
     shortr
-
-    jsl Sys_GetPID
-    sta $00
-   
-
-    lda $00
-    jsl RA8875_WriteHex
-
-    jml Sys_Exit
+        jml Sys_Exit

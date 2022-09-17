@@ -40,6 +40,7 @@ TaskSwitches: .res 2
 TempStackReturnBank: .res 1
 TempStackReturnPC: .res 2
 
+NextTaskId: .res 2
 
 
 .code
@@ -188,22 +189,11 @@ Scheduler_NextTask:
 
     lda TaskProgramPointer+1,x
     sta InterruptPC+1,s
-    ;jsl RA8875_WriteHex
+    
 
     lda TaskProgramPointer,x
     sta InterruptPC,s
-    ;jsl RA8875_WriteHex
-
-    ;lda #$A
-    ;jsl RA8875_WriteChar
-
-    ;lda #'n'
-    ;jsl RA8875_WriteChar
-    ;longr
-    ;jsl DumpStack
-    ;shortr
-    ;lda #$A
-    ;jsl RA8875_WriteChar
+    
     jmp @return
 
 
@@ -220,6 +210,10 @@ InitScheduler:
     
     stz TimerCounter        ; set interrupt timer counter to 0
     stz TaskSwitches        ; set task switch count to 0
+
+    lda #$0100
+    sta NextTaskId
+
 
 ; should be approx 256 times per second
     lda #9896

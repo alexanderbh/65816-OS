@@ -2,7 +2,6 @@
 
 TaskPrinterExec:
 shortr
-    jsl Sys_GetPID
     sta $00
    
 @loop:

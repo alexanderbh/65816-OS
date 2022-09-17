@@ -3,6 +3,7 @@ NUMBER_OF_TASKS = 16
 TASK_STATUS_NONE = 0
 TASK_STATUS_RUNNING = 1
 TASK_STATUS_RUNNABLE = 2
+TASK_STATUS_WAITING_TASK = 3
 TASK_STATUS_EXITED = 6          ; everything above this can be taken by a new task
 TASK_STATUS_KILLED = 7
 
@@ -26,6 +27,10 @@ TaskA: .res NUMBER_OF_TASKS * 2
 TaskX: .res NUMBER_OF_TASKS * 2
 TaskY: .res NUMBER_OF_TASKS * 2
 
+; TASK STRUCTURE
+
+TaskStructID: .res NUMBER_OF_TASKS * 2
+
 
 .code
 
@@ -48,6 +53,7 @@ InitTasks:
         stz TaskA, x
         stz TaskX, x
         stz TaskY, x
+        stz TaskStructID, x
         shortr
     bne @clrloop
 
@@ -71,9 +77,13 @@ TaskSpawn:
         jsr TaskFindUnusedTask
         bcs @no_unused_tasks
 
-        ;txa
-        ;jsl RA8875_WriteHex
-
+    longa
+        lda NextTaskId
+        sta TaskStructID,x
+        clc
+        adc #1
+        sta NextTaskId
+    shorta
         stz TaskExitCode,x
 
         lda #TASK_STATUS_RUNNABLE

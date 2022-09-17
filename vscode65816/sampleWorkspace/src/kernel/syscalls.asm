@@ -1,7 +1,10 @@
-.I8
-.A8
+.I16
+.A16
 Sys_GetPID:
-    LDA ActiveTask
+    shorti
+    LDX ActiveTask
+    LDA TaskStructID,x
+    longi
     RTL
 
 .I8
