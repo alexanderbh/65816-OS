@@ -54,12 +54,12 @@ Scheduler_NextTask:
 
     lda TaskStatus,x
     cmp #TASK_STATUS_RUNNING
-    bne @loop
+    bne @notrunnable
 
 ; Save the current task state
     lda #TASK_STATUS_RUNNABLE               ; if running then set to runnable
     sta TaskStatus,x
-
+@notrunnable:
     lda InterruptDB,s
     sta TaskDataBank,x                      ; save Data Bank 
 
@@ -232,12 +232,3 @@ InitScheduler:
     longr
     rts
 
-
-.I8
-.A8
-Scheduler_ExitTask:
-        ldx ActiveTask
-        lda #TASK_STATUS_EXITED
-        sta TaskStatus,x
-    @loop:
-        jmp @loop                   ; wait to die

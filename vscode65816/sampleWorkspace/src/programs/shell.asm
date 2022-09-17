@@ -61,7 +61,7 @@ ShellExec:
         longr
         pea ExecPs       ; push 2byte addr of LoaderExec
         jsl TaskSpawn
-        jsl RA8875_WriteHex16
+        jsl Sys_WaitForTask
         pla
         shortr
         pla ; clean up

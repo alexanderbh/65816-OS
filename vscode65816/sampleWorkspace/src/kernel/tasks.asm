@@ -14,9 +14,9 @@ TASK_EXIT_CODE_KILLED = 7
 
 .SEGMENT "KERNEL"
 
-KernelSp: .res 1
 ActiveTask: .res 1
 TaskStatus: .res NUMBER_OF_TASKS
+TaskWaitFor: .res NUMBER_OF_TASKS * 2
 TaskExitCode: .res NUMBER_OF_TASKS
 TaskStackPointer: .res NUMBER_OF_TASKS * 2
 TaskDataBank: .res NUMBER_OF_TASKS
@@ -181,28 +181,64 @@ TaskFindUnusedTask:
 .A16
 .I16
 TaskExit:
+    shortr
         ldx ActiveTask
-
         sta TaskExitCode,x              ; store the exit code
+    longa
+        lda #$0000
+        sta TaskWaitFor,x               ; clear the wait for task id
+
+    shortr
         
         lda #TASK_STATUS_EXITED
         sta TaskStatus,x                ; mark the task as exited
 
-        @loop:                          ; go into infinite loop
-            nop                         ; until scheduler picks
-            jmp @loop                   ; the next task
+        txa
+        asl
+        tax                             ; double x
+        
+        jsl TaskReleaseWaitingOnTask
+
+    @loop:                          ; go into infinite loop
+        jmp @loop                   ; the next task
 
 
 
-; exit task from outside the task itself
-; input:
-;   x - task number to kill
-; output: n/a
-.A16
-.I16
-TaskKill:    
-        lda #TASK_STATUS_KILLED
+
+TaskReleaseWaitingOnTask:
+    longa
+        ldx ActiveTask
+        txa
+        asl
+        tax
+
+        lda TaskStructID,x                  ; save killed task id in A
+        ldx #0
+    @loop:
+        ldy TaskStatus,x
+        cpy #TASK_STATUS_WAITING_TASK
+        bne @skip
+    ; check if the task is waiting for the killed task ID
+        txy                                 ; save X in Y
+
+        pha
+        txa
+        asl
+        tax
+        pla                                 ; double X (preserve A)
+
+        cmp TaskWaitFor,x
+        bne @skip                           ; not waiting for this task
+    ; task is waiting for the killed task. release it
+        stz TaskWaitFor,x
+        tyx
+    shorta
+        lda #TASK_STATUS_RUNNABLE
         sta TaskStatus,x
-        sta TaskExitCode,x
-
+    longa 
+    @skip:
+        inx
+        cpx #NUMBER_OF_TASKS                ; Reach end of tasks list?
+        bne @loop
+    shorta
         rtl
