@@ -19,11 +19,6 @@
 ; AF00-AFFF : task 16 - stack
 
 
-; NOT USED! THIS IS A TEST:
-; 0000-00FF : kernel direct page
-; 0100-01FF : kernel stack
-; 0200-02FF : task 1 DP
-; 0300-03FF : task 1 stack
 
 ; B000-C000 : I/O
 InterruptStackY = 3+1
@@ -45,9 +40,9 @@ TaskSwitches: .res 2
 TempStackReturnBank: .res 1
 TempStackReturnPC: .res 2
 
+
+
 .code
-
-
 
 .A8
 .I8
@@ -60,91 +55,45 @@ Scheduler_NextTask:
     cmp #TASK_STATUS_RUNNING
     bne @loop
 
+; Save the current task state
     lda #TASK_STATUS_RUNNABLE               ; if running then set to runnable
     sta TaskStatus,x
 
-; save current task stage
-    ;longr
-    ;write task_save_old
-    ;write test_string
-    ;shortr
-
-    ;ldx ActiveTask
-    ;txa
-    ;jsl RA8875_WriteHex
-    ;lda #' '
-    ;jsl RA8875_WriteChar
-    ;lda #$A
-    ;jsl RA8875_WriteChar
-    ;lda #'o'
-    ;jsl RA8875_WriteChar
-    ;longr
-    ;jsl DumpStack
-    ;shortr
-    ;ldx ActiveTask
-    
     lda InterruptDB,s
-    sta TaskDataBank,x
+    sta TaskDataBank,x                      ; save Data Bank 
 
     lda InterruptPB,s
-    sta TaskProgramBank,x
+    sta TaskProgramBank,x                   ; save Program Bank
 
     lda InterruptStatusRegister,s
     sta TaskStatusRegister,x
 
-
-
-    ;ldx ActiveTask
     txa
     asl
-    tax
+    tax                                     ; double the x for 2 byte indexes
 
 ; SAVE STACK POINTER
     longa
-    tsc                                 ; A = stack pointer
+    tsc                                     ; A = stack pointer
     clc
-    adc #InterruptPB                 ; A = stack pointer - ...
+    adc #InterruptPB                        ; A = stack pointer - ...
     sta TaskStackPointer,x
-    shorta
 
-    ; lda TaskStackPointer+1,x 
-    ; jsl RA8875_WriteHex
-    ; lda #' '
-    ; jsl RA8875_WriteChar
-    ; lda TaskStackPointer,x
-    ; jsl RA8875_WriteHex
-    ; lda #' '
-    ; jsl RA8875_WriteChar
 
     lda InterruptStackA,s
     sta TaskA,x
-    lda InterruptStackA+1,s
-    sta TaskA+1,x
     lda InterruptStackX,s
     sta TaskX,x
-    lda InterruptStackX+1,s
-    sta TaskX+1,x
     lda InterruptStackY,s
     sta TaskY,x
-    lda InterruptStackY+1,s
-    sta TaskY+1,x
     
-
     lda InterruptPC,s
     sta TaskProgramPointer,x
 
-    ;jsl RA8875_WriteHex
-    ;lda #' '
-    ;jsl RA8875_WriteChar
+    shorta
 
-    lda InterruptPC+1,s
-    sta TaskProgramPointer+1,x
+    ldx ActiveTask                          ; X is the task being interrupted
 
-    ;jsl RA8875_WriteHex
-    ;lda #$A
-    ;jsl RA8875_WriteChar
-
-    ldx ActiveTask
 @loop:
     inx
     cpx #NUMBER_OF_TASKS
@@ -172,27 +121,6 @@ Scheduler_NextTask:
 ; SWITCH TO NEW TASK
 
     stx ActiveTask
-
- ;   lda #$A
- ;   jsl RA8875_WriteChar
- ;   lda #'s'
-;    jsl RA8875_WriteChar
-;    longr
-;    jsl DumpStack
-;    shortr
-
-
-    ;longr
-    ;write task_switching_task
-    ;shortr
-
-    ;ldx ActiveTask
-    ;txa
-    ;jsl RA8875_WriteHex
-    ;lda #' '
-    ;jsl RA8875_WriteChar
-
-    ;ldx ActiveTask
 
     lda #TASK_STATUS_RUNNING               ; if running then set to runnable
     sta TaskStatus,x

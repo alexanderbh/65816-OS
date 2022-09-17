@@ -48,8 +48,10 @@ function getWebviewContent() {
       ctx.font = '20px VT323';
       let X = 0;
       let Y = 0;
+      console.log("Setting up listener")
       window.addEventListener('message', event => {
         
+      console.log("Handle message")
         const message = event.data; // The JSON data our extension sent
 
         switch (message.command) {

@@ -89,24 +89,7 @@ ResetVector:
     pla ; clean up
     
 
-
-
-    ; debug printing of task
-    ;lda TaskProgramBank+1
-    ;jsl RA8875_WriteHex
-    ;lda TaskProgramPointer+2
-    ;jsl RA8875_WriteHex
-    ;lda TaskProgramPointer+3
-    ;jsl RA8875_WriteHex
-
-
     cli
-
-    ;jsl Scheduler_NextTask
-    ;jsr ShellExec                   ; Run shell program
-
-; Blink Diode
-    ;jsl LoaderExec
 
 Loop:
     jmp Loop
