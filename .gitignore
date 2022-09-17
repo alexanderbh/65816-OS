@@ -3,3 +3,4 @@ vscode65816/sampleWorkspace/bin/main.bin
 vscode65816/sampleWorkspace/bin/main.dbg
 vscode65816/sampleWorkspace/bin/main.lst
 vscode65816/sampleWorkspace/obj/main.o
+vscode65816/sampleWorkspace/bin/main.ln
