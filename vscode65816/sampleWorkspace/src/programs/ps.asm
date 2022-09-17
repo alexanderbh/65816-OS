@@ -61,7 +61,9 @@ ExecPs:
     shortr
 
     @exitcode:
-        lda TaskExitCode,X
+        lda TaskExitCode,x
+        cmp #$FF
+        beq @next
         jsl RA8875_WriteHex
     @next:
         inx

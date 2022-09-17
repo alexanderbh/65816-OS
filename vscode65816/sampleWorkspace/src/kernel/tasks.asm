@@ -39,14 +39,18 @@ TaskStructID: .res NUMBER_OF_TASKS * 2
 .I16
 InitTasks:
         shortr
-        ldx #NUMBER_OF_TASKS
+        ldx #NUMBER_OF_TASKS-1
     @clrloop:
-        dex
         stz TaskStatus,x
-        stz TaskExitCode,x
+        lda #$FF
+        sta TaskExitCode,x
         stz TaskStatusRegister,x
         stz TaskProgramBank,x
         stz TaskDataBank,x
+        txy
+        txa
+        asl
+        tax
         longr
         stz TaskStackPointer, x
         stz TaskProgramPointer, x
@@ -55,6 +59,9 @@ InitTasks:
         stz TaskY, x
         stz TaskStructID, x
         shortr
+        tyx
+        dex
+        cpx #$FF
     bne @clrloop
 
         lda #$FF
@@ -78,8 +85,8 @@ TaskSpawn:
         jsl TaskFindUnusedTask
         bcs @no_unused_tasks
 
-
-        stz TaskExitCode,x
+        lda #$FF
+        sta TaskExitCode,x                      ; FF means no exit code
 
         lda #TASK_STATUS_RUNNABLE
         sta TaskStatus,x

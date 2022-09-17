@@ -67,7 +67,7 @@ InitBIOS:
     ;jsr RA8875_SetForegroundColor
     ;longr
     
-    write ansi_string
+    ; write ansi_string
     
     shortr
     RTS

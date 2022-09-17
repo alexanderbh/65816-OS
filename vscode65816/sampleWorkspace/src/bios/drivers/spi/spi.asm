@@ -36,7 +36,6 @@ SpiDeviceDeselect:
 ;   A - byte received over SPI
 
 SpiByte:
-    SEI
     STA spi_byte_out                            ; store 
     STZ spi_byte_in
     LDX #8
@@ -62,5 +61,4 @@ spibyte2:
     DEX
     BNE spibytelp;
     LDA spi_byte_in	                            ; load result into A
-    CLI
     RTS

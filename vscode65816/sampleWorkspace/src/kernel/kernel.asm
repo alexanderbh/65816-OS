@@ -8,12 +8,12 @@
 .I16
 InitKernel:
     jsr InitTasks
-    ;write init_kernel_tasks_done
+    write init_kernel_tasks_done
     jsr InitScheduler
-    ;write init_kernel_scheduler_done
+    write init_kernel_scheduler_done
     jsr InitStreams
-    ;write init_kernel_streams_done
-    ;write init_kernel_done
+    write init_kernel_streams_done
+    write init_kernel_done
     rts
 ;;;
 ; Long Delay
