@@ -59,8 +59,9 @@ InitBIOS:
     ;jsr RA8875_SetForegroundColor
     longr
 
+    write data_ok_bracket
     write bios_init
-    write ok_string
+
 
     ;shortr
     ;LDA #%11111111
@@ -70,4 +71,6 @@ InitBIOS:
     ; write ansi_string
     
     shortr
+    lda #$0A
+    jsl RA8875_WriteChar
     RTS

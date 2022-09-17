@@ -1,13 +1,14 @@
 .RODATA
 
-ram_test_start: .asciiz "Running ram test"
+ram_test: .asciiz "RAM test"
 
 
 .code
 .A16
 .I16
 RamTestRun:
-    write ram_test_start
+    write data_loading_bracket
+    write ram_test
 
     shortr
 ; Single cell at $0300
@@ -47,8 +48,12 @@ loop0020:
     inx                   ;we done?
     bne loop0010          ;no, do next
     
+    lda #$0D
+    jsl RA8875_WriteChar
     longr
-    write ok_string
+    
+    write data_ok_bracket
+    write ram_test
 
     lda #$00
     ldx #$0000
@@ -58,11 +63,22 @@ loop0020:
     inx
     cpx #$1000
     bne @loop
-
+    shortr
+    lda #$0A
+    jsl RA8875_WriteChar
+    longr
     RTL
 
 
 RamTestFail:
+    lda #$0D
+    jsl RA8875_WriteChar
     longr
-    write fail_string
+    
+    write data_fail_bracket
+    write ram_test
+    shortr
+    lda #$0A
+    jsl RA8875_WriteChar
+    longr
     RTL

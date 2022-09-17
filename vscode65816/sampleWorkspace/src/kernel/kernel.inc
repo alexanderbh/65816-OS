@@ -1,11 +1,9 @@
 .A16
 .I16
 .macro write str_addr
-    SEI
     pea str_addr
     JSL RA8875_WriteString16
     PLA
-    CLI
 .endmacro
 
 .A8
@@ -19,9 +17,10 @@
 
 .RODATA
 
-newline:                    .asciiz "\n"
-init_kernel_done:           .asciiz "KERNEL - OK\n"
-init_kernel_streams_done:   .asciiz "KERNEL: Streams - OK\n"
-init_kernel_tasks_done:     .asciiz "KERNEL: Tasks - OK\n"
-init_kernel_scheduler_done: .asciiz "KERNEL: Scheduler - OK\n"
+data_loading_bracket:       .asciiz "[ -- ] "
+data_ok_bracket:            .asciiz "\r[ OK ] "
+data_fail_bracket:          .asciiz "\r[FAIL] "
+init_kernel_streams_done:   .asciiz "KERNEL: Streams\n"
+init_kernel_tasks_done:     .asciiz "KERNEL: Tasks\n"
+init_kernel_scheduler_done: .asciiz "KERNEL: Scheduler\n"
 .code

@@ -21,17 +21,20 @@ testlen_string: .asciiz "1357abcdefgh78"
 .include "programs/programs.inc"
 .A8
 .I8
-ResetVector:
+ResetVector:            ; Entry point for boot
     ldx #$FF
     txs
     cld
-    jsr InitBIOS                    ; Entry point for boot
+    jsr InitBIOS                    
     
     longr
     jsr InitKernel                  ; Kernel Init
 
 
     shortr
+    lda #$0A
+    jsl RA8875_WriteChar
+
     lda #$00            ; push program bank of ShellExec
     pha
     longr

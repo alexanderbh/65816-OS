@@ -7,13 +7,22 @@
 .A16
 .I16
 InitKernel:
+    write data_loading_bracket
     jsr InitTasks
+    write data_ok_bracket
     write init_kernel_tasks_done
+
+    write data_loading_bracket
     jsr InitScheduler
+    write data_ok_bracket
     write init_kernel_scheduler_done
+
+
+    write data_loading_bracket
     jsr InitStreams
+    write data_ok_bracket
     write init_kernel_streams_done
-    write init_kernel_done
+
     rts
 ;;;
 ; Long Delay
