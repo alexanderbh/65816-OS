@@ -74,7 +74,7 @@ TaskSpawn:
         phx
         phy
         shortr
-        jsr TaskFindUnusedTask
+        jsl TaskFindUnusedTask
         bcs @no_unused_tasks
 
     longa
@@ -157,7 +157,9 @@ TaskFindUnusedTask:
     @loop2:
         lda TaskStatus,x
         cmp #TASK_STATUS_EXITED
-        bcs @return
+        beq @return
+        cmp #TASK_STATUS_KILLED
+        beq @return
         inx
         cpx #NUMBER_OF_TASKS
         bne @loop2
@@ -165,7 +167,7 @@ TaskFindUnusedTask:
                                     ; no slots available. return with carry set
     @return:
         pla
-        rts
+        rtl
 
 
 

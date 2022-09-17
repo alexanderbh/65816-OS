@@ -94,7 +94,6 @@ Scheduler_NextTask:
     shorta
 
     ldx ActiveTask                          ; X is the task being interrupted
-
 @loop:
     inx
     cpx #NUMBER_OF_TASKS
@@ -105,12 +104,14 @@ Scheduler_NextTask:
 
     lda TaskStatus,x
     
-    beq @loop
+    beq @loop                               ; 0 - means no task on this index
     
     cmp #TASK_STATUS_RUNNABLE
     beq @task_switch
     cmp #TASK_STATUS_RUNNING
-    beq @goreturn
+    beq @goreturn                           ; some task is already running. Should not happen
+
+
 
     jmp @loop
 @goreturn:
