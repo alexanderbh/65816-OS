@@ -3,6 +3,9 @@
 Sys_GetPID:
     shorti
     LDX ActiveTask
+    txa
+    asl
+    tax
     LDA TaskStructID,x
     longi
     RTL

@@ -66,24 +66,19 @@ InitTasks:
 
 
 ; Spawn a new task
-TaskSpawnArg_Addr = 1+3+6      ; jsl 3 bytes return
+; out
+;   A - the spawned task ID
+TaskSpawnArg_Addr = 1+3+4      ; jsl 3 bytes return
 .A16
 .I16
 TaskSpawn:
-        pha
         phx
         phy
         shortr
         jsl TaskFindUnusedTask
         bcs @no_unused_tasks
 
-    longa
-        lda NextTaskId
-        sta TaskStructID,x
-        clc
-        adc #1
-        sta NextTaskId
-    shorta
+
         stz TaskExitCode,x
 
         lda #TASK_STATUS_RUNNABLE
@@ -118,6 +113,14 @@ TaskSpawn:
         stz TaskX,x
         stz TaskX+1,x
 
+        longa
+        lda NextTaskId
+        sta TaskStructID,x
+        clc
+        adc #1
+        sta NextTaskId
+        lda TaskStructID,x
+        shorta
 
         jmp @return
 
@@ -129,7 +132,6 @@ TaskSpawn:
         longr
         ply
         plx
-        pla
         rtl
 
 
