@@ -7,3 +7,4 @@
 .include "dumpstack.asm"
 .include "dumpregs.asm"
 .include "ps.asm"
+.include "echo.asm"

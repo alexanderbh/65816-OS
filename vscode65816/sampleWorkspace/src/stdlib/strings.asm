@@ -11,6 +11,8 @@
 ;		stack: 2 bytes string address (0 terminated)
 ;	Output:
 ;		A: length of the string
+.A16
+.I16
 Stdlib_StrLen:
 		clc
 
@@ -39,7 +41,8 @@ Stdlib_StrLen:
 
 
 
-
+.A16
+.I16
 ;	READ NUMBER
 ; 		Return the decimal number read from string input
 Stdlib_ReadNum_StackSize = 6
@@ -47,7 +50,6 @@ Stdlib_ReadNum_SingleDigit = 1
 Stdlib_ReadNum_Result = Stdlib_ReadNum_SingleDigit + 2
 Stdlib_ReadNum_LoopCounter = Stdlib_ReadNum_Result + 2
 Stdlib_ReadNum:
-		longr
 		ldx #0
 		ldy #0
 		phy
@@ -97,11 +99,11 @@ Stdlib_ReadNum:
 		ply ; clear temp stack
 		ply ; clear temp stack
 
+		longr
 		ply
 		plx
 		pla
 		
-
 		rtl
 
 
@@ -144,8 +146,8 @@ MulTen:
 ; out:
 ;   carry set if no match
 ;	carry clear if match
-.A8
-.I8
+.A16
+.I16
 StdLib_StrCompareUntilWhiteSpace_Arg_String2 = args_start
 StdLib_StrCompareUntilWhiteSpace_Arg_String1 = args_start + 2
 StdLib_StrCompareUntilWhiteSpace:
@@ -177,6 +179,5 @@ StdLib_StrCompareUntilWhiteSpace:
 		ply
 		plx
 		pla
-		shortr
 		rtl
 		
