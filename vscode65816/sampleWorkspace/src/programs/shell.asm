@@ -60,36 +60,34 @@ ShellExec:
         tdc
         pha                 ; put diract page start on stack for string search
        
-        ldx #$0000            ; push program bank of any program (all 0 for now)
-
-        ; PS
-        lda #CMD_NAME_PS
-        pha
+        ldy #$0000          ; push program bank of any program (all 0 for now)
+        ldx #$0000
+        pha                 ; make 2 bytes i stack to overwrite with each cmd addr
+    @loopcmd:
+        lda CMD_MAP,x
+        sta 1,s
         lda #Std_StrCompareUntilWhiteSpace
         jsl StdLib
-        bcs @next1
-        lda #ExecPs
+        bcs @next
+        lda CMD_EXEC_MAP,x
         jsr ShellSpawnTask
         jmp @preparerestart
 
-    @next1:
-        lda #CMD_NAME_ECHO
-        sta 2,s
-        lda #Std_StrCompareUntilWhiteSpace
-        jsl StdLib
-        bcs @next2
-        lda #ExecEcho
-        jsr ShellSpawnTask
-        jmp @preparerestart
+    @next:
+        inx
+        inx
+        cpx CMD_SIZE
+        beq @nothingfound
 
-    @next2:
-        
+        jmp @loopcmd
+
     @nothingfound:
         pea STR_SHELL_COMMAND_NOT_FOUND
         jsl RA8875_WriteString16
         tdc
         pha
-        jsl RA8875_WriteString16     
+        jsl RA8875_WriteString16
+
     @preparerestart:
         shortr
         lda #$0A                        ; print new line before restart
@@ -101,8 +99,8 @@ ShellExec:
 .I16
 ; Spawn a task with the address in A and the bank in X
 ShellSpawnTask:
-        phx
-        pha
+        phy                 ; data bank (2 bytes here but it does not matter)
+        pha                 ; exec program address
         jsl TaskSpawn
         ldx Shell_IsDaemonTask
         bne @nowait
@@ -113,8 +111,14 @@ ShellSpawnTask:
 
         rts
 
+STR_SHELL_COMMAND_NOT_FOUND:  .asciiz "Unknown command: "
 CMD_NAME_PS:                  .asciiz "ps"
 CMD_NAME_ECHO:                .asciiz "echo"
 
-
-STR_SHELL_COMMAND_NOT_FOUND:  .asciiz "Unknown command: "
+CMD_SIZE:                     .byte CMD_EXEC_MAP-CMD_MAP
+CMD_MAP:
+        .word CMD_NAME_PS
+        .word CMD_NAME_ECHO
+CMD_EXEC_MAP:
+        .word ExecPs
+        .word ExecEcho
