@@ -58,25 +58,25 @@ ShellExec:
     @notdaemon:
         longr
         tdc
-        pha                 ; put diract page start on stack for string search
+        pha                             ; put diract page start on stack for string search
        
-        ldy #$0000          ; push program bank of any program (all 0 for now)
+        ldy #$0000                      ; push program bank of any program (all 0 for now)
         ldx #$0000
-        pha                 ; make 2 bytes i stack to overwrite with each cmd addr
+        pha                             ; make 2 bytes i stack to overwrite with each cmd addr
     @loopcmd:
         lda CMD_MAP,x
-        sta 1,s
+        sta 1,s                         ; overwrite 2 first bytes of stack with addr of command string
         lda #Std_StrCompareUntilWhiteSpace
         jsl StdLib
         bcs @next
-        lda CMD_EXEC_MAP,x
+        lda CMD_EXEC_MAP,x              ; get command exec address (assuming all same data bank)
         jsr ShellSpawnTask
         jmp @preparerestart
 
     @next:
         inx
         inx
-        cpx CMD_SIZE
+        cpx #CMD_SIZE                    ; have we reached the end of the command list?
         beq @nothingfound
 
         jmp @loopcmd
@@ -114,11 +114,14 @@ ShellSpawnTask:
 STR_SHELL_COMMAND_NOT_FOUND:  .asciiz "Unknown command: "
 CMD_NAME_PS:                  .asciiz "ps"
 CMD_NAME_ECHO:                .asciiz "echo"
+CMD_NAME_COUNTER:             .asciiz "counter"
 
-CMD_SIZE:                     .byte CMD_EXEC_MAP-CMD_MAP
+CMD_SIZE = CMD_EXEC_MAP-CMD_MAP
 CMD_MAP:
         .word CMD_NAME_PS
         .word CMD_NAME_ECHO
+        .word CMD_NAME_COUNTER
 CMD_EXEC_MAP:
         .word ExecPs
         .word ExecEcho
+        .word TaskPrinterExec
