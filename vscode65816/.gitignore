@@ -6,3 +6,11 @@ npm-debug.log
 mock-debug.txt
 *.vsix
 .DS_Store
+
+
+sampleWorkspace/ca65.map
+sampleWorkspace/bin/main.bin
+sampleWorkspace/bin/main.dbg
+sampleWorkspace/bin/main.lst
+sampleWorkspace/obj/main.o
+sampleWorkspace/bin/main.ln

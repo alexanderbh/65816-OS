@@ -1,109 +1,51 @@
 .setcpu "65816"
 .P816
-.smart
-.feature string_escapes
-
-.RODATA
-
-test_string: .asciiz "\n---\n"
-testlen_string: .asciiz "1357abcdefgh78"
 
 .code
-.include "kernel/kernel.inc"
-.include "macros/macros.inc"
 
-.include "bios/bios.asm"
-.include "kernel/kernel.asm"
+.include "included.asm"
+.include "macros.inc"
 
+ResetVector:
+    clc
+    xce
+    clc
+    LDA #$04
+    SBC #$01
+    SBC #$01
+    sec
+    SBC #$01
+    SBC #$01
+    SBC #$01
+    rep #$20
+    .A16
+    LDA #$ABCD
+    sep #$20
+    LDA Counter
+    CLC
+    ADC #$01
+    STA Counter
+    LDA Counter+1
+    ADC #$00
+    STA Counter+1
+    JSR Add41
+    LDA #$04
+    LDA #$05
+    inc16 Counter
+    LDA #$06
+    LDA #$07
+    inc16 CounterB
+    JSR PostIncl
+    LDA #$08
+    jmp ResetVector
 
-.include "stdlib/stdlib.asm"
-
-.include "programs/programs.inc"
-.A8
-.I8
-ResetVector:            ; Entry point for boot
-    ldx #$FF
-    txs
-    cld
-    jsr InitBIOS                    
+.SEGMENT "RAM"
+    Counter: .res 2
+    CounterB: .res 2
     
-    longr
-    jsr InitKernel                  ; Kernel Init
+.code
 
+.include "postincl.asm"
 
-    shortr
-    lda #$0A
-    jsl RA8875_WriteChar
-
-    lda #$00            ; push program bank of ShellExec
-    pha
-    longr
-    pea ShellExec       ; push 2byte addr of ShellExec
-    jsl TaskSpawn
-    pla
-    shortr
-    pla
-
-    lda #$00            ; push program bank of ClockExec
-    pha
-    longr
-    pea ClockExec       ; push 2byte addr of ClockExec
-    jsl TaskSpawn
-    pla
-    shortr
-    pla ; clean up
-
-
-    ; lda #$00            ; push program bank of LoaderExec
-    ; pha
-    ; longr
-    ; pea TaskPrinterExec       ; push 2byte addr of LoaderExec
-    ; jsl TaskSpawn
-    ; pla
-    ; shortr
-    ; pla ; clean up
-
-
-    ; lda #$00            ; push program bank of LoaderExec
-    ; pha
-    ; longr
-    ; pea TaskPrinterExec       ; push 2byte addr of LoaderExec
-    ; jsl TaskSpawn
-    ; pla
-    ; shortr
-    ; pla ; clean up
-
-    ; lda #$00            ; push program bank of LoaderExec
-    ; pha
-    ; longr
-    ; pea TaskPrinterExec       ; push 2byte addr of LoaderExec
-    ; jsl TaskSpawn
-    ; pla
-    ; shortr
-    ; pla ; clean up
-
-    ; lda #$00            ; push program bank of LoaderExec
-    ; pha
-    ; longr
-    ; pea TaskPrinterExec       ; push 2byte addr of LoaderExec
-    ; jsl TaskSpawn
-    ; pla
-    ; shortr
-    ; pla ; clean up
-    
-
-    cli
-
-Loop:
-    jmp Loop
-
-.SEGMENT "NATIVE_VECTORS"
-    .word $0000                 ; COP
-    .word $0000                 ; BRK
-    .word $0000                 ; ABORTB
-    .word $0000                 ; NMIB
-    .word $0000                 ; RES
 .SEGMENT "VECTORS"
-    .word ResetVector           ; RESET
-    .word InterruptVector       ; IRQB
-
+    .word ResetVector
