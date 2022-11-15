@@ -2,17 +2,27 @@
 .include "tasks.asm"
 .include "interrupt.asm"
 .include "streams.asm"
+.include "syscalls.asm"
 
 .A16
 .I16
 InitKernel:
+    write data_loading_bracket
     jsr InitTasks
-    ;write init_kernel_tasks_done
+    write data_ok_bracket
+    write init_kernel_tasks_done
+
+    write data_loading_bracket
     jsr InitScheduler
-    ;write init_kernel_scheduler_done
+    write data_ok_bracket
+    write init_kernel_scheduler_done
+
+
+    write data_loading_bracket
     jsr InitStreams
-    ;write init_kernel_streams_done
-    ;write init_kernel_done
+    write data_ok_bracket
+    write init_kernel_streams_done
+
     rts
 ;;;
 ; Long Delay

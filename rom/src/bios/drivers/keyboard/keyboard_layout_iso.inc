@@ -55,7 +55,7 @@ ASCIITBL:
                .byte $68               ; 33 hH
                .byte $67               ; 34 gG
                .byte $79               ; 35 yY
-               .byte $36               ; 36 6^
+               .byte $36               ; 36 6&
                .byte $00               ; 37
                .byte $00               ; 38
                .byte $00               ; 39
@@ -186,7 +186,7 @@ ASCIITBL:
                .byte $48               ; B3 hH
                .byte $47               ; B4 gG
                .byte $59               ; B5 yY
-               .byte $5E               ; B6 6^
+               .byte $26               ; B6 6&
                .byte $00               ; B7
                .byte $00               ; B8
                .byte $00               ; B9

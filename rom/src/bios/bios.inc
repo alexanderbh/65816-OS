@@ -1,7 +1,6 @@
 .RODATA
 
-bios_init: .asciiz "BIOS Initialized"
-ok_string: .asciiz " - OK\n"
+bios_init: .asciiz "BIOS"
 
 
 ansi_string: .byte "COLOR: ", $1B, $5B, "32mGREEN", $1B, $5B, "37m WHITE\n", $00

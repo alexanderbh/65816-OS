@@ -11,6 +11,8 @@
 ;		stack: 2 bytes string address (0 terminated)
 ;	Output:
 ;		A: length of the string
+.A16
+.I16
 Stdlib_StrLen:
 		clc
 
@@ -39,7 +41,8 @@ Stdlib_StrLen:
 
 
 
-
+.A16
+.I16
 ;	READ NUMBER
 ; 		Return the decimal number read from string input
 Stdlib_ReadNum_StackSize = 6
@@ -47,7 +50,6 @@ Stdlib_ReadNum_SingleDigit = 1
 Stdlib_ReadNum_Result = Stdlib_ReadNum_SingleDigit + 2
 Stdlib_ReadNum_LoopCounter = Stdlib_ReadNum_Result + 2
 Stdlib_ReadNum:
-		longr
 		ldx #0
 		ldy #0
 		phy
@@ -97,11 +99,11 @@ Stdlib_ReadNum:
 		ply ; clear temp stack
 		ply ; clear temp stack
 
+		longr
 		ply
 		plx
 		pla
 		
-
 		rtl
 
 
@@ -144,14 +146,19 @@ MulTen:
 ; out:
 ;   carry set if no match
 ;	carry clear if match
+.A16
+.I16
 StdLib_StrCompareUntilWhiteSpace_Arg_String2 = args_start
 StdLib_StrCompareUntilWhiteSpace_Arg_String1 = args_start + 2
 StdLib_StrCompareUntilWhiteSpace:
+		shortr
 		clc
 		ldy #$00
 	@strcmp_token_load:
 		lda (StdLib_StrCompareUntilWhiteSpace_Arg_String1,s), Y
 		cmp #$20                                ; is whitespace?
+		beq @strcmp_token_is_second_done		; yes then check if string2 is done
+		cmp #$0                                 ; is end of string?
 		beq @strcmp_token_is_second_done		; yes then check if string2 is done
 		cmp (StdLib_StrCompareUntilWhiteSpace_Arg_String2,s), Y
 		bne @strcmp_token_notequal				; is it equal to string2?
@@ -168,7 +175,9 @@ StdLib_StrCompareUntilWhiteSpace:
 	@strcmp_token_notequal:
 		sec
 	@return:
+		longr
 		ply
 		plx
 		pla
 		rtl
+		

@@ -14,7 +14,7 @@ StdLib:
 
     shortr
     tax
-
+    longr
     jmp (StdLibTable,x)
 
 

@@ -19,11 +19,6 @@
 ; AF00-AFFF : task 16 - stack
 
 
-; NOT USED! THIS IS A TEST:
-; 0000-00FF : kernel direct page
-; 0100-01FF : kernel stack
-; 0200-02FF : task 1 DP
-; 0300-03FF : task 1 stack
 
 ; B000-C000 : I/O
 InterruptStackY = 3+1
@@ -35,7 +30,7 @@ InterruptStatusRegister = InterruptDB+1
 InterruptPC = InterruptStatusRegister+1
 InterruptPB = InterruptPC+2
 
-.SEGMENT "RAM"
+.SEGMENT "KERNEL"
 
 SchedulerCount: .res 1
 
@@ -45,9 +40,10 @@ TaskSwitches: .res 2
 TempStackReturnBank: .res 1
 TempStackReturnPC: .res 2
 
+NextTaskId: .res 2
+
+
 .code
-
-
 
 .A8
 .I8
@@ -58,93 +54,46 @@ Scheduler_NextTask:
 
     lda TaskStatus,x
     cmp #TASK_STATUS_RUNNING
-    bne @loop
+    bne @notrunnable
 
+; Save the current task state
     lda #TASK_STATUS_RUNNABLE               ; if running then set to runnable
     sta TaskStatus,x
-
-; save current task stage
-    ;longr
-    ;write task_save_old
-    ;write test_string
-    ;shortr
-
-    ;ldx ActiveTask
-    ;txa
-    ;jsl RA8875_WriteHex
-    ;lda #' '
-    ;jsl RA8875_WriteChar
-    ;lda #$A
-    ;jsl RA8875_WriteChar
-    ;lda #'o'
-    ;jsl RA8875_WriteChar
-    ;longr
-    ;jsl DumpStack
-    ;shortr
-    ;ldx ActiveTask
-    
+@notrunnable:
     lda InterruptDB,s
-    sta TaskDataBank,x
+    sta TaskDataBank,x                      ; save Data Bank 
 
     lda InterruptPB,s
-    sta TaskProgramBank,x
+    sta TaskProgramBank,x                   ; save Program Bank
 
     lda InterruptStatusRegister,s
     sta TaskStatusRegister,x
 
-
-
-    ;ldx ActiveTask
     txa
     asl
-    tax
+    tax                                     ; double the x for 2 byte indexes
 
 ; SAVE STACK POINTER
     longa
-    tsc                                 ; A = stack pointer
+    tsc                                     ; A = stack pointer
     clc
-    adc #InterruptPB                 ; A = stack pointer - ...
+    adc #InterruptPB                        ; A = stack pointer - ...
     sta TaskStackPointer,x
-    shorta
 
-    ; lda TaskStackPointer+1,x 
-    ; jsl RA8875_WriteHex
-    ; lda #' '
-    ; jsl RA8875_WriteChar
-    ; lda TaskStackPointer,x
-    ; jsl RA8875_WriteHex
-    ; lda #' '
-    ; jsl RA8875_WriteChar
 
     lda InterruptStackA,s
     sta TaskA,x
-    lda InterruptStackA+1,s
-    sta TaskA+1,x
     lda InterruptStackX,s
     sta TaskX,x
-    lda InterruptStackX+1,s
-    sta TaskX+1,x
     lda InterruptStackY,s
     sta TaskY,x
-    lda InterruptStackY+1,s
-    sta TaskY+1,x
     
-
     lda InterruptPC,s
     sta TaskProgramPointer,x
 
-    ;jsl RA8875_WriteHex
-    ;lda #' '
-    ;jsl RA8875_WriteChar
+    shorta
 
-    lda InterruptPC+1,s
-    sta TaskProgramPointer+1,x
-
-    ;jsl RA8875_WriteHex
-    ;lda #$A
-    ;jsl RA8875_WriteChar
-
-    ldx ActiveTask
+    ldx ActiveTask                          ; X is the task being interrupted
 @loop:
     inx
     cpx #NUMBER_OF_TASKS
@@ -155,19 +104,16 @@ Scheduler_NextTask:
 
     lda TaskStatus,x
     
-    beq @loop
+    beq @loop                               ; 0 - means no task on this index
     
     cmp #TASK_STATUS_RUNNABLE
     beq @task_switch
     cmp #TASK_STATUS_RUNNING
-    beq @goreturn
+    beq @goreturn                           ; some task is already running. Should not happen
 
-    jsl RA8875_WriteHex
-    txa
-    jsl RA8875_WriteHex
-    longr
-    write task_unknown_status
-    shortr
+
+
+    jmp @loop
 @goreturn:
     jmp @return
 
@@ -177,27 +123,6 @@ Scheduler_NextTask:
 ; SWITCH TO NEW TASK
 
     stx ActiveTask
-
- ;   lda #$A
- ;   jsl RA8875_WriteChar
- ;   lda #'s'
-;    jsl RA8875_WriteChar
-;    longr
-;    jsl DumpStack
-;    shortr
-
-
-    ;longr
-    ;write task_switching_task
-    ;shortr
-
-    ;ldx ActiveTask
-    ;txa
-    ;jsl RA8875_WriteHex
-    ;lda #' '
-    ;jsl RA8875_WriteChar
-
-    ;ldx ActiveTask
 
     lda #TASK_STATUS_RUNNING               ; if running then set to runnable
     sta TaskStatus,x
@@ -215,7 +140,7 @@ Scheduler_NextTask:
     longr
     lda TaskStackPointer,x
     clc
-    sbc #InterruptPB-1
+    sbc #InterruptPB
     tcs
     shortr
 
@@ -242,11 +167,11 @@ Scheduler_NextTask:
     tax
 ; Set Direct Page to $9x00
     lda ActiveTask
+
     clc
     adc #$90                                ; A = $9x
 
-    sta InterruptDP,x
-    ;jsl RA8875_WriteHex
+    sta InterruptDP+1,s
 
 ; Set registers
     lda TaskA,x
@@ -265,22 +190,11 @@ Scheduler_NextTask:
 
     lda TaskProgramPointer+1,x
     sta InterruptPC+1,s
-    ;jsl RA8875_WriteHex
+    
 
     lda TaskProgramPointer,x
     sta InterruptPC,s
-    ;jsl RA8875_WriteHex
-
-    ;lda #$A
-    ;jsl RA8875_WriteChar
-
-    ;lda #'n'
-    ;jsl RA8875_WriteChar
-    ;longr
-    ;jsl DumpStack
-    ;shortr
-    ;lda #$A
-    ;jsl RA8875_WriteChar
+    
     jmp @return
 
 
@@ -298,6 +212,10 @@ InitScheduler:
     stz TimerCounter        ; set interrupt timer counter to 0
     stz TaskSwitches        ; set task switch count to 0
 
+    lda #$0100
+    sta NextTaskId
+
+
 ; should be approx 256 times per second
     lda #9896
     sta VIA1_T1CL
@@ -313,3 +231,4 @@ InitScheduler:
 
     longr
     rts
+

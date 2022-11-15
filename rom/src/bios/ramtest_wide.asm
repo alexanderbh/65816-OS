@@ -33,7 +33,7 @@ RamTestWideRun:
     BNE RamTestFailWide
 
     longr
-    write ok_string
+    ; write ok_string
     rts
 
 RamTestFailWide:
@@ -54,6 +54,6 @@ RamTestWideRegistersRun:
     CMP #$1234
     BNE RamTestFailWide
 
-    write ok_string
+    ; write ok_string
 
     rts

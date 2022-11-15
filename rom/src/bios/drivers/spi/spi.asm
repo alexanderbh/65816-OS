@@ -1,3 +1,9 @@
+.SEGMENT "KERNEL"
+    spi_byte_out:               .res 1
+    spi_byte_in:                .res 1
+    spi_selected_device:        .res 1
+
+.code
 .A8
 .I8
 SPI_VIA = VIA1B
@@ -55,5 +61,4 @@ spibyte2:
     DEX
     BNE spibytelp;
     LDA spi_byte_in	                            ; load result into A
-    
     RTS

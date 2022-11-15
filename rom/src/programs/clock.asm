@@ -18,6 +18,3 @@ ClockExec:
 
 
     jmp @loop
-
-    longr
-    rts

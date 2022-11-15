@@ -3,6 +3,7 @@ NUMBER_OF_TASKS = 16
 TASK_STATUS_NONE = 0
 TASK_STATUS_RUNNING = 1
 TASK_STATUS_RUNNABLE = 2
+TASK_STATUS_WAITING_TASK = 3
 TASK_STATUS_EXITED = 6          ; everything above this can be taken by a new task
 TASK_STATUS_KILLED = 7
 
@@ -11,11 +12,11 @@ TASK_EXIT_CODE_KILLED = 7
 .include "scheduler.asm"
 .include "tasks.inc"
 
-.SEGMENT "RAM"
+.SEGMENT "KERNEL"
 
-KernelSp: .res 1
 ActiveTask: .res 1
 TaskStatus: .res NUMBER_OF_TASKS
+TaskWaitFor: .res NUMBER_OF_TASKS * 2
 TaskExitCode: .res NUMBER_OF_TASKS
 TaskStackPointer: .res NUMBER_OF_TASKS * 2
 TaskDataBank: .res NUMBER_OF_TASKS
@@ -26,32 +27,41 @@ TaskA: .res NUMBER_OF_TASKS * 2
 TaskX: .res NUMBER_OF_TASKS * 2
 TaskY: .res NUMBER_OF_TASKS * 2
 
+; TASK STRUCTURE
 
-.SEGMENT "TASK" ; marked as used
+TaskStructID: .res NUMBER_OF_TASKS * 2
+
 
 .code
-
 
 ; Initialize tasks
 .A16
 .I16
 InitTasks:
         shortr
-        ldx #NUMBER_OF_TASKS
+        ldx #NUMBER_OF_TASKS-1
     @clrloop:
-        dex
         stz TaskStatus,x
-        stz TaskExitCode,x
+        lda #$FF
+        sta TaskExitCode,x
         stz TaskStatusRegister,x
         stz TaskProgramBank,x
         stz TaskDataBank,x
+        txy
+        txa
+        asl
+        tax
         longr
         stz TaskStackPointer, x
         stz TaskProgramPointer, x
         stz TaskA, x
         stz TaskX, x
         stz TaskY, x
+        stz TaskStructID, x
         shortr
+        tyx
+        dex
+        cpx #$FF
     bne @clrloop
 
         lda #$FF
@@ -63,21 +73,20 @@ InitTasks:
 
 
 ; Spawn a new task
-TaskSpawnArg_Addr = 1+3+6      ; jsl 3 bytes return
+; out
+;   A - the spawned task ID
+TaskSpawnArg_Addr = 1+3+4      ; jsl 3 bytes return
 .A16
 .I16
 TaskSpawn:
-        pha
         phx
         phy
         shortr
-        jsr TaskFindUnusedTask
+        jsl TaskFindUnusedTask
         bcs @no_unused_tasks
 
-        ;txa
-        ;jsl RA8875_WriteHex
-
-        stz TaskExitCode,x
+        lda #$FF
+        sta TaskExitCode,x                      ; FF means no exit code
 
         lda #TASK_STATUS_RUNNABLE
         sta TaskStatus,x
@@ -111,6 +120,14 @@ TaskSpawn:
         stz TaskX,x
         stz TaskX+1,x
 
+        longa
+        lda NextTaskId
+        sta TaskStructID,x
+        clc
+        adc #1
+        sta NextTaskId
+        lda TaskStructID,x
+        shorta
 
         jmp @return
 
@@ -122,7 +139,6 @@ TaskSpawn:
         longr
         ply
         plx
-        pla
         rtl
 
 
@@ -150,7 +166,9 @@ TaskFindUnusedTask:
     @loop2:
         lda TaskStatus,x
         cmp #TASK_STATUS_EXITED
-        bcs @return
+        beq @return
+        cmp #TASK_STATUS_KILLED
+        beq @return
         inx
         cpx #NUMBER_OF_TASKS
         bne @loop2
@@ -158,7 +176,7 @@ TaskFindUnusedTask:
                                     ; no slots available. return with carry set
     @return:
         pla
-        rts
+        rtl
 
 
 
@@ -170,28 +188,64 @@ TaskFindUnusedTask:
 .A16
 .I16
 TaskExit:
+    shortr
         ldx ActiveTask
-
         sta TaskExitCode,x              ; store the exit code
+    longa
+        lda #$0000
+        sta TaskWaitFor,x               ; clear the wait for task id
+
+    shortr
         
         lda #TASK_STATUS_EXITED
         sta TaskStatus,x                ; mark the task as exited
 
-        @loop:                          ; go into infinite loop
-            nop                         ; until scheduler picks
-            jmp @loop                   ; the next task
+        txa
+        asl
+        tax                             ; double x
+        
+        jsl TaskReleaseWaitingOnTask
+
+    @loop:                          ; go into infinite loop
+        jmp @loop                   ; the next task
 
 
 
-; exit task from outside the task itself
-; input:
-;   x - task number to kill
-; output: n/a
-.A16
-.I16
-TaskKill:    
-        lda #TASK_STATUS_KILLED
+
+TaskReleaseWaitingOnTask:
+    longa
+        ldx ActiveTask
+        txa
+        asl
+        tax
+
+        lda TaskStructID,x                  ; save killed task id in A
+        ldx #0
+    @loop:
+        ldy TaskStatus,x
+        cpy #TASK_STATUS_WAITING_TASK
+        bne @skip
+    ; check if the task is waiting for the killed task ID
+        txy                                 ; save X in Y
+
+        pha
+        txa
+        asl
+        tax
+        pla                                 ; double X (preserve A)
+
+        cmp TaskWaitFor,x
+        bne @skip                           ; not waiting for this task
+    ; task is waiting for the killed task. release it
+        stz TaskWaitFor,x
+        tyx
+    shorta
+        lda #TASK_STATUS_RUNNABLE
         sta TaskStatus,x
-        sta TaskExitCode,x
-
+    longa 
+    @skip:
+        inx
+        cpx #NUMBER_OF_TASKS                ; Reach end of tasks list?
+        bne @loop
+    shorta
         rtl
