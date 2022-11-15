@@ -1,0 +1,11 @@
+{
+	"folders": [
+		{
+			"path": "rom"
+		},
+		{
+			"path": "vscode65816"
+		}
+	],
+	"settings": {}
+}

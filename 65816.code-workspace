@@ -9,5 +9,18 @@
 			"random": "cpp",
 			"thread": "cpp"
 		}
+	},
+	"launch": {
+		"version": "0.2.0",
+		"configurations": [
+		],
+		"compounds": [
+			{
+				"configurations": [
+					"Start Extension"
+				],
+				"name": "Start Extension"
+			}
+		]
 	}
 }

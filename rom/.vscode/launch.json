@@ -7,10 +7,10 @@
 		{
 			"type": "mock",
 			"request": "launch",
-			"name": "Debug 65816",
+			"name": "Debug 65816 OS",
 			"program": "${workspaceFolder}/bin/main.bin",
 			"workspacePath": "${workspaceFolder}",
-			"stopOnEntry": true,
+			"stopOnEntry": false,
 			"trace": false,
 			"preLaunchTask": "build-debug",
 
@@ -18,7 +18,7 @@
 		{
 			"type": "mock",
 			"request": "launch",
-			"name": "Run 65816",
+			"name": "Run 65816 OS",
 			"program": "${workspaceFolder}/bin/main.bin",
 			"workspacePath": "${workspaceFolder}",
 			"stopOnEntry": false,
