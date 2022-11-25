@@ -4,6 +4,7 @@
 .include "drivers/keyboard/keyboard.asm" ; include Keyboard driver
 .include "drivers/ra8875/ra8875.asm"     ; include Driver for RA8875
 .include "drivers/ra8875/ra8875_api.asm" ; include API for RA8875
+.include "drivers/usb245r/usb245r.asm"
 
 .include "ramtest.asm"
 .include "ramtest_wide.asm"
@@ -11,6 +12,7 @@
 .A8
 .I8
 InitBIOS:
+    JSR InitUSB245R
     JSR InitSPI
     JSR InitRA8875
     JSR InitKeyboard

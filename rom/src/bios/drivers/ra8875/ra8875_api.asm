@@ -27,6 +27,7 @@ RA8875_WriteStringEnd16:
 RA8875_WriteChar:
     PHX
     BEQ RA8875_WriteCharEnd         ; Is char 0 then end write
+    JSL SerialPutC
     PHA
     LDA #RA8875_MRWC
     JSR RA8875WriteCommand
