@@ -2,6 +2,10 @@
 .A16
 .I16
 InterruptVector:
+    shortr
+    LDA #'I'
+    jsr SerialPutC
+
     phb                   ;save DB - data bank
     phd                   ;save DP - direct page
     longr                 ;select 16 bit registers
@@ -10,6 +14,7 @@ InterruptVector:
     phy                   ;save .Y
 
     shortr
+
 
     lda VIA1_IFR
     and VIA1_IER            ; zero those that were not allowed to pull IRQ down.

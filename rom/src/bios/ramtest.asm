@@ -55,22 +55,22 @@ loop0020:
     write data_ok_bracket
     write ram_test
 
-    lda #$00
-    ldx #$0000
-@loop:
-    sta $A000,x
-    
-    inx
-    cpx #$1000
-    bne @loop
     shortr
     lda #$0A
     jsl RA8875_WriteChar
+
+    LDA #7
+    jsr SerialPutC
+
+
     longr
     RTL
 
-
 RamTestFail:
+    shortr
+    LDA #13
+    jsr SerialPutC
+
     lda #$0D
     jsl RA8875_WriteChar
     longr

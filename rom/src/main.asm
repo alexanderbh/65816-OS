@@ -30,10 +30,20 @@ ResetVector:            ; Entry point for boot
     longr
     jsr InitKernel                  ; Kernel Init
 
-
     shortr
+    LDA #'A'
+    jsr SerialPutC
+
+    
+    LDA VIA1_IER
+    jsr SerialPutC
+
     lda #$0A
     jsl RA8875_WriteChar
+
+
+    LDA #1
+    jsr SerialPutC
 
     lda #$00            ; push program bank of ShellExec
     pha
@@ -43,6 +53,10 @@ ResetVector:            ; Entry point for boot
     pla
     shortr
     pla
+
+
+    LDA #2
+    jsr SerialPutC
 
     lda #$00            ; push program bank of ClockExec
     pha
@@ -54,6 +68,8 @@ ResetVector:            ; Entry point for boot
     pla ; clean up
 
 
+    LDA #3
+    jsr SerialPutC
     ; lda #$00            ; push program bank of LoaderExec
     ; pha
     ; longr
@@ -92,8 +108,14 @@ ResetVector:            ; Entry point for boot
     ; pla ; clean up
     
 
+
+
+    LDA #4
+    jsr SerialPutC
     cli
 
+    LDA #5
+    jsr SerialPutC
 Loop:
     jmp Loop
 

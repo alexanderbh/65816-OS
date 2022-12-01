@@ -48,9 +48,18 @@ InitBIOS:
     ;LDA #%11111111
     ;jsr RA8875_SetForegroundColor
     ;longr
+    shortr
+    LDA #9
+    jsr SerialPutC
+    longr
 
-    JSL RamTestRun
+;; why is this not working????
+    ; JSL RamTestRun
 
+    shortr
+    LDA #8
+    jsr SerialPutC
+    longr
 
     
     ; jsr RamTestWideRegistersRun

@@ -1,10 +1,65 @@
-ca65 V2.18 - Ubuntu 2.19-1
+ca65 V2.19 - Git 16d259d
 Main file   : src/main.asm
 Current file: src/main.asm
 
 000000r 1               .setcpu "65816"
 000000r 1               .P816
 000000r 1               
+000000r 1               .include "macros.inc"
+000000r 2               ; bmn
+000000r 2               ;       Block move macro
+000000r 2               
+000000r 2               .macro  bmn     len,from,to
+000000r 2                       lda     #len-1
+000000r 2                       ldx     #(from & $FFFF)
+000000r 2                       ldy     #(to   & $FFFF)
+000000r 2                       mvn     (from & $FF0000),(to & $FF0000)
+000000r 2               .endmacro
+000000r 2               
+000000r 2               
+000000r 2               ;   Register Size Macros
+000000r 2               ;   ————————————————————————————————————————————————————————————————————
+000000r 2               ;   These macros are a convenient way to change the MPU's register sizes
+000000r 2               ;   without having to remember the correct bit pattern for the REP & SEP
+000000r 2               ;   instructions.  The assembler itself has no awareness of whether 8 or
+000000r 2               ;   16 bit immediate mode operands are to be used.   Therefore, it is up
+000000r 2               ;   to the programmer to use the appropriate instructions, & to be aware
+000000r 2               ;   at all times of the MPU's register sizes.
+000000r 2               ;   ————————————————————————————————————————————————————————————————————
+000000r 2               ;
+000000r 2               .macro  longa                ;16 bit accumulator & memory
+000000r 2                       rep #$20
+000000r 2               .A16
+000000r 2               .endmacro
+000000r 2               ;
+000000r 2               .macro  longr                ;16 bit all registers
+000000r 2                       rep #$30
+000000r 2               .A16
+000000r 2               .I16
+000000r 2               .endmacro
+000000r 2               ;
+000000r 2               .macro  longi              ;16 bit index registers
+000000r 2                       rep #$10
+000000r 2               .I16
+000000r 2               .endmacro
+000000r 2               ;
+000000r 2               .macro  shorta                ;8 bit accumulator & memory
+000000r 2                       sep #$20
+000000r 2               .A8
+000000r 2               .endmacro
+000000r 2               ;
+000000r 2               .macro  shorti                ;8 bit index registers
+000000r 2                       sep #$10
+000000r 2               .I8
+000000r 2               .endmacro
+000000r 2               ;
+000000r 2               .macro  shortr                ;8 bit all registers
+000000r 2                       sep #$30
+000000r 2               .A8
+000000r 2               .I8
+000000r 2               .endmacro
+000000r 2               ;
+000000r 2               
 000000r 1               .include "via.inc"
 000000r 2               
 000000r 2                   .import __VIA1_START__
@@ -26,37 +81,938 @@ Current file: src/main.asm
 000000r 2                   VIA2B_DIRECTION = __VIA2_START__ + 2              ; VIA2 PORT B direction register is $5002
 000000r 2                   VIA2A_DIRECTION = __VIA2_START__ + 3              ; VIA2 PORT A direction register is $5003
 000000r 2               
-000000r 1               
-000000r 1               
-000000r 1               SPI_VIA = VIA1B
+000000r 1               .include "spi/spi.asm"
+000000r 2               .SEGMENT "KERNEL"
+000000r 2  xx               spi_byte_out:               .res 1
+000001r 2  xx               spi_byte_in:                .res 1
+000002r 2  xx               spi_selected_device:        .res 1
+000003r 2               
+000003r 2               .code
+000000r 2               .A8
+000000r 2               .I8
+000000r 2               SPI_VIA = VIA1B
+000000r 2               
+000000r 2               ; prepares spi VIA PORT A for input output
+000000r 2               InitSPI:
+000000r 2  A9 47            LDA #$47
+000002r 2  8D rr rr         STA VIA1B_DIRECTION
+000005r 2  A9 00            LDA #$00
+000007r 2  8D rr rr         STA SPI_VIA
+00000Ar 2  60               RTS
+00000Br 2               
+00000Br 2               ; select device for spi communication
+00000Br 2               SpiDeviceSelect:
+00000Br 2  8D rr rr         STA spi_selected_device
+00000Er 2  AD rr rr         LDA SPI_VIA
+000011r 2  60               RTS
+000012r 2               
+000012r 2               ; deselect spi device
+000012r 2               SpiDeviceDeselect:
+000012r 2  9C rr rr         STZ spi_selected_device
+000015r 2  9C rr rr         STZ SPI_VIA
+000018r 2  60               RTS
+000019r 2               
+000019r 2               
+000019r 2               ; Transmit one byte SPI data. Remember to select SPI device with SpiDeviceSelect
+000019r 2               ; in:
+000019r 2               ;   A - byte to send over SPI
+000019r 2               ; out:
+000019r 2               ;   A - byte received over SPI
+000019r 2               
+000019r 2               SpiByte:
+000019r 2  8D rr rr         STA spi_byte_out                            ; store
+00001Cr 2  9C rr rr         STZ spi_byte_in
+00001Fr 2  A2 08            LDX #8
+000021r 2  AD rr rr         LDA spi_selected_device
+000024r 2               spibytelp:
+000024r 2  0E rr rr         ASL spi_byte_out	                        ; (5) shift MSB in to carry
+000027r 2  90 02            BCC spibyte1
+000029r 2  09 40            ORA #$40                                    ; set MOSI if MSB set
+00002Br 2               spibyte1:
+00002Br 2  8D rr rr         STA SPI_VIA	                                ; output (MOSI    SCS low   SCLK low)
+00002Er 2               
+00002Er 2  AD rr rr         LDA spi_selected_device                     ; set A to selected device bit (Do it here for delay reasons)
+000031r 2  EE rr rr         INC SPI_VIA                                 ; toggle clock high (SCLK is bit 0)
+000034r 2               
+000034r 2  18               CLC                                         ; clear C (Not affected by bit)
+000035r 2  2C rr rr         BIT SPI_VIA                                 ; copy MISO (bit 7) in to N (and MOSI in to V)
+000038r 2  10 01            BPL spibyte2
+00003Ar 2  38               SEC		                                    ; set C is MISO bit is set (i.e. N)
+00003Br 2               spibyte2:
+00003Br 2  2E rr rr         ROL spi_byte_in		                        ; copy C (i.e. MISO bit) in to bit 0 of result
+00003Er 2  CE rr rr         DEC SPI_VIA                                 ; toggle clock low (SCLK is bit 0)
+000041r 2               
+000041r 2  CA               DEX
+000042r 2  D0 E0            BNE spibytelp;
+000044r 2  AD rr rr         LDA spi_byte_in	                            ; load result into A
+000047r 2  60               RTS
+000048r 2               
+000048r 1               .include "ra8875/ra8875.asm"
+000048r 2               .SEGMENT "KERNEL"
+000003r 2  xx xx            string_ptr:                 .res 2
+000005r 2  xx xx            cursor_x:                   .res 2
+000007r 2  xx xx            cursor_y:                   .res 2
+000009r 2               
+000009r 2  xx               control_sequence_param_1:   .res 1
+00000Ar 2  xx               control_sequence_param_2:   .res 1
+00000Br 2               
+00000Br 2               .code
+000048r 2               .A8
+000048r 2               .I8
+000048r 2                   .include "ra8875.inc"
+000048r 3               SPI_DEVICE_RA8875 = $04
+000048r 3               
+000048r 3               RA8875_DATAWRITE = $00
+000048r 3               RA8875_DATAREAD = $40
+000048r 3               RA8875_CMDWRITE = $80
+000048r 3               
+000048r 3               RA8875_SYSR = $10
+000048r 3               RA8875_SYSR_8BPP = $00
+000048r 3               RA8875_SYSR_16BPP = $0C
+000048r 3               RA8875_SYSR_MCU8 = $00
+000048r 3               
+000048r 3               RA8875_PLLC1 = $88
+000048r 3               RA8875_PLLC1_PLLDIV2 = $80
+000048r 3               RA8875_PLLC1_PLLDIV1 = $00
+000048r 3               
+000048r 3               RA8875_PLLC2 = $89
+000048r 3               RA8875_PLLC2_DIV4 = $02
+000048r 3               
+000048r 3               RA8875_PCSR = $04
+000048r 3               RA8875_PCSR_PDATL = $80
+000048r 3               RA8875_PCSR_2CLK = $01
+000048r 3               
+000048r 3               RA8875_HDWR = $14
+000048r 3               RA8875_HNDFTR = $15
+000048r 3               RA8875_HNDFTR_DE_HIGH = $00
+000048r 3               RA8875_HNDR = $16
+000048r 3               RA8875_HSTR = $17
+000048r 3               RA8875_HPWR = $18
+000048r 3               RA8875_HPWR_LOW = $00
+000048r 3               
+000048r 3               RA8875_VDHR0 = $19
+000048r 3               RA8875_VDHR1 = $1A
+000048r 3               RA8875_VNDR0 = $1B
+000048r 3               RA8875_VNDR1 = $1C
+000048r 3               RA8875_VSTR0 = $1D
+000048r 3               RA8875_VSTR1 = $1E
+000048r 3               RA8875_VPWR = $1F
+000048r 3               RA8875_VPWR_LOW = $00
+000048r 3               
+000048r 3               RA8875_HSAW0 = $30
+000048r 3               RA8875_HSAW1 = $31
+000048r 3               RA8875_HEAW0 = $34
+000048r 3               RA8875_HEAW1 = $35
+000048r 3               
+000048r 3               RA8875_VSAW0 = $32
+000048r 3               RA8875_VSAW1 = $33
+000048r 3               RA8875_VEAW0 = $36
+000048r 3               RA8875_VEAW1 = $37
+000048r 3               
+000048r 3               RA8875_FGCR0 = $63
+000048r 3               RA8875_FGCR1 = $64
+000048r 3               RA8875_FGCR2 = $65
+000048r 3               
+000048r 3               RA8875_MCLR = $8E
+000048r 3               RA8875_MCLR_START = $80
+000048r 3               RA8875_MCLR_FULL = $00
+000048r 3               
+000048r 3               RA8875_PWRR = $01
+000048r 3               RA8875_PWRR_NORMAL = $00
+000048r 3               RA8875_PWRR_DISPON = $80
+000048r 3               
+000048r 3               RA8875_P1CR = $8A
+000048r 3               RA8875_P1CR_ENABLE = $80
+000048r 3               RA8875_PWM_CLK_DIV1024 = $0A
+000048r 3               RA8875_PWM_CLK_DIV8 = $03
+000048r 3               
+000048r 3               RA8875_P1DCR = $8B
+000048r 3               
+000048r 3               RA8875_MWCR0 = $40
+000048r 3               RA8875_MWCR0_TXTMODE = $80
+000048r 3               
+000048r 3               RA8875_MWCR0_CURSOR = $40
+000048r 3               RA8875_MWCR0_BLINK = $20
+000048r 3               
+000048r 3               RA8875_F_CURXL = $2A
+000048r 3               RA8875_F_CURXH = $2B
+000048r 3               RA8875_F_CURYL = $2C
+000048r 3               RA8875_F_CURYH = $2D
+000048r 3               
+000048r 3               RA8875_BTCR = $44
+000048r 3               
+000048r 3               RA8875_FNCR0 = $21
+000048r 3               
+000048r 3               RA8875_MRWC = $02
+000048r 3               
+000048r 3               RA8875_GPIOX = $C7
+000048r 3               
+000048r 3               
+000048r 3               RA8875_WIDTH = 800
+000048r 3               RA8875_HEIGHT = 480
+000048r 3               RA8875_hsync_nondisp = 26
+000048r 3               RA8875_hsync_start = 32
+000048r 3               RA8875_hsync_pw = 96
+000048r 3               RA8875_hsync_finetune = 0
+000048r 3               RA8875_vsync_nondisp = 32
+000048r 3               RA8875_vsync_start = 23
+000048r 3               RA8875_vsync_pw = 2
+000048r 3               
+000048r 3               RA_1 = $20
+000048r 3               RA_2 = $21
+000048r 3               
+000048r 2               
+000048r 2               ; Write Data  destroy A
+000048r 2               ; in
+000048r 2               ;   A - Data
+000048r 2               RA8875WriteData:
+000048r 2  48               PHA
+000049r 2  A9 04            LDA #SPI_DEVICE_RA8875
+00004Br 2  20 rr rr         JSR SpiDeviceSelect
+00004Er 2  A9 00            LDA #RA8875_DATAWRITE
+000050r 2  20 rr rr         JSR SpiByte
+000053r 2  68               PLA
+000054r 2  20 rr rr         JSR SpiByte
+000057r 2  20 rr rr         JSR SpiDeviceDeselect
+00005Ar 2  60               RTS
+00005Br 2               
+00005Br 2               ; Write Command  destroy A
+00005Br 2               ; in
+00005Br 2               ;   A - Data
+00005Br 2               RA8875WriteCommand:
+00005Br 2  48               PHA
+00005Cr 2  A9 04            LDA #SPI_DEVICE_RA8875
+00005Er 2  20 rr rr         JSR SpiDeviceSelect
+000061r 2  A9 80            LDA #RA8875_CMDWRITE
+000063r 2  20 rr rr         JSR SpiByte
+000066r 2  68               PLA
+000067r 2  20 rr rr         JSR SpiByte
+00006Ar 2  20 rr rr         JSR SpiDeviceDeselect
+00006Dr 2  60               RTS
+00006Er 2               
+00006Er 2               ; Read Command  destroy A
+00006Er 2               ; in
+00006Er 2               ;   A - Register to read
+00006Er 2               ; out
+00006Er 2               ;   A - Data from register
+00006Er 2               RA8875ReadCommand:
+00006Er 2  20 rr rr         JSR RA8875WriteCommand
+000071r 2  A9 04            LDA #SPI_DEVICE_RA8875
+000073r 2  20 rr rr         JSR SpiDeviceSelect
+000076r 2  A9 40            LDA #RA8875_DATAREAD
+000078r 2  20 rr rr         JSR SpiByte
+00007Br 2  20 rr rr         JSR SpiByte
+00007Er 2  20 rr rr         JSR SpiDeviceDeselect
+000081r 2  60               RTS
+000082r 2               
+000082r 2               ; Initialize the RA8875  destroy AX
+000082r 2               InitRA8875:
+000082r 2               
+000082r 2               ; PLL settings
+000082r 2  A9 88            LDA #RA8875_PLLC1
+000084r 2  20 rr rr         JSR RA8875WriteCommand
+000087r 2  A9 0A            LDA #(RA8875_PLLC1_PLLDIV1+10)
+000089r 2  20 rr rr         JSR RA8875WriteData
+00008Cr 2               
+00008Cr 2  20 rr rr         JSR LongDelay
+00008Fr 2               
+00008Fr 2  A9 89            LDA #RA8875_PLLC2
+000091r 2  20 rr rr         JSR RA8875WriteCommand
+000094r 2  A9 02            LDA #RA8875_PLLC2_DIV4
+000096r 2  20 rr rr         JSR RA8875WriteData
+000099r 2               
+000099r 2  20 rr rr         JSR LongDelay
+00009Cr 2               ; Color mode  MCU size
+00009Cr 2  A9 10            LDA #RA8875_SYSR
+00009Er 2  20 rr rr         JSR RA8875WriteCommand
+0000A1r 2                   ; For 16 bit color
+0000A1r 2                   ; LDA #(RA8875_SYSR_16BPP | RA8875_SYSR_MCU8)
+0000A1r 2  A9 00            LDA #(RA8875_SYSR_8BPP | RA8875_SYSR_MCU8)
+0000A3r 2  20 rr rr         JSR RA8875WriteData
+0000A6r 2               
+0000A6r 2  20 rr rr         JSR LongDelay
+0000A9r 2               
+0000A9r 2               ; Pixel clock
+0000A9r 2  A9 04            LDA #RA8875_PCSR
+0000ABr 2  20 rr rr         JSR RA8875WriteCommand
+0000AEr 2  A9 81            LDA #(RA8875_PCSR_PDATL | RA8875_PCSR_2CLK)
+0000B0r 2  20 rr rr         JSR RA8875WriteData
+0000B3r 2               
+0000B3r 2  20 rr rr         JSR LongDelay
+0000B6r 2               
+0000B6r 2               ; Horizontal settings
+0000B6r 2  A9 14            LDA #RA8875_HDWR
+0000B8r 2  20 rr rr         JSR RA8875WriteCommand
+0000BBr 2  A9 63            LDA #((RA8875_WIDTH / 8) - 1)
+0000BDr 2  20 rr rr         JSR RA8875WriteData
+0000C0r 2               
+0000C0r 2  A9 15            LDA #RA8875_HNDFTR
+0000C2r 2  20 rr rr         JSR RA8875WriteCommand
+0000C5r 2  A9 00            LDA #(RA8875_HNDFTR_DE_HIGH + RA8875_hsync_finetune)
+0000C7r 2  20 rr rr         JSR RA8875WriteData
+0000CAr 2               
+0000CAr 2  A9 16            LDA #RA8875_HNDR
+0000CCr 2  20 rr rr         JSR RA8875WriteCommand
+0000CFr 2  A9 03            LDA #((RA8875_hsync_nondisp - RA8875_hsync_finetune - 2) / 8)
+0000D1r 2  20 rr rr         JSR RA8875WriteData
+0000D4r 2               
+0000D4r 2  A9 17            LDA #RA8875_HSTR
+0000D6r 2  20 rr rr         JSR RA8875WriteCommand
+0000D9r 2  A9 03            LDA #((RA8875_hsync_start / 8) - 1)
+0000DBr 2  20 rr rr         JSR RA8875WriteData
+0000DEr 2               
+0000DEr 2  A9 18            LDA #RA8875_HPWR
+0000E0r 2  20 rr rr         JSR RA8875WriteCommand
+0000E3r 2  A9 0B            LDA #(RA8875_HPWR_LOW + ((RA8875_hsync_pw / 8) - 1))
+0000E5r 2  20 rr rr         JSR RA8875WriteData
+0000E8r 2               
+0000E8r 2               ; Vertical settings
+0000E8r 2  A9 19            LDA #RA8875_VDHR0
+0000EAr 2  20 rr rr         JSR RA8875WriteCommand
+0000EDr 2  A9 DF            LDA #((RA8875_HEIGHT - 1) & $FF)
+0000EFr 2  20 rr rr         JSR RA8875WriteData
+0000F2r 2               
+0000F2r 2  A9 1A            LDA #RA8875_VDHR1
+0000F4r 2  20 rr rr         JSR RA8875WriteCommand
+0000F7r 2  A9 01            LDA #((RA8875_HEIGHT - 1) >> 8)
+0000F9r 2  20 rr rr         JSR RA8875WriteData
+0000FCr 2               
+0000FCr 2  A9 1B            LDA #RA8875_VNDR0
+0000FEr 2  20 rr rr         JSR RA8875WriteCommand
+000101r 2  A9 1F            LDA #(RA8875_vsync_nondisp - 1)
+000103r 2  20 rr rr         JSR RA8875WriteData
+000106r 2               
+000106r 2  A9 1C            LDA #RA8875_VNDR1
+000108r 2  20 rr rr         JSR RA8875WriteCommand
+00010Br 2  A9 00            LDA #(RA8875_vsync_nondisp >> 8)
+00010Dr 2  20 rr rr         JSR RA8875WriteData
+000110r 2               
+000110r 2  A9 1D            LDA #RA8875_VSTR0
+000112r 2  20 rr rr         JSR RA8875WriteCommand
+000115r 2  A9 16            LDA #(RA8875_vsync_start - 1)
+000117r 2  20 rr rr         JSR RA8875WriteData
+00011Ar 2               
+00011Ar 2  A9 1E            LDA #RA8875_VSTR1
+00011Cr 2  20 rr rr         JSR RA8875WriteCommand
+00011Fr 2  A9 00            LDA #(RA8875_vsync_start >> 8)
+000121r 2  20 rr rr         JSR RA8875WriteData
+000124r 2               
+000124r 2  A9 1F            LDA #RA8875_VPWR
+000126r 2  20 rr rr         JSR RA8875WriteCommand
+000129r 2  A9 01            LDA #(RA8875_VPWR_LOW + RA8875_vsync_pw - 1)
+00012Br 2  20 rr rr         JSR RA8875WriteData
+00012Er 2               
+00012Er 2               ; Set active window X
+00012Er 2               
+00012Er 2  A9 30            LDA #RA8875_HSAW0
+000130r 2  20 rr rr         JSR RA8875WriteCommand
+000133r 2  A9 00            LDA #0
+000135r 2  20 rr rr         JSR RA8875WriteData
+000138r 2               
+000138r 2  A9 31            LDA #RA8875_HSAW1
+00013Ar 2  20 rr rr         JSR RA8875WriteCommand
+00013Dr 2  A9 00            LDA #0
+00013Fr 2  20 rr rr         JSR RA8875WriteData
+000142r 2               
+000142r 2  A9 34            LDA #RA8875_HEAW0
+000144r 2  20 rr rr         JSR RA8875WriteCommand
+000147r 2  A9 1F            LDA #((RA8875_WIDTH - 1) & $FF)
+000149r 2  20 rr rr         JSR RA8875WriteData
+00014Cr 2               
+00014Cr 2  A9 35            LDA #RA8875_HEAW1
+00014Er 2  20 rr rr         JSR RA8875WriteCommand
+000151r 2  A9 03            LDA #((RA8875_WIDTH - 1) >> 8)
+000153r 2  20 rr rr         JSR RA8875WriteData
+000156r 2               
+000156r 2               ; Set active window Y
+000156r 2               
+000156r 2  A9 32            LDA #RA8875_VSAW0
+000158r 2  20 rr rr         JSR RA8875WriteCommand
+00015Br 2  A9 00            LDA #0
+00015Dr 2  20 rr rr         JSR RA8875WriteData
+000160r 2               
+000160r 2  A9 33            LDA #RA8875_VSAW1
+000162r 2  20 rr rr         JSR RA8875WriteCommand
+000165r 2  A9 00            LDA #0
+000167r 2  20 rr rr         JSR RA8875WriteData
+00016Ar 2               
+00016Ar 2  A9 36            LDA #RA8875_VEAW0
+00016Cr 2  20 rr rr         JSR RA8875WriteCommand
+00016Fr 2  A9 DF            LDA #((RA8875_HEIGHT - 1) & $FF)
+000171r 2  20 rr rr         JSR RA8875WriteData
+000174r 2               
+000174r 2  A9 37            LDA #RA8875_VEAW1
+000176r 2  20 rr rr         JSR RA8875WriteCommand
+000179r 2  A9 01            LDA #((RA8875_HEIGHT - 1) >> 8)
+00017Br 2  20 rr rr         JSR RA8875WriteData
+00017Er 2               
+00017Er 2               ; Clear entire screen
+00017Er 2               
+00017Er 2  A9 8E            LDA #RA8875_MCLR
+000180r 2  20 rr rr         JSR RA8875WriteCommand
+000183r 2  A9 80            LDA #(RA8875_MCLR_START | RA8875_MCLR_FULL)
+000185r 2  20 rr rr         JSR RA8875WriteData
+000188r 2               
+000188r 2  20 rr rr         JSR LongDelay
+00018Br 2               
+00018Br 2               ; Display on
+00018Br 2  A9 01            LDA #RA8875_PWRR
+00018Dr 2  20 rr rr         JSR RA8875WriteCommand
+000190r 2               
+000190r 2  A9 80            LDA #(RA8875_PWRR_NORMAL | RA8875_PWRR_DISPON)
+000192r 2  20 rr rr         JSR RA8875WriteData
+000195r 2               
+000195r 2               ; GPIOX on    enable tft
+000195r 2  A9 C7            LDA #RA8875_GPIOX
+000197r 2  20 rr rr         JSR RA8875WriteCommand
+00019Ar 2  A9 01            LDA #1
+00019Cr 2  20 rr rr         JSR RA8875WriteData
+00019Fr 2               
+00019Fr 2               
+00019Fr 2               ; PWM1 Config backlight
+00019Fr 2  A9 8A            LDA #RA8875_P1CR
+0001A1r 2  20 rr rr         JSR RA8875WriteCommand
+0001A4r 2  A9 8A            LDA #(RA8875_P1CR_ENABLE | (RA8875_PWM_CLK_DIV1024 & $F))
+0001A6r 2  20 rr rr         JSR RA8875WriteData
+0001A9r 2               
+0001A9r 2               ; Backlight clock
+0001A9r 2  A9 8B            LDA #RA8875_P1DCR
+0001ABr 2  20 rr rr         JSR RA8875WriteCommand
+0001AEr 2  A9 FF            LDA #255
+0001B0r 2  20 rr rr         JSR RA8875WriteData
+0001B3r 2               
+0001B3r 2               ; Set text mode
+0001B3r 2  20 rr rr         JSR RA8875_TextMode
+0001B6r 2               
+0001B6r 2  9C rr rr         STZ cursor_x
+0001B9r 2               
+0001B9r 2  9C rr rr         STZ cursor_x + 1
+0001BCr 2               
+0001BCr 2  9C rr rr         STZ cursor_y
+0001BFr 2               
+0001BFr 2  9C rr rr         STZ cursor_y + 1
+0001C2r 2               
+0001C2r 2  20 rr rr         JSR RA8875_SetTextCursor
+0001C5r 2               
+0001C5r 2  A9 FF            LDA #$FF
+0001C7r 2  20 rr rr         JSR RA8875_SetForegroundColor
+0001CAr 2               
+0001CAr 2  60               RTS
+0001CBr 2               
+0001CBr 2               RA8875_CursorBlink:
+0001CBr 2               
+0001CBr 2  A9 40            LDA #RA8875_MWCR0
+0001CDr 2  20 rr rr         JSR RA8875WriteCommand
+0001D0r 2               
+0001D0r 2  A9 C0            LDA #(RA8875_MWCR0_TXTMODE | RA8875_MWCR0_CURSOR)
+0001D2r 2  20 rr rr         JSR RA8875WriteData
+0001D5r 2               
+0001D5r 2  A9 40            LDA #RA8875_MWCR0
+0001D7r 2  20 rr rr         JSR RA8875WriteCommand
+0001DAr 2               
+0001DAr 2  A9 E0            LDA #(RA8875_MWCR0_TXTMODE | RA8875_MWCR0_CURSOR | RA8875_MWCR0_BLINK)
+0001DCr 2  20 rr rr         JSR RA8875WriteData
+0001DFr 2               
+0001DFr 2  A9 44            LDA #RA8875_BTCR
+0001E1r 2  20 rr rr         JSR RA8875WriteCommand
+0001E4r 2               
+0001E4r 2  A9 20            LDA #32                        ; Blink rate 1-255 1 is fast
+0001E6r 2  20 rr rr         JSR RA8875WriteData
+0001E9r 2               
+0001E9r 2  60               RTS
+0001EAr 2               
+0001EAr 2               RA8875_CursorHide:
+0001EAr 2               
+0001EAr 2  A9 40            LDA #RA8875_MWCR0
+0001ECr 2  20 rr rr         JSR RA8875WriteCommand
+0001EFr 2               
+0001EFr 2  A9 80            LDA #RA8875_MWCR0_TXTMODE
+0001F1r 2  20 rr rr         JSR RA8875WriteData
+0001F4r 2               
+0001F4r 2  60               RTS
+0001F5r 2               
+0001F5r 2               RA8875_GetTextCursorX:
+0001F5r 2  A9 2B            LDA #RA8875_F_CURXH
+0001F7r 2  20 rr rr         JSR RA8875ReadCommand
+0001FAr 2  8D rr rr         STA cursor_x+1
+0001FDr 2               
+0001FDr 2  A9 2A            LDA #RA8875_F_CURXL
+0001FFr 2  20 rr rr         JSR RA8875ReadCommand
+000202r 2  8D rr rr         STA cursor_x
+000205r 2               
+000205r 2  60               RTS
+000206r 2               
+000206r 2               RA8875_GetTextCursorY:
+000206r 2  A9 2D            LDA #RA8875_F_CURYH
+000208r 2  20 rr rr         JSR RA8875ReadCommand
+00020Br 2  8D rr rr         STA cursor_y+1
+00020Er 2               
+00020Er 2  A9 2C            LDA #RA8875_F_CURYL
+000210r 2  20 rr rr         JSR RA8875ReadCommand
+000213r 2  8D rr rr         STA cursor_y
+000216r 2               
+000216r 2  60               RTS
+000217r 2               
+000217r 2               RA8875_SetTextCursor:
+000217r 2  A9 2A            LDA #RA8875_F_CURXL
+000219r 2  20 rr rr         JSR RA8875WriteCommand
+00021Cr 2  AD rr rr         LDA cursor_x
+00021Fr 2  20 rr rr         JSR RA8875WriteData
+000222r 2               
+000222r 2  A9 2B            LDA #RA8875_F_CURXH
+000224r 2  20 rr rr         JSR RA8875WriteCommand
+000227r 2  AD rr rr         LDA cursor_x+1
+00022Ar 2  20 rr rr         JSR RA8875WriteData
+00022Dr 2               
+00022Dr 2               
+00022Dr 2  A9 2C            LDA #RA8875_F_CURYL
+00022Fr 2  20 rr rr         JSR RA8875WriteCommand
+000232r 2  AD rr rr         LDA cursor_y
+000235r 2  20 rr rr         JSR RA8875WriteData
+000238r 2               
+000238r 2  A9 2D            LDA #RA8875_F_CURYH
+00023Ar 2  20 rr rr         JSR RA8875WriteCommand
+00023Dr 2  AD rr rr         LDA cursor_y+1
+000240r 2  20 rr rr         JSR RA8875WriteData
+000243r 2               
+000243r 2  60               RTS
+000244r 2               
+000244r 2               .A8
+000244r 2               .I8
+000244r 2               RA8875_TextMode:
+000244r 2  A9 40            LDA #RA8875_MWCR0
+000246r 2  20 rr rr         JSR RA8875WriteCommand
+000249r 2               
+000249r 2  A9 80            LDA #RA8875_MWCR0_TXTMODE
+00024Br 2  20 rr rr         JSR RA8875WriteData
+00024Er 2               
+00024Er 2               ; select internal font
+00024Er 2  A9 21            LDA #RA8875_FNCR0
+000250r 2  20 rr rr         JSR RA8875WriteCommand
+000253r 2               
+000253r 2  A9 00            LDA #0
+000255r 2  20 rr rr         JSR RA8875WriteData
+000258r 2               
+000258r 2  60               RTS
+000259r 2               
+000259r 2               RA8875_SetForegroundColor:
+000259r 2  48               PHA
+00025Ar 2  48               PHA
+00025Br 2                       ; writeCommand(0x63);
+00025Br 2                       ; writeData((foreColor & 0xf800) >> 11);
+00025Br 2                       ; writeCommand(0x64);
+00025Br 2                       ; writeData((foreColor & 0x07e0) >> 5);
+00025Br 2                       ; writeCommand(0x65);
+00025Br 2                       ; writeData((foreColor & 0x001f));
+00025Br 2  A9 65            LDA #RA8875_FGCR2
+00025Dr 2  20 rr rr         JSR RA8875WriteCommand
+000260r 2               
+000260r 2  68               PLA
+000261r 2  20 rr rr         JSR RA8875WriteData
+000264r 2               
+000264r 2  A9 64            LDA #RA8875_FGCR1
+000266r 2  20 rr rr         JSR RA8875WriteCommand
+000269r 2               
+000269r 2  68               PLA
+00026Ar 2  4A               lsr
+00026Br 2  4A               lsr
+00026Cr 2  48               PHA
+00026Dr 2               
+00026Dr 2  20 rr rr         JSR RA8875WriteData
+000270r 2               
+000270r 2  A9 63            LDA #RA8875_FGCR0
+000272r 2  20 rr rr         JSR RA8875WriteCommand
+000275r 2               
+000275r 2  68               PLA
+000276r 2               
+000276r 2  4A               lsr
+000277r 2  4A               lsr
+000278r 2  4A               lsr
+000279r 2               
+000279r 2  20 rr rr         JSR RA8875WriteData
+00027Cr 2  60               RTS
+00027Dr 2               
+00027Dr 2               ; Handle a single char
+00027Dr 2               RA8875_SingleChar:
+00027Dr 2  C9 20            CMP #$20                        ; $20 or greater
+00027Fr 2  B0 18            BCS RA8875_WriteStringChar      ; then print character
+000281r 2  C9 0A            CMP #$0A                        ; Compare to 0x0A   line feed
+000283r 2  D0 04            BNE @check_1                    ; != 0x0A
+000285r 2  20 rr rr         JSR RA8875_ControlLineFeed      ; Handle as line feed
+000288r 2  60               rts                             ; Do not print
+000289r 2               @check_1:
+000289r 2  C9 0D            CMP #$0D                         ; Compare to 0D   carriage return
+00028Br 2  D0 04            BNE @check_2                      ; != 0x0D
+00028Dr 2  20 rr rr         JSR RA8875_ControlCarriageReturn ; handle as carriage return
+000290r 2  60               rts                             ; Do not print
+000291r 2               @check_2:
+000291r 2  C9 1B            CMP #$1B                         ; Compare to 1B   escape
+000293r 2  D0 04            BNE RA8875_WriteStringChar       ; != 0x1B
+000295r 2  20 rr rr         JSR RA8875_ControlEscape         ; handle as escape sequence
+000298r 2  60               rts                             ; Do not print
+000299r 2               
+000299r 2               RA8875_WriteStringChar:
+000299r 2  20 rr rr         JSR RA8875WriteData
+00029Cr 2  60               RTS
+00029Dr 2               
+00029Dr 2               RA8875_ControlLineFeed:
+00029Dr 2  9C rr rr         STZ cursor_x                    ; Control char LINE FEED
+0002A0r 2  9C rr rr         STZ cursor_x+1
+0002A3r 2  20 rr rr         JSR RA8875_GetTextCursorY
+0002A6r 2  18               CLC
+0002A7r 2  69 10            ADC #16
+0002A9r 2  8D rr rr         STA cursor_y
+0002ACr 2  AD rr rr         LDA cursor_y+1
+0002AFr 2  69 00            ADC #$00
+0002B1r 2  8D rr rr         STA cursor_y+1
+0002B4r 2                   ; TODO: It overflows here. Needs two bytes to handle cursor value
+0002B4r 2  20 rr rr         JSR RA8875_SetTextCursor
+0002B7r 2  A9 02            LDA #RA8875_MRWC
+0002B9r 2  20 rr rr         JSR RA8875WriteCommand          ; write to memory write register
+0002BCr 2  60               RTS
+0002BDr 2               
+0002BDr 2               RA8875_ControlCarriageReturn:
+0002BDr 2  9C rr rr         STZ cursor_x                    ; Control char LINE FEED
+0002C0r 2  9C rr rr         STZ cursor_x+1
+0002C3r 2  20 rr rr         JSR RA8875_GetTextCursorY
+0002C6r 2  20 rr rr         JSR RA8875_SetTextCursor
+0002C9r 2  A9 02            LDA #RA8875_MRWC
+0002CBr 2  20 rr rr         JSR RA8875WriteCommand          ; write to memory write register
+0002CEr 2  60               RTS
+0002CFr 2               
+0002CFr 2               RA8875_ControlEscape:
+0002CFr 2  C8               INY                             ; Look at next character
+0002D0r 2  B3 0C            LDA (RA8875_WriteString16_ARG+4,s),Y
+0002D2r 2  F0 2C            BEQ SkipControl
+0002D4r 2  C9 5B            CMP #$5B                        ; CSI look for [
+0002D6r 2  D0 28            BNE SkipControl
+0002D8r 2  C8               INY                             ; Next char
+0002D9r 2  B3 0C            LDA (RA8875_WriteString16_ARG+4,s),Y
+0002DBr 2               
+0002DBr 2  C9 33            CMP #$33
+0002DDr 2  D0 1B            BNE @not_foreground
+0002DFr 2  C8               INY                             ; Next char
+0002E0r 2  B3 0C            LDA (RA8875_WriteString16_ARG+4,s),Y
+0002E2r 2  C9 37            CMP #$37
+0002E4r 2  D0 08            BNE @nextcol1
+0002E6r 2  A9 FF            LDA #%11111111
+0002E8r 2  20 rr rr         jsr RA8875_SetForegroundColor
+0002EBr 2  4C rr rr         jmp @done
+0002EEr 2               @nextcol1:
+0002EEr 2  C9 32            CMP #$32
+0002F0r 2  D0 08            BNE @nextcol2
+0002F2r 2  A9 1C            LDA #%00011100
+0002F4r 2  20 rr rr         jsr RA8875_SetForegroundColor
+0002F7r 2  4C rr rr         jmp @done
+0002FAr 2               @nextcol2:
+0002FAr 2               
+0002FAr 2               @not_foreground:
+0002FAr 2               
+0002FAr 2               
+0002FAr 2               @done:
+0002FAr 2  C8               INY
+0002FBr 2               
+0002FBr 2  98               tya
+0002FCr 2  22 rr rr rr      jsl RA8875_WriteHex
+000300r 2               
+000300r 2               
+000300r 2               SkipControl:
+000300r 2  60               RTS
+000301r 2               
+000301r 1               .include "ra8875/ra8875_api.asm"
+000301r 2               .A16
+000301r 2               .I16
+000301r 2               RA8875_WriteString16_ARG = 8
+000301r 2               RA8875_WriteString16:
+000301r 2  5A               PHY
+000302r 2  DA               PHX
+000303r 2  E2 30            shortr
+000305r 2  A0 00            LDY #$00
+000307r 2  A9 02            LDA #RA8875_MRWC
+000309r 2  20 rr rr         JSR RA8875WriteCommand          ; write to memory write register
+00030Cr 2               RA8875_WriteString16_0:
+00030Cr 2  B3 08            LDA (RA8875_WriteString16_ARG,s),Y
+00030Er 2  F0 06            BEQ RA8875_WriteStringEnd16       ; Is char 0 then end write
+000310r 2               
+000310r 2  20 rr rr         JSR RA8875_SingleChar           ; Handle single character
+000313r 2               
+000313r 2  C8               INY
+000314r 2  D0 F6            BNE RA8875_WriteString16_0
+000316r 2               RA8875_WriteStringEnd16:
+000316r 2  C2 30            longr
+000318r 2  FA               PLX
+000319r 2  7A               PLY
+00031Ar 2  6B               RTL
+00031Br 2               
+00031Br 2               .A8
+00031Br 2               .I8
+00031Br 2               RA8875_WriteChar:
+00031Br 2  DA               PHX
+00031Cr 2  F0 0A            BEQ RA8875_WriteCharEnd         ; Is char 0 then end write
+00031Er 2  48               PHA
+00031Fr 2  A9 02            LDA #RA8875_MRWC
+000321r 2  20 rr rr         JSR RA8875WriteCommand
+000324r 2  68               PLA
+000325r 2  20 rr rr         JSR RA8875_SingleChar           ; handle single character
+000328r 2               RA8875_WriteCharEnd:
+000328r 2  FA               PLX
+000329r 2  6B               RTL
+00032Ar 2               
+00032Ar 2               .A16
+00032Ar 2               .I16
+00032Ar 2               RA8875_WriteChar16:
+00032Ar 2  F0 12            BEQ RA8875_WriteChar16End         ; Is char 0 then end write
+00032Cr 2  48               PHA
+00032Dr 2  E2 30            shortr
+00032Fr 2  A9 02            LDA #RA8875_MRWC
+000331r 2  20 rr rr         JSR RA8875WriteCommand
+000334r 2  C2 30            longr
+000336r 2  68               PLA
+000337r 2  E2 30            shortr
+000339r 2  20 rr rr         JSR RA8875_SingleChar           ; handle single character
+00033Cr 2  C2 30            longr
+00033Er 2               RA8875_WriteChar16End:
+00033Er 2  6B               RTL
+00033Fr 2               
+00033Fr 2               .A8
+00033Fr 2               .I8
+00033Fr 2               RA8875_WriteNumber:
+00033Fr 2  A2 FF            LDX #$FF
+000341r 2  38               SEC                             ; Prepare for subtraction
+000342r 2               RA8875_WriteNumber100:
+000342r 2  E8               INX
+000343r 2  E9 64            SBC #100
+000345r 2  B0 FB            BCS RA8875_WriteNumber100       ; Count how many 100s
+000347r 2  69 64            ADC #100
+000349r 2  20 rr rr         JSR RA8875_WriteDigit           ; Print the 100s
+00034Cr 2  A2 FF            LDX #$FF
+00034Er 2  38               SEC                             ; Prepare for subtraction
+00034Fr 2               RA8875_WriteNumber10:
+00034Fr 2  E8               INX
+000350r 2  E9 0A            SBC #10
+000352r 2  B0 FB            BCS RA8875_WriteNumber10         ; Count how many 10s
+000354r 2  69 0A            ADC #10
+000356r 2  20 rr rr         JSR RA8875_WriteDigit            ; Print the 10s
+000359r 2  AA               TAX                              ; Pass 1s into X
+00035Ar 2               RA8875_WriteDigit:
+00035Ar 2  48               PHA
+00035Br 2  8A               TXA                             ; Save A pass digit to A
+00035Cr 2  09 30            ORA #$30                        ; ASCII 0
+00035Er 2  22 rr rr rr      JSL RA8875_WriteChar            ; Convert to character and print it
+000362r 2  68               PLA
+000363r 2  60               RTS                             ; Restore A and return
+000364r 2               
+000364r 2               .A8
+000364r 2               .I8
+000364r 2               RA8875_WriteHex:
+000364r 2  48               PHA                     ; Save A for LSD.
+000365r 2  4A               LSR
+000366r 2  4A               LSR
+000367r 2  4A               LSR                     ; MSD to LSD position.
+000368r 2  4A               LSR
+000369r 2  22 rr rr rr      JSL RA8875_WriteHex1    ; Output hex digit.
+00036Dr 2  68               PLA                     ; Restore A.
+00036Er 2               RA8875_WriteHex1:
+00036Er 2  DA               PHX
+00036Fr 2  48               PHA
+000370r 2  18               CLC
+000371r 2  29 0F            AND #$0F                ; Mask LSD for hex print.
+000373r 2  09 30            ORA #$30                ; Add "0".
+000375r 2  C9 3A            CMP #$3A                ; Digit?
+000377r 2  90 02            BCC RA8875_WriteHex2    ; Yes, output it.
+000379r 2  69 06            ADC #$06                ; Add offset for letter.
+00037Br 2               RA8875_WriteHex2:
+00037Br 2  22 rr rr rr      JSL RA8875_WriteChar
+00037Fr 2  68               PLA
+000380r 2  FA               PLX
+000381r 2  6B               RTL                    ; Return.
+000382r 2               
+000382r 2               .A16
+000382r 2               .I16
+000382r 2               RA8875_WriteHex16:
+000382r 2  E2 30            shortr
+000384r 2  EB               xba                     ; switch high and low A
+000385r 2  22 rr rr rr      jsl RA8875_WriteHex     ; print first byte
+000389r 2  EB               xba                     ; switch high and low A
+00038Ar 2  22 rr rr rr      jsl RA8875_WriteHex     ; print second byte
+00038Er 2  C2 30            longr
+000390r 2  6B               RTL
+000391r 2               
+000391r 2               
+000391r 2               
+000391r 2               ; CURSOR
+000391r 2               
+000391r 2               
+000391r 2               .A16
+000391r 2               .I16
+000391r 2               ; takes 16 bit value in A and sets as cursor X
+000391r 2               RA8875_SetTextCursorX:
+000391r 2  78               SEI
+000392r 2  48               PHA
+000393r 2  48               PHA
+000394r 2  E2 30        shortr
+000396r 2  A9 2A            LDA #RA8875_F_CURXL
+000398r 2  20 rr rr         JSR RA8875WriteCommand
+00039Br 2  C2 30        longr
+00039Dr 2  68               PLA
+00039Er 2  E2 30        shortr
+0003A0r 2  20 rr rr         JSR RA8875WriteData
+0003A3r 2               
+0003A3r 2  A9 2B            LDA #RA8875_F_CURXH
+0003A5r 2  20 rr rr         JSR RA8875WriteCommand
+0003A8r 2  C2 30        longr
+0003AAr 2  68               PLA
+0003ABr 2  EB               XBA
+0003ACr 2  E2 30        shortr
+0003AEr 2  20 rr rr         JSR RA8875WriteData
+0003B1r 2  C2 30        longr
+0003B3r 2  58               CLI
+0003B4r 2  6B               RTL
+0003B5r 2               
+0003B5r 2               
+0003B5r 2               .A16
+0003B5r 2               .I16
+0003B5r 2               RA8875_SetTextCursorY:
+0003B5r 2  78               SEI
+0003B6r 2  48               PHA
+0003B7r 2  48               PHA
+0003B8r 2  E2 30        shortr
+0003BAr 2  A9 2C            LDA #RA8875_F_CURYL
+0003BCr 2  20 rr rr         JSR RA8875WriteCommand
+0003BFr 2  C2 30        longr
+0003C1r 2  68               PLA
+0003C2r 2  E2 30        shortr
+0003C4r 2  20 rr rr         JSR RA8875WriteData
+0003C7r 2               
+0003C7r 2  A9 2D            LDA #RA8875_F_CURYH
+0003C9r 2  20 rr rr         JSR RA8875WriteCommand
+0003CCr 2  C2 30        longr
+0003CEr 2  68               PLA
+0003CFr 2  EB               XBA
+0003D0r 2  E2 30        shortr
+0003D2r 2  20 rr rr         JSR RA8875WriteData
+0003D5r 2  C2 30        longr
+0003D7r 2  58               CLI
+0003D8r 2  6B               RTL
+0003D9r 2               
+0003D9r 1               
+0003D9r 1               .code
+0003D9r 1               
+0003D9r 1               ResetVector:
+0003D9r 1  A2 FF 00         ldx #$FF
+0003DCr 1  9A               txs
+0003DDr 1  D8               cld
+0003DEr 1               
+0003DEr 1  20 rr rr         JSR InitSPI
+0003E1r 1  20 rr rr         JSR InitRA8875
+0003E4r 1               
+0003E4r 1  18               clc
+0003E5r 1  FB               xce
+0003E6r 1               
+0003E6r 1               loop:
+0003E6r 1  EA               nop
+0003E7r 1  EA               nop
+0003E8r 1  EA               nop
+0003E9r 1  EA               nop
+0003EAr 1  EA               nop
+0003EBr 1  EA               nop
+0003ECr 1  EA               nop
+0003EDr 1  EA               nop
+0003EEr 1  EA               nop
+0003EFr 1  EA               nop
+0003F0r 1  EA               nop
+0003F1r 1  EA               nop
+0003F2r 1  EA               nop
+0003F3r 1  EA               nop
+0003F4r 1  EA               nop
+0003F5r 1  EA               nop
+0003F6r 1  EA               nop
+0003F7r 1  EA               nop
+0003F8r 1  EA               nop
+0003F9r 1  EA               nop
+0003FAr 1  EA               nop
+0003FBr 1  EA               nop
+0003FCr 1  EA               nop
+0003FDr 1  EA               nop
+0003FEr 1  EA               nop
+0003FFr 1  EA               nop
+000400r 1  EA               nop
+000401r 1  EA               nop
+000402r 1  EA               nop
+000403r 1  EA               nop
+000404r 1  EA               nop
+000405r 1  EA               nop
+000406r 1  EA               nop
+000407r 1  EA               nop
+000408r 1  EA               nop
+000409r 1  EA               nop
+00040Ar 1  EA               nop
+00040Br 1  EA               nop
+00040Cr 1  EA               nop
+00040Dr 1  EA               nop
+00040Er 1  EA               nop
+00040Fr 1  EA               nop
+000410r 1  EA               nop
+000411r 1  EA               nop
+000412r 1  EA               nop
+000413r 1  EA               nop
+000414r 1  EA               nop
+000415r 1  EA               nop
+000416r 1  EA               nop
+000417r 1  EA               nop
+000418r 1  EA               nop
+000419r 1  EA               nop
+00041Ar 1  EA               nop
+00041Br 1  EA               nop
+00041Cr 1  EA               nop
+00041Dr 1  EA               nop
+00041Er 1  EA               nop
+00041Fr 1  EA               nop
+000420r 1  EA               nop
+000421r 1  EA               nop
+000422r 1  EA               nop
+000423r 1  EA               nop
+000424r 1  EA               nop
+000425r 1  EA               nop
+000426r 1  EA               nop
+000427r 1  EA               nop
+000428r 1  EA               nop
+000429r 1  EA               nop
+00042Ar 1  EA               nop
+00042Br 1  EA               nop
+00042Cr 1  EA               nop
+00042Dr 1  EA               nop
+00042Er 1  EA               nop
+00042Fr 1  EA               nop
+000430r 1  EA               nop
+000431r 1  EA               nop
+000432r 1  EA               nop
+000433r 1  EA               nop
+000434r 1  EA               nop
+000435r 1  EA               nop
+000436r 1  EA               nop
+000437r 1  EA               nop
+000438r 1  EA               nop
+000439r 1  EA               nop
+00043Ar 1  4C rr rr         jmp loop
+00043Dr 1               
+00043Dr 1               .A8
+00043Dr 1               .I8
+00043Dr 1               LongDelay:
+00043Dr 1  A2 FF            ldx #$FF
+00043Fr 1               LongDelayLoop1:
+00043Fr 1  A0 FF            ldy #$FF
+000441r 1               LongDelayLoop2:
+000441r 1  88               dey
+000442r 1  D0 FD            bne LongDelayLoop2
+000444r 1  CA               dex
+000445r 1  D0 F8            bne LongDelayLoop1
+000447r 1  60               rts
+000448r 1               
+000448r 1               .SEGMENT "RAM"
 000000r 1               
 000000r 1               .code
-000000r 1               
-000000r 1               ResetVector:
-000000r 1  18               clc
-000001r 1               
-000001r 1  AD 00 B0         lda $B000
-000004r 1  AD 01 B0         lda $B001
-000007r 1  AD 02 B0         lda $B002
-00000Ar 1  AD 03 B0         lda $B003
-00000Dr 1  AD 04 B0         lda $B004
-000010r 1               
-000010r 1               
-000010r 1               
-000010r 1               ; prepares spi VIA PORT A for input output
-000010r 1  A9 47            LDA #$47
-000012r 1  8D rr rr         STA VIA1B_DIRECTION
-000015r 1               loop:
-000015r 1  A9 00            LDA #$00
-000017r 1  8D rr rr         STA SPI_VIA
-00001Ar 1  A9 01            LDA #$01
-00001Cr 1  8D rr rr         STA SPI_VIA
-00001Fr 1  4C rr rr         jmp loop
-000022r 1               
-000022r 1               .SEGMENT "RAM"
-000000r 1               
-000000r 1               .code
-000022r 1               
-000022r 1               .SEGMENT "VECTORS"
+000448r 1               
+000448r 1               .SEGMENT "VECTORS"
 000000r 1  rr rr            .word ResetVector
 000000r 1               

@@ -7,7 +7,7 @@
 			"request": "launch",
 			"args": [
 				"--extensionDevelopmentPath=${workspaceFolder}",
-				"${workspaceFolder}/workspaceTester"
+				"${workspaceFolder}/../rom"
 			],
 			"outFiles": [
 				"${workspaceFolder}/dist/**/*.js"

@@ -383,6 +383,9 @@ RA8875_SetForegroundColor:
 
 ; Handle a single char
 RA8875_SingleChar:
+    PHA
+    JSR SerialPutC
+    PLA
     CMP #$20                        ; $20 or greater
     BCS RA8875_WriteStringChar      ; then print character
     CMP #$0A                        ; Compare to 0x0A   line feed

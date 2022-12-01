@@ -1,3 +1,4 @@
+.code
 .A8
 .I8
 InitUSB245R:
@@ -7,11 +8,12 @@ InitUSB245R:
     STA VIA2B_DIRECTION
     LDA #$01
     STA VIA2B
-
+    RTS
+    
+.A8
+.I8
 SerialPutC:
     STA VIA2A
-    LDX #$00
-    STX VIA2B
-    LDX #$01
-    STX VIA2B
-    RTL
+    DEC VIA2B
+    INC VIA2B
+    RTS

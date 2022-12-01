@@ -35,7 +35,7 @@ export class VIA6522 implements AddressBus, PHI2Listener {
     this.registers.forEach((register) => {
       this.registerMap.set(register.name, register);
     });
-    this.system.phi2Listener = this;
+    this.system.phi2Listener.push(this);
     if (this.portAHandshake) {
       this.portAHandshake.highToLowCallback = () => {
         if (
