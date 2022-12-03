@@ -67,7 +67,6 @@ ResetVector:            ; Entry point for boot
     shortr
     pla ; clean up
 
-
     LDA #3
     jsr SerialPutC
     ; lda #$00            ; push program bank of LoaderExec

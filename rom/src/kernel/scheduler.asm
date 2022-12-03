@@ -217,7 +217,7 @@ InitScheduler:
 
 
 ; should be approx 256 times per second
-    lda #9896
+    lda #$FFFF
     sta VIA1_T1CL
 
     shortr
@@ -228,6 +228,8 @@ InitScheduler:
                         ; just reload from the latches and keep going.
     LDA  #%11000000
     STA  VIA1_IER       ; Enable the T1 interrupt in the VIA.
+
+
 
     longr
     rts

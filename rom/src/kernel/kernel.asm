@@ -1,6 +1,6 @@
 
-.include "tasks.asm"
 .include "interrupt.asm"
+.include "tasks.asm"
 .include "streams.asm"
 .include "syscalls.asm"
 

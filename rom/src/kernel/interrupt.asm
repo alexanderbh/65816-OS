@@ -3,6 +3,10 @@
 .I16
 InterruptVector:
     shortr
+    
+    lda #'L'
+    jsl RA8875_WriteChar
+
     LDA #'I'
     jsr SerialPutC
 
