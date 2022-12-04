@@ -34,7 +34,14 @@ ResetVector:
 
     cli
 
+    
+    lda #3
+    jsr PutC
+
 @loop:
+
+    lda #4
+    jsr PutC
     jmp @loop
 
 
@@ -66,6 +73,13 @@ InterruptVector:
 
 .SEGMENT "RAM"
 
+.SEGMENT "NATIVE_VECTORS"
+    .word $0000                 ; COP
+    .word $0000                 ; BRK
+    .word $0000                 ; ABORTB
+    .word $0000                 ; NMIB
+    .word $0000                 ; RES
+    .word InterruptVector       ; IRQB
 .SEGMENT "VECTORS"
-    .word ResetVector
-    .word InterruptVector
+    .word ResetVector           ; RESET
+    .word InterruptVector       ; IRQB

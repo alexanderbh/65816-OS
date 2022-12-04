@@ -1,7 +1,8 @@
 Modules list:
 -------------
 main.o:
-    CODE              Offs=000000  Size=00004F  Align=00001  Fill=0000
+    CODE              Offs=000000  Size=000059  Align=00001  Fill=0000
+    NATIVE_VECTORS    Offs=000000  Size=00000C  Align=00001  Fill=0000
     VECTORS           Offs=000000  Size=000004  Align=00001  Fill=0000
 
 
@@ -9,7 +10,8 @@ Segment list:
 -------------
 Name                   Start     End    Size  Align
 ----------------------------------------------------
-CODE                  00C000  00C04E  00004F  00001
+CODE                  00C000  00C058  000059  00001
+NATIVE_VECTORS        00FFE4  00FFEF  00000C  00001
 VECTORS               00FFFC  00FFFF  000004  00001
 
 
@@ -28,7 +30,7 @@ __VIA1_START__            00B000 RLA    __VIA2_START__            00B200 RLA
 Imports list:
 -------------
 __VIA1_START__ ([linker generated]):
-    main.o                    src/via.inc(2)
+    main.o                    src/via.inc:2
 __VIA2_START__ ([linker generated]):
-    main.o                    src/via.inc(3)
+    main.o                    src/via.inc:3
 
