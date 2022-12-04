@@ -1,0 +1,62 @@
+ca65 V2.18 - Ubuntu 2.19-1
+Main file   : src/main.asm
+Current file: src/main.asm
+
+000000r 1               .setcpu "65816"
+000000r 1               .P816
+000000r 1               
+000000r 1               .include "via.inc"
+000000r 2               
+000000r 2                   .import __VIA1_START__
+000000r 2                   .import __VIA2_START__
+000000r 2               
+000000r 2                   VIA1B = __VIA1_START__                            ; VIA PORT B input/output register
+000000r 2                   VIA1A = __VIA1_START__ + 1                        ; VIA PORT A input/output register
+000000r 2                   VIA1B_DIRECTION = __VIA1_START__ + 2              ; VIA PORT B direction register is $6002
+000000r 2                   VIA1A_DIRECTION = __VIA1_START__ + 3              ; VIA PORT A direction register is $6003
+000000r 2                   VIA1_T1CL = __VIA1_START__ + 4                    ; Timer 1 Low order latches
+000000r 2                   VIA1_T1CH = __VIA1_START__ + 5                    ; Timer 1 High order counter
+000000r 2                   VIA1_ACR = __VIA1_START__ + 11                    ; Auxillary Control Register
+000000r 2                   VIA1_PCR = __VIA1_START__ + 12                    ; Peripheral Control Register
+000000r 2                   VIA1_IFR = __VIA1_START__ + 13                    ; Interupt Flag Register
+000000r 2                   VIA1_IER = __VIA1_START__ + 14                    ; Interupt Enable Register
+000000r 2               
+000000r 2                   VIA2B = __VIA2_START__                            ; VIA2 PORT B input/output register
+000000r 2                   VIA2A = __VIA2_START__ + 1                        ; VIA2 PORT A input/output register
+000000r 2                   VIA2B_DIRECTION = __VIA2_START__ + 2              ; VIA2 PORT B direction register is $5002
+000000r 2                   VIA2A_DIRECTION = __VIA2_START__ + 3              ; VIA2 PORT A direction register is $5003
+000000r 2               
+000000r 1               
+000000r 1               
+000000r 1               SPI_VIA = VIA1B
+000000r 1               
+000000r 1               .code
+000000r 1               
+000000r 1               ResetVector:
+000000r 1  18               clc
+000001r 1               
+000001r 1  AD 00 B0         lda $B000
+000004r 1  AD 01 B0         lda $B001
+000007r 1  AD 02 B0         lda $B002
+00000Ar 1  AD 03 B0         lda $B003
+00000Dr 1  AD 04 B0         lda $B004
+000010r 1               
+000010r 1               
+000010r 1               
+000010r 1               ; prepares spi VIA PORT A for input output
+000010r 1  A9 47            LDA #$47
+000012r 1  8D rr rr         STA VIA1B_DIRECTION
+000015r 1               loop:
+000015r 1  A9 00            LDA #$00
+000017r 1  8D rr rr         STA SPI_VIA
+00001Ar 1  A9 01            LDA #$01
+00001Cr 1  8D rr rr         STA SPI_VIA
+00001Fr 1  4C rr rr         jmp loop
+000022r 1               
+000022r 1               .SEGMENT "RAM"
+000000r 1               
+000000r 1               .code
+000022r 1               
+000022r 1               .SEGMENT "VECTORS"
+000000r 1  rr rr            .word ResetVector
+000000r 1               
