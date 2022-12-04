@@ -13,6 +13,8 @@ export const RAM_START = 0;
 export const RAM_END = 0xafff;
 export const VIA1_START = 0xb000;
 export const VIA1_END = 0xb0ff;
+export const VIA2_START = 0xb200;
+export const VIA2_END = 0xb2ff;
 
 type MemoryDevice = {
   start: Address;
@@ -37,12 +39,13 @@ export class System extends EventEmitter implements AddressBus {
   private rom?: ROM;
   public cpu: CPU;
   public via1: VIA6522;
+  public via2: VIA6522;
   private memoryDevices: MemoryDevice[];
   private memMap: Map<Address, MemoryDevice> = new Map();
   public breakpoints: Set<Address> = new Set();
   private interval?: NodeJS.Timeout;
   public pcToInstructionMap: Map<Address, { size: number }> = new Map();
-  public phi2Listener: PHI2Listener | undefined = undefined;
+  public phi2Listener: PHI2Listener[] = [];
 
   public constructor(ra8875: RA8875, keyboard: Keyboard) {
     super();
@@ -50,6 +53,7 @@ export class System extends EventEmitter implements AddressBus {
     this.ram = new RAM();
     this.cpu = new CPU(this);
     this.via1 = new VIA6522(this, VIA1_START, new Map([[4, ra8875]]), keyboard);
+    this.via2 = new VIA6522(this, VIA2_START, new Map());
     this.memoryDevices = [];
     this.memoryDevices.push({
       start: RAM_START,
@@ -69,6 +73,12 @@ export class System extends EventEmitter implements AddressBus {
       device: this.via1,
       start: VIA1_START,
       end: VIA1_END,
+      type: "via",
+    });
+    this.memoryDevices.push({
+      device: this.via2,
+      start: VIA2_START,
+      end: VIA2_END,
       type: "via",
     });
     this.prepareMemoryMap();
@@ -182,7 +192,7 @@ export class System extends EventEmitter implements AddressBus {
   }
 
   public phi2(count: number) {
-    this.phi2Listener && this.phi2Listener.phi2(count);
+    this.phi2Listener && this.phi2Listener.forEach((l) => l.phi2(count));
   }
 
   public read(addr: Address): Byte {

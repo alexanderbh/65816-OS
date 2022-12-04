@@ -30,7 +30,7 @@ __VIA1_START__            00B000 RLA    __VIA2_START__            00B100 RLA
 Imports list:
 -------------
 __VIA1_START__ ([linker generated]):
-    main.o                    src/via.inc(2)
+    main.o                    src/via.inc:2
 __VIA2_START__ ([linker generated]):
-    main.o                    src/via.inc(3)
+    main.o                    src/via.inc:3
 
