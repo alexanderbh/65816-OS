@@ -59,6 +59,9 @@ PutC:
 InterruptVector:
     lda #'I'
     jsr PutC
+
+    lda VIA1_T1CL
+
     rti
 
 .SEGMENT "RAM"
