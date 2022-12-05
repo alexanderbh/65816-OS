@@ -1,12 +1,12 @@
 Modules list:
 -------------
 main.o:
-    CODE              Offs=000000  Size=000E15  Align=00001  Fill=0000
+    CODE              Offs=000000  Size=000DC7  Align=00001  Fill=0000
     RODATA            Offs=000000  Size=000488  Align=00001  Fill=0000
     KERNEL            Offs=000000  Size=00017C  Align=00001  Fill=0000
     RAM               Offs=000000  Size=000004  Align=00001  Fill=0000
     STDLIB            Offs=000000  Size=00018D  Align=00001  Fill=0000
-    NATIVE_VECTORS    Offs=000000  Size=00000A  Align=00001  Fill=0000
+    NATIVE_VECTORS    Offs=000000  Size=00000C  Align=00001  Fill=0000
     VECTORS           Offs=000000  Size=000004  Align=00001  Fill=0000
 
 
@@ -16,10 +16,10 @@ Name                   Start     End    Size  Align
 ----------------------------------------------------
 KERNEL                000200  00037B  00017C  00001
 RAM                   000800  000803  000004  00001
-CODE                  00C000  00CE14  000E15  00001
+CODE                  00C000  00CDC6  000DC7  00001
 STDLIB                00E000  00E18C  00018D  00001
 RODATA                00F000  00F487  000488  00001
-NATIVE_VECTORS        00FFE4  00FFED  00000A  00001
+NATIVE_VECTORS        00FFE4  00FFEF  00000C  00001
 VECTORS               00FFFC  00FFFF  000004  00001
 
 

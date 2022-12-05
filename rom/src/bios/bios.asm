@@ -22,7 +22,6 @@ InitBIOS:
     clc
     xce
 
-    longr
     ;pea test_bios
     ;jsl RA8875_WriteString16
     ;pla
@@ -48,18 +47,10 @@ InitBIOS:
     ;LDA #%11111111
     ;jsr RA8875_SetForegroundColor
     ;longr
-    shortr
-    LDA #9
-    jsr SerialPutC
-    longr
 
 ;; why is this not working????
     ; JSL RamTestRun
 
-    shortr
-    LDA #8
-    jsr SerialPutC
-    longr
 
     
     ; jsr RamTestWideRegistersRun

@@ -2,14 +2,6 @@
 .A16
 .I16
 InterruptVector:
-    shortr
-    
-    lda #'L'
-    jsl RA8875_WriteChar
-
-    LDA #'I'
-    jsr SerialPutC
-
     phb                   ;save DB - data bank
     phd                   ;save DP - direct page
     longr                 ;select 16 bit registers
@@ -44,19 +36,23 @@ InterruptTimer1:
 @lowcnt:
     inc SchedulerCount
     lda SchedulerCount
-    cmp #$06
+    cmp #$05
     bne @noschedule
     stz SchedulerCount
     inc TaskSwitches
     BNE @lowcntSwitch    ; Branch to end if the low byte didn't roll over to 00.
     inc TaskSwitches+1
 @lowcntSwitch:
+    LDA #'T'
+    jsr SerialPutC
     jsl Scheduler_NextTask
 @noschedule:
 
     jmp crti
 
 InterruptKB:
+    LDA #'K'
+    jsr SerialPutC
     jsr InterruptKeyboard
 
 crti:

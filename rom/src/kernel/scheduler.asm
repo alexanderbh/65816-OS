@@ -217,7 +217,7 @@ InitScheduler:
 
 
 ; should be approx 256 times per second
-    lda #$FFFF
+    lda #$9896
     sta VIA1_T1CL
 
     shortr
