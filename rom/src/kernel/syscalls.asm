@@ -27,8 +27,9 @@ Sys_WaitForTask:
         pla
         sta TaskWaitFor,x                   ; save the id of the task for wait for
         ldx ActiveTask
-    @loop:
+        
         shortr
+    @loop:
         lda TaskStatus,x                    ; check if the task is still waiting
         cmp #TASK_STATUS_WAITING_TASK
         beq @loop
