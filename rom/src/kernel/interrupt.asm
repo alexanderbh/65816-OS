@@ -11,6 +11,8 @@ InterruptVector:
 
     shortr
 
+    LDA #'B'
+    jsr SerialPutC
 
     lda VIA1_IFR
     and VIA1_IER            ; zero those that were not allowed to pull IRQ down.
@@ -45,7 +47,7 @@ InterruptTimer1:
 @lowcntSwitch:
     LDA #'T'
     jsr SerialPutC
-    jsl Scheduler_NextTask
+    jsr Scheduler_NextTask
 @noschedule:
 
     jmp crti
@@ -56,6 +58,9 @@ InterruptKB:
     jsr InterruptKeyboard
 
 crti:
+
+    LDA #'E'
+    jsr SerialPutC
     longr
     ply                   ;restore .Y
     plx                   ;restore .X

@@ -50,7 +50,6 @@ InitStreams:
 .I8  
 StreamPutC:
     pha
-    sei
     ldy StreamLookupTail,x      ; fetch current tail
     phy                         ; stack: [tail]
 
@@ -98,7 +97,6 @@ StreamPutC:
 @tailnothead:
     plx ; clear tail from stack. not used pt
 @done:
-    cli
     pla
     rtl
 
@@ -112,7 +110,6 @@ StreamPutC:
 .A8
 .I8
 StreamGetC:
-    sei
     lda StreamLookupTail,x
     cmp StreamLookupHead,x
     bne @readc                  ; tail !== head
@@ -142,5 +139,4 @@ StreamGetC:
     lda StreamData,x
 
 @done:
-    cli
     rtl

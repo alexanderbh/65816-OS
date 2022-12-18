@@ -48,14 +48,14 @@ ResetVector:            ; Entry point for boot
 
 
 
-    ;lda #$00            ; push program bank of ClockExec
-    ;pha
-    ;longr
-    ;pea ClockExec       ; push 2byte addr of ClockExec
-    ;jsl TaskSpawn
-    ;pla
-    ;shortr
-    ;pla ; clean up
+    lda #$00            ; push program bank of ClockExec
+    pha
+    longr
+    pea ClockExec       ; push 2byte addr of ClockExec
+    jsl TaskSpawn
+    pla
+    shortr
+    pla ; clean up
 
 
 

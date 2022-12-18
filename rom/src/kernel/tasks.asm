@@ -188,7 +188,6 @@ TaskFindUnusedTask:
 .A16
 .I16
 TaskExit:
-        sei
     shortr
         ldx ActiveTask
         sta TaskExitCode,x              ; store the exit code
@@ -205,7 +204,6 @@ TaskExit:
         sta TaskStatus,x                ; mark the task as exited
         
         jsl TaskReleaseWaitingOnTask
-        cli
     @loop:                          ; go into infinite loop
         jmp @loop                   ; the next task
 
