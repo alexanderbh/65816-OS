@@ -1,0 +1,31 @@
+###############################################################################
+#                                                                             #
+# Calypsi ISO C compiler for 65816                             version 3.6.10 #
+#                                                       17/Dec/2022  20:40:45 #
+# Command line: --debug prog.c -l                                             #
+#                                                                             #
+###############################################################################
+
+    \ 000000                      .rtmodel version,"1"
+    \ 000000                      .rtmodel codeModel,"large"
+    \ 000000                      .rtmodel dataModel,"small"
+    \ 000000                      .rtmodel core,"65816"
+    \ 000000                      .rtmodel huge,"0"
+    \ 000000                      .extern _Dp
+    \ 000000                      .extern _Vfp
+0001                  int main () {
+    \ 000000                      .section farcode,text
+    \ 000000                      .public main
+    \ 000000          main:
+0002                    return 0;
+    \ 000000 a90000               lda     ##0
+0003                  }
+    \ 000003 6b                   rtl
+
+##########################
+#                        #
+# Memory sizes (decimal) #
+#                        #
+##########################
+
+Executable  (Text): 4 bytes
