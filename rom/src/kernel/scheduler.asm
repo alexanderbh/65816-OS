@@ -21,7 +21,7 @@
 
 
 ; B000-C000 : I/O
-InterruptStackY = 3+1
+InterruptStackY = 2+1
 InterruptStackX = InterruptStackY+2
 InterruptStackA = InterruptStackX+2
 InterruptDP = InterruptStackA+2
@@ -48,9 +48,15 @@ NextTaskId: .res 2
 .A8
 .I8
 Scheduler_NextTask:
-    sei
 
     ldx ActiveTask
+    
+    ; DEBUG
+    txa
+    clc
+    adc #$30
+    JSR SerialPutC
+    ; END DEBUG
 
     lda TaskStatus,x
     cmp #TASK_STATUS_RUNNING
@@ -67,6 +73,7 @@ Scheduler_NextTask:
     sta TaskProgramBank,x                   ; save Program Bank
 
     lda InterruptStatusRegister,s
+    and #%11111011                          ; make sure interrupt disable is not set
     sta TaskStatusRegister,x
 
     txa
@@ -124,6 +131,15 @@ Scheduler_NextTask:
 
     stx ActiveTask
 
+    ; DEBUG
+    lda #'N'
+    JSR SerialPutC
+    txa
+    clc
+    adc #$30
+    JSR SerialPutC
+    ; END DEBUG
+
     lda #TASK_STATUS_RUNNING               ; if running then set to runnable
     sta TaskStatus,x
 
@@ -160,6 +176,7 @@ Scheduler_NextTask:
     sta InterruptDB,s
 
     lda TaskStatusRegister,x
+    and #%11111011
     sta InterruptStatusRegister,s
 
     txa
@@ -200,9 +217,7 @@ Scheduler_NextTask:
 
 @return:
     
-
-    cli
-    rtl
+    rts
 
 
 .A16
@@ -217,7 +232,8 @@ InitScheduler:
 
 
 ; should be approx 256 times per second
-    lda #$9896
+    ;lda #$9896
+    lda #$FFFF
     sta VIA1_T1CL
 
     shortr

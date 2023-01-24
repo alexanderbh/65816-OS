@@ -16,5 +16,10 @@ ClockExec:
     inc ClockCounter+1
     @lowonly:
 
-
+    ;lda ClockCounter
+    ;cmp #$00
+    ;bne @loop
+    
+    ;lda ClockCounter+1
+    ;jsr RA8875_WriteHex
     jmp @loop

@@ -192,20 +192,18 @@ TaskExit:
         ldx ActiveTask
         sta TaskExitCode,x              ; store the exit code
     longa
+        txa
+        asl
+        tax
         lda #$0000
         sta TaskWaitFor,x               ; clear the wait for task id
 
     shortr
-        
+        ldx ActiveTask
         lda #TASK_STATUS_EXITED
         sta TaskStatus,x                ; mark the task as exited
-
-        txa
-        asl
-        tax                             ; double x
         
         jsl TaskReleaseWaitingOnTask
-
     @loop:                          ; go into infinite loop
         jmp @loop                   ; the next task
 
