@@ -7,6 +7,6 @@ Data_echo_tmp:                    .asciiz "ECHOECHO"
 .I8
 ExecEcho:
     longr
-        write Data_echo_tmp
-    
-        jml Sys_Exit
+    write Data_echo_tmp
+
+    jml Sys_Exit

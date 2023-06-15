@@ -1,4 +1,15 @@
+.SEGMENT "KERNEL"
+KERNEL_INTERRUPT_TIMER_COUNTER: .res 2
+
 .code
+
+.A16
+.I16
+InitInterrupt:
+
+    stz KERNEL_INTERRUPT_TIMER_COUNTER        ; set interrupt timer counter to 0
+    rts
+
 .A16
 .I16
 InterruptVector:
@@ -32,21 +43,16 @@ InterruptVector:
 
 InterruptTimer1:
     bit VIA1_T1CL
-    inc TimerCounter
+    inc KERNEL_INTERRUPT_TIMER_COUNTER
     BNE @lowcnt    ; Branch to end if the low byte didn't roll over to 00.
-    inc TimerCounter+1
+    inc KERNEL_INTERRUPT_TIMER_COUNTER+1
 @lowcnt:
     inc SchedulerCount
     lda SchedulerCount
     cmp #$05
     bne @noschedule
     stz SchedulerCount
-    inc TaskSwitches
-    BNE @lowcntSwitch    ; Branch to end if the low byte didn't roll over to 00.
-    inc TaskSwitches+1
-@lowcntSwitch:
-    LDA #'T'
-    jsr SerialPutC
+
     jsr Scheduler_NextTask
 @noschedule:
 

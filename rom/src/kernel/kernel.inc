@@ -17,10 +17,11 @@
 
 .RODATA
 
-data_loading_bracket:       .asciiz "[ -- ] "
-data_ok_bracket:            .asciiz "\r[ OK ] "
-data_fail_bracket:          .asciiz "\r[FAIL] "
-init_kernel_streams_done:   .asciiz "KERNEL: Streams\n"
-init_kernel_tasks_done:     .asciiz "KERNEL: Tasks\n"
-init_kernel_scheduler_done: .asciiz "KERNEL: Scheduler\n"
+data_loading_bracket:           .asciiz "[ -- ] "
+data_ok_bracket:                .asciiz "\r[ OK ] "
+data_fail_bracket:              .asciiz "\r[FAIL] "
+init_kernel_streams_done:       .asciiz "KERNEL: Streams\n"
+init_kernel_tasks_done:         .asciiz "KERNEL: Tasks\n"
+init_kernel_interrupt_done:     .asciiz "KERNEL: Interrupts\n"
+init_kernel_scheduler_done:     .asciiz "KERNEL: Scheduler\n"
 .code

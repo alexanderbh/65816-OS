@@ -8,3 +8,4 @@
 .include "dumpregs.asm"
 .include "ps.asm"
 .include "echo.asm"
+.include "perf.asm"

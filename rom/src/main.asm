@@ -5,9 +5,6 @@
 
 .RODATA
 
-test_string: .asciiz "\n---\n"
-testlen_string: .asciiz "1357abcdefgh78"
-
 .code
 .include "kernel/kernel.inc"
 .include "macros/macros.inc"

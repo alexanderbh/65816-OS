@@ -69,22 +69,6 @@ keyboardHandleAscii:
 
 
 ; DEBUG SINGLE KEY COMMANDS. TODO REMOVE THIS
-    cmp #$69
-    bne @next1
-    lda TaskSwitches+1
-    jsl RA8875_WriteHex
-    lda TaskSwitches
-    jsl RA8875_WriteHex
-@next1:
-    cmp #$6A
-    bne @next2
-    lda TimerCounter+1
-    jsl RA8875_WriteHex
-    lda TimerCounter
-    jsl RA8875_WriteHex
-
-    
-@next2:
     cmp #$6B
     bne @return
     lda ClockCounter+1

@@ -8,6 +8,11 @@
 .I16
 InitKernel:
     write data_loading_bracket
+    jsr InitInterrupt
+    write data_ok_bracket
+    write init_kernel_interrupt_done
+
+    write data_loading_bracket
     jsr InitTasks
     write data_ok_bracket
     write init_kernel_tasks_done
@@ -16,7 +21,6 @@ InitKernel:
     jsr InitScheduler
     write data_ok_bracket
     write init_kernel_scheduler_done
-
 
     write data_loading_bracket
     jsr InitStreams

@@ -34,8 +34,7 @@ InterruptPB = InterruptPC+2
 
 SchedulerCount: .res 1
 
-TimerCounter: .res 2
-TaskSwitches: .res 2
+KERNEL_SCHEDULER_TASK_SWITCHES: .res 2
 
 TempStackReturnBank: .res 1
 TempStackReturnPC: .res 2
@@ -48,6 +47,16 @@ NextTaskId: .res 2
 .A8
 .I8
 Scheduler_NextTask:
+    inc KERNEL_SCHEDULER_TASK_SWITCHES
+    BNE @lowcntSwitch    ; Branch to end if the low byte didn't roll over to 00.
+    inc KERNEL_SCHEDULER_TASK_SWITCHES+1
+@lowcntSwitch:
+
+; DEBUG PRINT SERIAL
+    LDA #'T'
+    jsr SerialPutC 
+; END: DEBUG PRINT SERIAL  
+
 
     ldx ActiveTask
     
@@ -224,8 +233,7 @@ Scheduler_NextTask:
 .I16
 InitScheduler:
     
-    stz TimerCounter        ; set interrupt timer counter to 0
-    stz TaskSwitches        ; set task switch count to 0
+    stz KERNEL_SCHEDULER_TASK_SWITCHES        ; set task switch count to 0
 
     lda #$0100
     sta NextTaskId

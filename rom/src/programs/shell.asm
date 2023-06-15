@@ -129,13 +129,16 @@ STR_SHELL_COMMAND_NOT_FOUND:  .asciiz "Unknown command: "
 CMD_NAME_PS:                  .asciiz "ps"
 CMD_NAME_ECHO:                .asciiz "echo"
 CMD_NAME_COUNTER:             .asciiz "counter"
+CMD_NAME_PERF:                .asciiz "perf"
 
 CMD_SIZE = CMD_EXEC_MAP-CMD_MAP
 CMD_MAP:
         .word CMD_NAME_PS
         .word CMD_NAME_ECHO
         .word CMD_NAME_COUNTER
+        .word CMD_NAME_PERF
 CMD_EXEC_MAP:
         .word ExecPs
         .word ExecEcho
         .word TaskPrinterExec
+        .word ExecPerf
