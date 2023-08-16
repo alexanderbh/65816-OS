@@ -14,7 +14,6 @@ import {
   ProviderResult,
   CancellationToken,
 } from "vscode";
-import { FileAccessor } from "./debugAdapter";
 import { Keyboard } from "./lib/Keyboard";
 import { MockDebugSession } from "./mockDebug";
 
@@ -332,6 +331,11 @@ function pathToUri(path: string) {
   } catch (e) {
     return vscode.Uri.parse(path);
   }
+}
+
+export interface FileAccessor {
+  readFile(path: string): Promise<Uint8Array>;
+  writeFile(path: string, contents: Uint8Array): Promise<void>;
 }
 
 class InlineDebugAdapterFactory

@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 import {
   Logger,
   logger,
-  LoggingDebugSession,
+  DebugSession,
   InitializedEvent,
   InvalidatedEvent,
   Thread,
@@ -16,11 +16,7 @@ import {
   StackFrame,
 } from "@vscode/debugadapter";
 import { DebugProtocol } from "@vscode/debugprotocol";
-import {
-  FileAccessor,
-  IRuntimeBreakpoint,
-  RuntimeVariable,
-} from "./mockRuntime";
+import { IRuntimeBreakpoint, RuntimeVariable } from "./mockRuntime";
 import { System } from "./lib/System";
 import { Subject } from "await-notify";
 import * as base64 from "base64-js";
@@ -30,6 +26,7 @@ import { addr } from "./lib/Utils";
 import { Register } from "./lib/Register";
 import { RA8875 } from "./lib/RA8875";
 import { Keyboard } from "./lib/Keyboard";
+import { FileAccessor } from "./activateMockDebug";
 
 /**
  * This interface describes the mock-debug specific launch attributes
@@ -50,7 +47,7 @@ interface ILaunchRequestArguments extends DebugProtocol.LaunchRequestArguments {
   workspacePath: string;
 }
 
-export class MockDebugSession extends LoggingDebugSession {
+export class MockDebugSession extends DebugSession {
   // we don't support multiple threads, so we can use a hardcoded ID for the default thread
   private static threadID = 1;
 
@@ -96,7 +93,7 @@ export class MockDebugSession extends LoggingDebugSession {
     private panel: vscode.WebviewPanel,
     private keyboard: Keyboard
   ) {
-    super("mock-debug.txt");
+    super();
 
     // this debugger uses zero-based lines and columns
     this.setDebuggerLinesStartAt1(false);
