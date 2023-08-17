@@ -32,7 +32,6 @@ InterruptPB = InterruptPC+2
 
 .SEGMENT "KERNEL"
 
-SchedulerCount: .res 1
 
 KERNEL_SCHEDULER_TASK_SWITCHES: .res 2
 

@@ -42,19 +42,12 @@ InterruptVector:
     jmp crti
 
 InterruptTimer1:
-    bit VIA1_T1CL
     inc KERNEL_INTERRUPT_TIMER_COUNTER
     BNE @lowcnt    ; Branch to end if the low byte didn't roll over to 00.
     inc KERNEL_INTERRUPT_TIMER_COUNTER+1
 @lowcnt:
-    inc SchedulerCount
-    lda SchedulerCount
-    cmp #$05
-    bne @noschedule
-    stz SchedulerCount
-
+    
     jsr Scheduler_NextTask
-@noschedule:
 
     jmp crti
 
@@ -64,6 +57,8 @@ InterruptKB:
     jsr InterruptKeyboard
 
 crti:
+
+    bit VIA1_T1CL
 
     LDA #'E'
     jsr SerialPutC
