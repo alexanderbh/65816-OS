@@ -1,3 +1,7 @@
 int main () {
-  return 4+5;
+    if (1 < 2) {
+        return 1;
+    } else {
+        return 2;
+    }
 }
