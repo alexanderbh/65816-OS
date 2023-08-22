@@ -1,17 +1,13 @@
 
-.SEGMENT "RAM"
-
-ClockCounter: .res 2
-
 .code
 ClockExec:
     shortr
-    lda #$0
-    sta $0
+    lda #$00
+    sta $00
 @loop:
-    inc ClockCounter
+    inc $00
     BNE @lowonly    ; Branch to end if the low byte didn't roll over to 00.
-    inc ClockCounter+1
+    inc $01
     @lowonly:
 
     ;lda ClockCounter

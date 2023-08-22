@@ -69,12 +69,12 @@ keyboardHandleAscii:
 
 
 ; DEBUG SINGLE KEY COMMANDS. TODO REMOVE THIS
-    cmp #$6B
-    bne @return
-    lda ClockCounter+1
-    jsl RA8875_WriteHex
-    lda ClockCounter
-    jsl RA8875_WriteHex
+;    cmp #$6B
+;    bne @return
+;    lda ClockCounter+1
+;    jsl RA8875_WriteHex
+;    lda ClockCounter
+;    jsl RA8875_WriteHex
 ; END DEBUG
 
 @return:
