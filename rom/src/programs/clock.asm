@@ -4,8 +4,6 @@
 ClockCounter: .res 2
 
 .code
-.A16
-.I16
 ClockExec:
     shortr
     lda #$0

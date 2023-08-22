@@ -22,19 +22,8 @@ ShellExec:
         ldx #STREAM_STDIN                ; TODO: Get stream from Task Context (not hardcoded stdin)
         jsl StreamGetC
         bne @handle                       ; Noting in stream (carry set)
-        
-        ; DEBUG
-        php
-        pla
-        and #%00000100
-        cmp #%00000100
-        bne @loop
-
-        lda #'I'
-        jsl RA8875_WriteChar
-        ; DEBUG END
-
         jmp @loop
+
     @handle:
         pha
         jsl RA8875_WriteChar            ; Write to RA8875       - todo: write to stream (from task context) - stdout
