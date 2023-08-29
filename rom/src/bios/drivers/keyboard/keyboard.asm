@@ -15,11 +15,12 @@ KB_CONTROL_SHIFTED_INV  = %01111111
     ; bit 7         - shifted
     kb_control_byte:                    .res 1
 
+.A8
+.I8
 .code
 
 InterruptKeyboard:
 
-    shortr
     lda VIA1A                               ; read byte from VIA
     sta kb_byte
 

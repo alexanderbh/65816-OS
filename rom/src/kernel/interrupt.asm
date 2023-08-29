@@ -47,6 +47,8 @@ InterruptTimer1:
     inc KERNEL_INTERRUPT_TIMER_COUNTER+1
 @lowcnt:
     
+    LDA #'S'
+    jsr SerialPutC
     jsr Scheduler_NextTask
 
     jmp crti
@@ -54,10 +56,11 @@ InterruptTimer1:
 InterruptKB:
     LDA #'K'
     jsr SerialPutC
+    
     jsr InterruptKeyboard
 
 crti:
-
+    bit VIA1A
     bit VIA1_T1CL
 
     LDA #'E'
