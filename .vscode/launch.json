@@ -1,0 +1,16 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug 65816 Extension",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}/vscode65816",
+        "${workspaceFolder}/os"
+      ],
+      "outFiles": ["${workspaceFolder}/vscode65816/dist/**/*.js"],
+      "preLaunchTask": "npm: watch"
+    }
+  ]
+}

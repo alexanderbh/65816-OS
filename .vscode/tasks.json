@@ -1,0 +1,38 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "npm",
+      "script": "build",
+      "isBackground": false,
+      "group": {
+        "isDefault": true,
+        "kind": "build"
+      },
+      "options": {
+        "cwd": "${workspaceFolder}/vscode65816/"
+      },
+      "label": "npm: build"
+    },
+    {
+      "type": "npm",
+      "script": "watch",
+      "group": "build",
+      "options": {
+        "cwd": "${workspaceFolder}/vscode65816/"
+      },
+      "isBackground": true,
+      "label": "npm: watch"
+    },
+    {
+      "type": "npm",
+      "script": "watch-web",
+      "group": "build",
+      "options": {
+        "cwd": "${workspaceFolder}/vscode65816/"
+      },
+      "isBackground": true,
+      "label": "npm: watch web"
+    }
+  ]
+}
