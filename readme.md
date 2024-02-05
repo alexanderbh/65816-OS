@@ -66,11 +66,11 @@ Features of the debugger:
 
 ### Screenshots
 
+Breakpoint inspecting the internals of the computer:
 ![Debugger](docs/debugger.png)
-Breakpoint inspecting the internals of the computer.
 
+The RA8875 display in a webview:
 ![RA8875 display](docs/ra8875.png)
-The RA8875 display in a webview.
 
 ## Hardware
 
