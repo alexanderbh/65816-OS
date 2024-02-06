@@ -1,4 +1,4 @@
-# 65816 OS with vscode debugger
+# 65816 OS with vscode debugger + emulator
 
 This is a work-in-progress 65816 OS with a vscode emulator+debugger.
 The OS is written in 65816 assembly, the debugger is a vscode extension, and the emulator is written in TypeScript.
